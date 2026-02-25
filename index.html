@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FraudShield SMB — AI Fraud Detection Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body, #root { height: 100%; }
+    body {
+      background: #0A0E14;
+      color: #E2EAF4;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #0A0E14; }
+    ::-webkit-scrollbar-thumb { background: #1E2D3D; border-radius: 2px; }
+    .mono { font-family: 'Space Mono', monospace; }
+    button { cursor: pointer; border: none; background: none; color: inherit; font-family: inherit; }
+    input, select, textarea { font-family: 'DM Sans', sans-serif; outline: none; }
+    input::placeholder { color: #3D5066; }
+
+    @keyframes pulse-teal { 0%,100%{opacity:1} 50%{opacity:.4} }
+    @keyframes slide-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes glow-pulse { 0%,100%{box-shadow:0 0 8px #00C2A844} 50%{box-shadow:0 0 20px #00C2A888} }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+    @keyframes ticker-in { from{opacity:0;transform:translateX(-12px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes modal-in { from{opacity:0;transform:scale(.96)} to{opacity:1;transform:scale(1)} }
+    @keyframes scan { 0%{transform:translateY(-100%)} 100%{transform:translateY(1200%)} }
+    @keyframes count { from{opacity:0} to{opacity:1} }
+
+    .animate-in { animation: slide-in .35s ease forwards; }
+    .pulse-live { animation: pulse-teal 2s ease-in-out infinite; }
+    .glow-loop { animation: glow-pulse 3s ease-in-out infinite; }
+    .float-anim { animation: float 4s ease-in-out infinite; }
+    .ticker-row { animation: ticker-in .4s ease forwards; }
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,.72);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000; backdrop-filter: blur(4px);
+    }
+    .modal-box { animation: modal-in .2s ease forwards; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ── DESIGN TOKENS ─────────────────────────────────────────────────────────────
+const C = {
+  bg: "#0A0E14", surface: "#111820", surfaceAlt: "#161E28",
+  border: "#1E2D3D", borderLight: "#243447",
+  teal: "#00C2A8", tealDim: "#00997F", tealGlow: "rgba(0,194,168,0.12)",
+  amber: "#F59E0B", amberDim: "#D97706", amberGlow: "rgba(245,158,11,0.12)",
+  red: "#EF4444", redGlow: "rgba(239,68,68,0.12)",
+  green: "#10B981", greenGlow: "rgba(16,185,129,0.12)",
+  blue: "#3B82F6",
+  text: "#E2EAF4", textMuted: "#6B8199", textDim: "#3D5066",
+};
+
+// ── STATIC DATA ───────────────────────────────────────────────────────────────
+const CLIENTS = [
+  { id:1, name:"Pinewood Bakery",      industry:"Food & Beverage", location:"Seattle, WA",   risk:"low",    alerts:2,  score:88, onboarded:"Nov 2024", transactions:1842, flagged:3,  saved:12400 },
+  { id:2, name:"Cascade Auto Repair",  industry:"Automotive",       location:"Tacoma, WA",    risk:"medium", alerts:7,  score:64, onboarded:"Oct 2024", transactions:934,  flagged:11, saved:8700  },
+  { id:3, name:"Northgate Dental",     industry:"Healthcare",        location:"Bellevue, WA",  risk:"high",   alerts:14, score:41, onboarded:"Sep 2024", transactions:2103, flagged:22, saved:31200 },
+  { id:4, name:"Emerald Threads",      industry:"Retail",            location:"Redmond, WA",   risk:"low",    alerts:1,  score:92, onboarded:"Dec 2024", transactions:3211, flagged:1,  saved:4100  },
+  { id:5, name:"Summit Law Group",     industry:"Legal Services",    location:"Kirkland, WA",  risk:"medium", alerts:5,  score:71, onboarded:"Nov 2024", transactions:672,  flagged:6,  saved:19800 },
+  { id:6, name:"Harbor Fresh Seafood", industry:"Food & Beverage",   location:"Bremerton, WA", risk:"low",    alerts:0,  score:95, onboarded:"Jan 2025", transactions:1103, flagged:0,  saved:0     },
+];
+
+const VENDORS  = ["PayPal Business","Square Inc","Stripe","ACH Transfer","Wire Transfer","Venmo Business","Zelle","Check Deposit"];
+const CATS     = ["Vendor Payment","Payroll","Supplies","Utilities","Insurance","Marketing","Equipment","Refund"];
+const SIGNALS  = ["Velocity Anomaly","Geo-location Mismatch","Unusual Vendor","Amount Threshold","Time-of-Day Anomaly","Device Fingerprint"];
+
+const ARCH_NODES = [
+  { id:"smb",      label:"SMB Client",       sub:"Browser / Mobile",     x:10, y:42, color:C.teal,     icon:"🏪" },
+  { id:"gateway",  label:"API Gateway",       sub:"AWS API Gateway",      x:30, y:42, color:C.blue,     icon:"⚡" },
+  { id:"auth",     label:"Auth Layer",        sub:"AWS Cognito",          x:30, y:18, color:C.textMuted, icon:"🔐" },
+  { id:"engine",   label:"Detection Engine",  sub:"AWS SageMaker ML",     x:52, y:42, color:C.amber,    icon:"🧠" },
+  { id:"rules",    label:"Rules Engine",      sub:"AWS Lambda",           x:52, y:20, color:C.textMuted, icon:"⚙️" },
+  { id:"stream",   label:"Event Stream",      sub:"AWS Kinesis",          x:52, y:65, color:C.textMuted, icon:"📡" },
+  { id:"db",       label:"Transaction DB",    sub:"AWS DynamoDB",         x:74, y:30, color:C.green,    icon:"🗄️" },
+  { id:"alerts",   label:"Alert Service",     sub:"AWS SNS + Lambda",     x:74, y:55, color:C.red,      icon:"🚨" },
+  { id:"pm",       label:"PM Dashboard",      sub:"React / CloudFront",   x:90, y:25, color:C.teal,     icon:"📊" },
+  { id:"smb_dash", label:"SMB Dashboard",     sub:"React / CloudFront",   x:90, y:58, color:C.green,    icon:"📱" },
+];
+const ARCH_EDGES = [
+  ["smb","gateway"],["gateway","auth"],["gateway","engine"],
+  ["engine","rules"],["engine","stream"],["engine","db"],
+  ["rules","db"],["stream","alerts"],["db","pm"],["db","smb_dash"],
+  ["alerts","pm"],["alerts","smb_dash"],
+];
+
+// ── FRAUD SCORING ENGINE (local ML simulation) ────────────────────────────────
+function scoreTransaction({ amount, vendor, category, hour }) {
+  let score = 0;
+  const signals = [];
+
+  // Amount threshold
+  if (amount > 5000)       { score += 28; signals.push("Amount Threshold"); }
+  else if (amount > 2500)  { score += 12; }
+
+  // Time-of-day anomaly
+  if (hour >= 22 || hour < 5) { score += 25; signals.push("Time-of-Day Anomaly"); }
+  else if (hour < 7)          { score += 10; }
+
+  // Vendor risk profile
+  const highRiskVendors = ["Wire Transfer", "Zelle", "Venmo Business"];
+  const medRiskVendors  = ["ACH Transfer"];
+  if (highRiskVendors.includes(vendor)) { score += 22; signals.push("Unusual Vendor"); }
+  else if (medRiskVendors.includes(vendor)) { score += 8; }
+
+  // Category risk
+  if (category === "Refund")        { score += 15; signals.push("Velocity Anomaly"); }
+  else if (category === "Equipment") { score += 8; }
+
+  // Geo-location — random element (simulate device check)
+  if (Math.random() < 0.15) { score += 18; signals.push("Geo-location Mismatch"); }
+  if (Math.random() < 0.08) { score += 12; signals.push("Device Fingerprint"); }
+
+  // Add noise
+  score += Math.floor(Math.random() * 12);
+  score = Math.min(99, Math.max(1, score));
+
+  const status = score >= 85 ? "blocked" : score >= 70 ? "flagged" : score >= 50 ? "review" : "clear";
+  return { score, signals: [...new Set(signals)], status };
+}
+
+function genTxn(clientName) {
+  const risk   = Math.random();
+  const amount = Math.floor(Math.random() * 8000) + 50;
+  const ts     = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000);
+  const vendor = VENDORS[Math.floor(Math.random() * VENDORS.length)];
+  const cat    = CATS[Math.floor(Math.random() * CATS.length)];
+  const { score, signals, status } = scoreTransaction({ amount, vendor, category: cat, hour: ts.getHours() });
+  return {
+    id: `TXN-${Math.random().toString(36).substr(2,8).toUpperCase()}`,
+    timestamp: ts, vendor, category: cat, amount,
+    riskScore: score,
+    status: risk > 0.78 ? "flagged" : risk > 0.6 ? "review" : "clear",
+    fraudType: signals[0] || null,
+    blocked: risk > 0.9,
+  };
+}
+
+// ── SHARED UI ─────────────────────────────────────────────────────────────────
+const Badge = ({ status }) => {
+  const map = {
+    low:     { bg:C.greenGlow,  color:C.green,  label:"LOW RISK"  },
+    medium:  { bg:C.amberGlow,  color:C.amber,  label:"MED RISK"  },
+    high:    { bg:C.redGlow,    color:C.red,    label:"HIGH RISK" },
+    flagged: { bg:C.redGlow,    color:C.red,    label:"FLAGGED"   },
+    blocked: { bg:C.redGlow,    color:C.red,    label:"BLOCKED"   },
+    review:  { bg:C.amberGlow,  color:C.amber,  label:"REVIEW"    },
+    clear:   { bg:C.greenGlow,  color:C.green,  label:"CLEAR"     },
+  };
+  const s = map[status] || map.clear;
+  return (
+    <span style={{
+      background:s.bg, color:s.color, border:`1px solid ${s.color}33`,
+      padding:"2px 8px", borderRadius:3, fontSize:10,
+      fontFamily:"'Space Mono',monospace", letterSpacing:"0.08em", fontWeight:700,
+    }}>{s.label}</span>
+  );
+};
+
+const ScoreRing = ({ score, size=56 }) => {
+  const color = score >= 75 ? C.green : score >= 50 ? C.amber : C.red;
+  const r = size/2 - 5;
+  const circ = 2*Math.PI*r;
+  const dash = (score/100)*circ;
+  return (
+    <div style={{ position:"relative", width:size, height:size }}>
+      <svg width={size} height={size} style={{ transform:"rotate(-90deg)" }}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={C.border} strokeWidth={4} />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={4}
+          strokeDasharray={`${dash} ${circ}`} strokeLinecap="round"
+          style={{ transition:"stroke-dasharray 1s ease" }} />
+      </svg>
+      <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <span style={{ fontFamily:"'Space Mono'", fontSize:size>48?13:10, color, fontWeight:700 }}>{score}</span>
+      </div>
+    </div>
+  );
+};
+
+const StatCard = ({ label, value, sub, color=C.teal, icon }) => (
+  <div style={{
+    background:C.surface, border:`1px solid ${C.border}`,
+    borderRadius:8, padding:"16px 20px", flex:1, minWidth:130,
+    borderTop:`2px solid ${color}`,
+  }}>
+    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+      <div>
+        <div style={{ color:C.textMuted, fontSize:10, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:6, fontFamily:"'Space Mono'" }}>{label}</div>
+        <div style={{ fontFamily:"'Space Mono'", fontSize:22, fontWeight:700, color }}>{value}</div>
+        {sub && <div style={{ color:C.textMuted, fontSize:11, marginTop:4 }}>{sub}</div>}
+      </div>
+      {icon && <div style={{ fontSize:20, opacity:0.6 }}>{icon}</div>}
+    </div>
+  </div>
+);
+
+const SectionHeader = ({ title, sub, action, onAction }) => (
+  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+    <div>
+      <h2 style={{ fontSize:15, fontWeight:600, color:C.text }}>{title}</h2>
+      {sub && <div style={{ color:C.textMuted, fontSize:12, marginTop:2 }}>{sub}</div>}
+    </div>
+    {action && (
+      <button onClick={onAction} style={{
+        background:C.tealGlow, color:C.teal, border:`1px solid ${C.teal}44`,
+        borderRadius:6, padding:"6px 14px", fontSize:12, fontWeight:500,
+      }}>{action}</button>
+    )}
+  </div>
+);
+
+// ── SCORE TRANSACTION MODAL ───────────────────────────────────────────────────
+const ScoreModal = ({ onClose }) => {
+  const [form, setForm] = useState({ amount:"", vendor:"", category:"", hour: new Date().getHours() });
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const f = (k,v) => setForm(p => ({...p,[k]:v}));
+
+  const run = () => {
+    if (!form.amount || !form.vendor || !form.category) return;
+    setLoading(true);
+    setResult(null);
+    setTimeout(() => {
+      const r = scoreTransaction({ amount:+form.amount, vendor:form.vendor, category:form.category, hour:+form.hour });
+      setResult(r);
+      setLoading(false);
+    }, 900);
+  };
+
+  const inputS = {
+    width:"100%", background:C.surfaceAlt, border:`1px solid ${C.border}`,
+    borderRadius:6, padding:"9px 12px", color:C.text, fontSize:13,
+  };
+  const labelS = { fontSize:11, color:C.textMuted, marginBottom:5, display:"block", fontWeight:500 };
+  const scoreColor = result ? (result.score >= 85 ? C.red : result.score >= 60 ? C.amber : C.green) : C.teal;
+
+  return (
+    <div className="modal-backdrop" onClick={e => e.target===e.currentTarget && onClose()}>
+      <div className="modal-box" style={{
+        background:C.surface, border:`1px solid ${C.border}`, borderRadius:12,
+        padding:28, width:460, maxWidth:"95vw",
+      }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+          <div>
+            <div style={{ fontFamily:"'Space Mono'", fontSize:13, color:C.teal, fontWeight:700 }}>🧠 SCORE A TRANSACTION</div>
+            <div style={{ color:C.textMuted, fontSize:12, marginTop:3 }}>Live ML risk scoring engine</div>
+          </div>
+          <button onClick={onClose} style={{ color:C.textMuted, fontSize:18, padding:"4px 8px" }}>✕</button>
+        </div>
+
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
+          <div>
+            <label style={labelS}>Transaction Amount ($)</label>
+            <input style={inputS} type="number" placeholder="e.g. 3500"
+              value={form.amount} onChange={e => f("amount", e.target.value)} />
+          </div>
+          <div>
+            <label style={labelS}>Hour of Day (0–23)</label>
+            <input style={inputS} type="number" min="0" max="23" placeholder="e.g. 2"
+              value={form.hour} onChange={e => f("hour", e.target.value)} />
+          </div>
+          <div>
+            <label style={labelS}>Payment Vendor</label>
+            <select style={inputS} value={form.vendor} onChange={e => f("vendor", e.target.value)}>
+              <option value="">Select vendor…</option>
+              {VENDORS.map(v => <option key={v} value={v}>{v}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={labelS}>Transaction Category</label>
+            <select style={inputS} value={form.category} onChange={e => f("category", e.target.value)}>
+              <option value="">Select category…</option>
+              {CATS.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <button onClick={run} style={{
+          width:"100%", padding:"11px", borderRadius:8, fontSize:13, fontWeight:600,
+          background:C.teal, color:C.bg, marginBottom:20,
+          boxShadow:`0 0 16px ${C.teal}44`,
+          opacity: (!form.amount||!form.vendor||!form.category) ? 0.5 : 1,
+        }}>
+          {loading ? "Scoring…" : "Run Detection Engine →"}
+        </button>
+
+        {loading && (
+          <div style={{ textAlign:"center", padding:"20px 0" }}>
+            <div style={{ color:C.teal, fontFamily:"'Space Mono'", fontSize:12, marginBottom:8 }}>QUERYING SAGEMAKER ML ENDPOINT…</div>
+            <div style={{ height:3, background:C.border, borderRadius:2, overflow:"hidden" }}>
+              <div style={{ height:"100%", width:"60%", background:C.teal, borderRadius:2, animation:"scan 1.2s ease infinite" }} />
+            </div>
+          </div>
+        )}
+
+        {result && (
+          <div style={{ border:`1px solid ${scoreColor}33`, borderRadius:8, padding:16, background:`${scoreColor}08`, animation:"slide-in .3s ease" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+              <div>
+                <div style={{ fontFamily:"'Space Mono'", fontSize:11, color:C.textMuted }}>ML RISK SCORE</div>
+                <div style={{ fontFamily:"'Space Mono'", fontSize:36, fontWeight:700, color:scoreColor }}>{result.score}</div>
+              </div>
+              <Badge status={result.status} />
+            </div>
+
+            {result.signals.length > 0 && (
+              <div>
+                <div style={{ fontSize:11, color:C.textMuted, marginBottom:6, fontFamily:"'Space Mono'" }}>FRAUD SIGNALS DETECTED</div>
+                <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
+                  {result.signals.map(s => (
+                    <span key={s} style={{
+                      background:C.amberGlow, color:C.amber, border:`1px solid ${C.amber}33`,
+                      padding:"3px 10px", borderRadius:4, fontSize:11, fontFamily:"'Space Mono'",
+                    }}>⚠ {s}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div style={{ marginTop:12, fontSize:12, color:C.textMuted, borderTop:`1px solid ${C.border}`, paddingTop:10 }}>
+              {result.status === "blocked"  && "⛔ Auto-block threshold exceeded. Transaction halted pending review."}
+              {result.status === "flagged"  && "🚨 Alert generated. Client notified via SMS & email within 60 seconds."}
+              {result.status === "review"   && "⚠️ Review flag set. Transaction queued for manual inspection."}
+              {result.status === "clear"    && "✅ Transaction cleared. No significant fraud signals detected."}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+const NAV_ITEMS = [
+  { id:"pm",      label:"PM Overview",   icon:"◈" },
+  { id:"client",  label:"Client View",   icon:"◉" },
+  { id:"onboard", label:"Onboard SMB",   icon:"◎" },
+  { id:"arch",    label:"Architecture",  icon:"◇" },
+];
+
+const Nav = ({ active, setActive, clientName, onScore }) => (
+  <div style={{
+    width:220, background:C.surface, borderRight:`1px solid ${C.border}`,
+    display:"flex", flexDirection:"column", flexShrink:0, height:"100vh", position:"sticky", top:0,
+  }}>
+    <div style={{ padding:"22px 20px 18px", borderBottom:`1px solid ${C.border}` }}>
+      <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+        <div style={{
+          width:32, height:32, background:C.teal, borderRadius:8,
+          display:"flex", alignItems:"center", justifyContent:"center", fontSize:16,
+          boxShadow:`0 0 16px ${C.teal}66`,
+        }}>🛡</div>
+        <div>
+          <div style={{ fontFamily:"'Space Mono'", fontWeight:700, fontSize:13, color:C.teal, letterSpacing:"0.04em" }}>FRAUDSHIELD</div>
+          <div style={{ fontSize:10, color:C.textMuted, letterSpacing:"0.06em" }}>SMB PROTECT</div>
+        </div>
+      </div>
+    </div>
+
+    <div style={{ padding:"10px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:8 }}>
+      <div style={{ width:6, height:6, borderRadius:"50%", background:C.green }} className="pulse-live" />
+      <span style={{ fontSize:11, color:C.textMuted, fontFamily:"'Space Mono'" }}>LIVE MONITORING</span>
+    </div>
+
+    <nav style={{ padding:"12px 10px", flex:1 }}>
+      {NAV_ITEMS.map(item => (
+        <button key={item.id} onClick={() => setActive(item.id)} style={{
+          width:"100%", textAlign:"left", padding:"10px 12px", borderRadius:6,
+          display:"flex", alignItems:"center", gap:10, marginBottom:2,
+          background: active===item.id ? C.tealGlow : "transparent",
+          color: active===item.id ? C.teal : C.textMuted,
+          border: active===item.id ? `1px solid ${C.teal}33` : "1px solid transparent",
+          fontSize:13, fontWeight: active===item.id ? 600 : 400,
+          transition:"all .15s ease",
+        }}>
+          <span style={{ fontFamily:"'Space Mono'", fontSize:14 }}>{item.icon}</span>
+          {item.label}
+          {item.id==="client" && active==="client" && clientName && (
+            <span style={{ marginLeft:"auto", fontSize:10, color:C.tealDim, maxWidth:70, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{clientName}</span>
+          )}
+        </button>
+      ))}
+
+      <div style={{ borderTop:`1px solid ${C.border}`, margin:"12px 0 8px" }} />
+
+      <button onClick={onScore} style={{
+        width:"100%", textAlign:"left", padding:"10px 12px", borderRadius:6,
+        display:"flex", alignItems:"center", gap:10,
+        background:C.amberGlow, color:C.amber,
+        border:`1px solid ${C.amber}33`, fontSize:13, fontWeight:600,
+        transition:"all .15s ease",
+      }}>
+        <span style={{ fontFamily:"'Space Mono'", fontSize:14 }}>⚡</span>
+        Score Transaction
+      </button>
+    </nav>
+
+    <div style={{ padding:"16px 20px", borderTop:`1px solid ${C.border}` }}>
+      <div style={{ fontSize:10, color:C.textDim, fontFamily:"'Space Mono'" }}>v1.0.0-beta</div>
+      <div style={{ fontSize:10, color:C.textDim, marginTop:2 }}>A. Adedeji — Exhibit 5a</div>
+    </div>
+  </div>
+);
+
+// ── PM OVERVIEW ───────────────────────────────────────────────────────────────
+const MiniBar = ({ value, max=100, color }) => (
+  <div style={{ height:4, background:C.border, borderRadius:2, flex:1 }}>
+    <div style={{ height:"100%", width:`${(value/max)*100}%`, background:color, borderRadius:2, transition:"width 1s ease" }} />
+  </div>
+);
+
+const PMOverview = ({ onSelectClient }) => {
+  const totalAlerts = CLIENTS.reduce((s,c) => s+c.alerts, 0);
+  const totalSaved  = CLIENTS.reduce((s,c) => s+c.saved,  0);
+  const totalTxns   = CLIENTS.reduce((s,c) => s+c.transactions, 0);
+  const avgScore    = Math.round(CLIENTS.reduce((s,c) => s+c.score, 0) / CLIENTS.length);
+
+  // Live ticker feed
+  const [ticker, setTicker] = useState(() => {
+    return Array.from({ length:5 }, () => {
+      const c = CLIENTS[Math.floor(Math.random()*CLIENTS.length)];
+      return { ...genTxn(c.name), client: c.name, _key: Math.random() };
+    });
+  });
+
+  useEffect(() => {
+    const iv = setInterval(() => {
+      const c = CLIENTS[Math.floor(Math.random()*CLIENTS.length)];
+      const txn = { ...genTxn(c.name), client:c.name, _key:Math.random() };
+      setTicker(prev => [txn, ...prev.slice(0,6)]);
+    }, 3200);
+    return () => clearInterval(iv);
+  }, []);
+
+  return (
+    <div style={{ padding:28, animation:"slide-in .35s ease" }}>
+      <div style={{ marginBottom:22 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:4 }}>
+          <h1 style={{ fontSize:22, fontWeight:600, letterSpacing:"-0.02em" }}>Portfolio Overview</h1>
+          <Badge status="low" />
+        </div>
+        <p style={{ color:C.textMuted, fontSize:13 }}>Program Manager view — {CLIENTS.length} active SMB clients · Pacific Northwest</p>
+      </div>
+
+      <div style={{ display:"flex", gap:12, marginBottom:22, flexWrap:"wrap" }}>
+        <StatCard label="Active Clients"   value={CLIENTS.length}                    sub="3 industries"     color={C.teal}  icon="🏪" />
+        <StatCard label="Open Alerts"      value={totalAlerts}                        sub="Across portfolio"  color={totalAlerts>10?C.red:C.amber} icon="⚠️" />
+        <StatCard label="Fraud Prevented"  value={`$${(totalSaved/1000).toFixed(0)}k`} sub="This quarter"   color={C.green} icon="🛡" />
+        <StatCard label="Avg Risk Score"   value={avgScore}                           sub="Portfolio health"  color={avgScore>75?C.green:C.amber}  icon="📊" />
+        <StatCard label="Transactions"     value={totalTxns.toLocaleString()}         sub="Last 30 days"     color={C.blue}  icon="💳" />
+      </div>
+
+      <div style={{ display:"grid", gridTemplateColumns:"1.6fr 1fr", gap:16, marginBottom:22 }}>
+        {/* Client table */}
+        <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, overflow:"hidden" }}>
+          <div style={{ padding:"14px 18px", borderBottom:`1px solid ${C.border}` }}>
+            <div style={{ fontWeight:600, fontSize:14 }}>Client Portfolio</div>
+            <div style={{ color:C.textMuted, fontSize:11, marginTop:1 }}>Click any client to drill in</div>
+          </div>
+          <div style={{
+            display:"grid", gridTemplateColumns:"2fr 80px 70px 80px 90px",
+            padding:"8px 18px", borderBottom:`1px solid ${C.border}`,
+            color:C.textMuted, fontSize:10, fontFamily:"'Space Mono'", letterSpacing:"0.06em",
+          }}>
+            {["CLIENT","RISK","SCORE","ALERTS","SAVED"].map(h => <div key={h}>{h}</div>)}
+          </div>
+          {CLIENTS.map((c,i) => (
+            <div key={c.id} onClick={() => onSelectClient(c)} style={{
+              display:"grid", gridTemplateColumns:"2fr 80px 70px 80px 90px",
+              padding:"12px 18px", borderBottom:i<CLIENTS.length-1?`1px solid ${C.border}`:"none",
+              cursor:"pointer", transition:"background .15s",
+            }}
+              onMouseEnter={e => e.currentTarget.style.background=C.surfaceAlt}
+              onMouseLeave={e => e.currentTarget.style.background="transparent"}
+            >
+              <div>
+                <div style={{ fontWeight:500, fontSize:13 }}>{c.name}</div>
+                <div style={{ color:C.textMuted, fontSize:11, marginTop:1 }}>{c.industry}</div>
+              </div>
+              <div style={{ alignSelf:"center" }}><Badge status={c.risk} /></div>
+              <div style={{ alignSelf:"center" }}><ScoreRing score={c.score} size={34} /></div>
+              <div style={{ alignSelf:"center", fontFamily:"'Space Mono'", color:c.alerts>10?C.red:c.alerts>3?C.amber:C.green, fontWeight:700 }}>{c.alerts}</div>
+              <div style={{ alignSelf:"center", fontFamily:"'Space Mono'", fontSize:12, color:C.green }}>${c.saved.toLocaleString()}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Live transaction ticker */}
+        <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, overflow:"hidden", display:"flex", flexDirection:"column" }}>
+          <div style={{ padding:"14px 18px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:8 }}>
+            <div style={{ width:6, height:6, borderRadius:"50%", background:C.green }} className="pulse-live" />
+            <div>
+              <div style={{ fontWeight:600, fontSize:13 }}>Live Transaction Feed</div>
+              <div style={{ color:C.textMuted, fontSize:11, marginTop:1 }}>Real-time ML scoring</div>
+            </div>
+          </div>
+          <div style={{ flex:1, overflowY:"auto", maxHeight:340 }}>
+            {ticker.map((t,i) => {
+              const rc = t.riskScore>=70?C.red:t.riskScore>=45?C.amber:C.green;
+              return (
+                <div key={t._key} className={i===0?"ticker-row":""} style={{
+                  padding:"10px 16px", borderBottom:`1px solid ${C.border}`,
+                  background:t.status==="flagged"||t.status==="blocked" ? C.redGlow : "transparent",
+                }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:3 }}>
+                    <span style={{ fontFamily:"'Space Mono'", fontSize:10, color:C.teal }}>{t.id}</span>
+                    <span style={{ fontFamily:"'Space Mono'", fontSize:11, color:rc, fontWeight:700 }}>{t.riskScore}</span>
+                  </div>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                    <span style={{ fontSize:12, color:C.text }}>{t.vendor}</span>
+                    <Badge status={t.status} />
+                  </div>
+                  <div style={{ display:"flex", justifyContent:"space-between", marginTop:2 }}>
+                    <span style={{ fontSize:11, color:C.textMuted }}>{t.client}</span>
+                    <span style={{ fontFamily:"'Space Mono'", fontSize:11, color:C.textMuted }}>${t.amount.toLocaleString()}</span>
+                  </div>
+                  {t.fraudType && <div style={{ fontSize:10, color:C.amber, marginTop:3 }}>⚠ {t.fraudType}</div>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom charts */}
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+        <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, padding:"18px 20px" }}>
+          <SectionHeader title="Risk Distribution" sub="Portfolio breakdown" />
+          {[
+            { label:"Low Risk",    count:CLIENTS.filter(c=>c.risk==="low").length,    color:C.green },
+            { label:"Medium Risk", count:CLIENTS.filter(c=>c.risk==="medium").length, color:C.amber },
+            { label:"High Risk",   count:CLIENTS.filter(c=>c.risk==="high").length,   color:C.red   },
+          ].map(r => (
+            <div key={r.label} style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
+              <div style={{ width:90, color:C.textMuted, fontSize:12 }}>{r.label}</div>
+              <MiniBar value={r.count} max={CLIENTS.length} color={r.color} />
+              <div style={{ fontFamily:"'Space Mono'", fontSize:13, color:r.color, width:20, textAlign:"right" }}>{r.count}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, padding:"18px 20px" }}>
+          <SectionHeader title="Weekly Alert Volume" sub="Last 7 days" />
+          <div style={{ display:"flex", alignItems:"flex-end", gap:8, height:80, marginTop:8 }}>
+            {[3,7,5,12,8,4,totalAlerts].map((v,i) => (
+              <div key={i} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
+                <div style={{
+                  width:"100%", background:i===6?C.teal:C.border,
+                  borderRadius:"3px 3px 0 0", height:`${(v/15)*100}%`,
+                  transition:"height 1s ease",
+                }} />
+                <div style={{ fontSize:9, color:C.textDim, fontFamily:"'Space Mono'" }}>
+                  {["M","T","W","T","F","S","T"][i]}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── CLIENT VIEW ───────────────────────────────────────────────────────────────
+const ClientView = ({ client }) => {
+  const [txns, setTxns] = useState(() => Array.from({length:18}, () => genTxn(client?.name||"")));
+  const [filter, setFilter] = useState("all");
+  const [liveCount, setLiveCount] = useState(0);
+
+  useEffect(() => {
+    if (!client) return;
+    const iv = setInterval(() => {
+      const t = genTxn(client.name);
+      setTxns(prev => [t, ...prev.slice(0,24)]);
+      setLiveCount(n => n+1);
+    }, 5000);
+    return () => clearInterval(iv);
+  }, [client?.id]);
+
+  if (!client) return (
+    <div style={{ padding:28, display:"flex", alignItems:"center", justifyContent:"center", height:"60vh" }}>
+      <div style={{ textAlign:"center", color:C.textMuted }}>
+        <div style={{ fontSize:40, marginBottom:16 }}>◉</div>
+        <div style={{ fontFamily:"'Space Mono'", fontSize:14 }}>SELECT A CLIENT</div>
+        <div style={{ fontSize:12, marginTop:6 }}>Choose from PM Overview to view their dashboard</div>
+      </div>
+    </div>
+  );
+
+  const filtered = filter==="all" ? txns : txns.filter(t => t.status===filter);
+
+  return (
+    <div style={{ padding:28, animation:"slide-in .35s ease" }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:22 }}>
+        <div>
+          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:4 }}>
+            <h1 style={{ fontSize:22, fontWeight:600, letterSpacing:"-0.02em" }}>{client.name}</h1>
+            <Badge status={client.risk} />
+            {liveCount > 0 && (
+              <span style={{ fontSize:11, color:C.green, fontFamily:"'Space Mono'" }}>+{liveCount} live</span>
+            )}
+          </div>
+          <div style={{ color:C.textMuted, fontSize:13 }}>{client.industry} · {client.location} · Onboarded {client.onboarded}</div>
+        </div>
+        <ScoreRing score={client.score} size={72} />
+      </div>
+
+      <div style={{ display:"flex", gap:12, marginBottom:22, flexWrap:"wrap" }}>
+        <StatCard label="Open Alerts"     value={client.alerts}                   color={client.alerts>10?C.red:C.amber}                      icon="⚠️" />
+        <StatCard label="Fraud Score"     value={client.score}   sub="Risk index" color={client.score>75?C.green:client.score>50?C.amber:C.red} icon="📊" />
+        <StatCard label="Transactions"    value={client.transactions.toLocaleString()} sub="30-day volume" color={C.blue}                    icon="💳" />
+        <StatCard label="Flagged"         value={client.flagged}  sub="For review" color={C.red}                                               icon="🚩" />
+        <StatCard label="Fraud Prevented" value={`$${client.saved.toLocaleString()}`}  color={C.green}                                        icon="🛡" />
+      </div>
+
+      <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, overflow:"hidden" }}>
+        <div style={{ padding:"14px 18px", borderBottom:`1px solid ${C.border}`, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+          <div>
+            <div style={{ fontWeight:600, fontSize:14 }}>Transaction Monitor</div>
+            <div style={{ color:C.textMuted, fontSize:12, marginTop:1 }}>Real-time feed with ML risk scoring — new transactions every 5s</div>
+          </div>
+          <div style={{ display:"flex", gap:6 }}>
+            {["all","flagged","review","clear"].map(f => (
+              <button key={f} onClick={() => setFilter(f)} style={{
+                padding:"5px 12px", borderRadius:4, fontSize:11, fontFamily:"'Space Mono'",
+                background:filter===f?C.tealGlow:"transparent",
+                color:filter===f?C.teal:C.textMuted,
+                border:`1px solid ${filter===f?C.teal+"44":C.border}`,
+                transition:"all .15s",
+              }}>{f.toUpperCase()}</button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{
+          display:"grid", gridTemplateColumns:"1.2fr 1.5fr 1fr 0.8fr 100px 120px",
+          padding:"9px 18px", borderBottom:`1px solid ${C.border}`,
+          color:C.textMuted, fontSize:10, fontFamily:"'Space Mono'", letterSpacing:"0.06em",
+        }}>
+          {["TXN ID","VENDOR / CATEGORY","TIMESTAMP","AMOUNT","RISK","STATUS"].map(h => <div key={h}>{h}</div>)}
+        </div>
+
+        <div style={{ maxHeight:420, overflowY:"auto" }}>
+          {filtered.map((t,i) => {
+            const rc = t.riskScore>=78?C.red:t.riskScore>=60?C.amber:C.green;
+            return (
+              <div key={t.id+i} style={{
+                display:"grid", gridTemplateColumns:"1.2fr 1.5fr 1fr 0.8fr 100px 120px",
+                padding:"11px 18px", borderBottom:i<filtered.length-1?`1px solid ${C.border}`:"none",
+                background:t.status==="flagged"||t.status==="blocked" ? C.redGlow : "transparent",
+                transition:"background .15s",
+              }}>
+                <div style={{ fontFamily:"'Space Mono'", fontSize:11, color:C.teal }}>{t.id}</div>
+                <div>
+                  <div style={{ fontSize:12, fontWeight:500 }}>{t.vendor}</div>
+                  <div style={{ fontSize:11, color:C.textMuted, marginTop:1 }}>{t.category}</div>
+                </div>
+                <div style={{ fontSize:11, color:C.textMuted, alignSelf:"center" }}>
+                  {t.timestamp.toLocaleDateString()} {t.timestamp.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
+                </div>
+                <div style={{ fontFamily:"'Space Mono'", fontSize:13, fontWeight:700, alignSelf:"center" }}>
+                  ${t.amount.toLocaleString()}
+                </div>
+                <div style={{ alignSelf:"center" }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                    <div style={{ height:4, width:46, background:C.border, borderRadius:2 }}>
+                      <div style={{ height:"100%", width:`${t.riskScore}%`, background:rc, borderRadius:2 }} />
+                    </div>
+                    <span style={{ fontFamily:"'Space Mono'", fontSize:11, color:rc }}>{t.riskScore}</span>
+                  </div>
+                  {t.fraudType && <div style={{ fontSize:10, color:C.textMuted, marginTop:3 }}>{t.fraudType}</div>}
+                </div>
+                <div style={{ alignSelf:"center" }}>
+                  <Badge status={t.status} />
+                  {t.blocked && <div style={{ fontSize:10, color:C.red, marginTop:3, fontFamily:"'Space Mono'" }}>AUTO-BLOCKED</div>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── ONBOARDING ────────────────────────────────────────────────────────────────
+const STEPS = [
+  { label:"Business Info",  icon:"🏪" },
+  { label:"Financials",     icon:"💳" },
+  { label:"Risk Profile",   icon:"🎯" },
+  { label:"Configuration",  icon:"⚙️" },
+  { label:"Deploy",         icon:"🚀" },
+];
+
+const OnboardView = () => {
+  const [step, setStep] = useState(0);
+  const [deployed, setDeployed] = useState(false);
+  const [deploying, setDeploying] = useState(false);
+  const [deployLog, setDeployLog] = useState([]);
+  const [form, setForm] = useState({
+    bizName:"", industry:"", location:"", employees:"",
+    annualRev:"", processorType:"", avgTxnSize:"",
+    riskTolerance:"medium", alertEmail:"", enableSMS:true,
+    mlSensitivity:"balanced", blockThreshold:85,
+  });
+
+  const f = (k,v) => setForm(p => ({...p,[k]:v}));
+
+  const deploySteps = [
+    "Provisioning AWS Lambda functions…",
+    "Configuring SageMaker ML endpoint…",
+    "Initializing DynamoDB transaction tables…",
+    "Starting Kinesis event stream…",
+    "Deploying SNS alert service…",
+    "Configuring API Gateway routes…",
+    "Running baseline fraud model training…",
+    "Validating end-to-end detection pipeline…",
+    "✓ FraudShield SMB deployed successfully!",
+  ];
+
+  const startDeploy = () => {
+    setDeploying(true);
+    deploySteps.forEach((msg,i) => {
+      setTimeout(() => {
+        setDeployLog(p => [...p, msg]);
+        if (i===deploySteps.length-1) setTimeout(() => setDeployed(true), 600);
+      }, i*700);
+    });
+  };
+
+  const IS = {
+    width:"100%", background:C.surfaceAlt, border:`1px solid ${C.border}`,
+    borderRadius:6, padding:"9px 12px", color:C.text, fontSize:13, transition:"border-color .15s",
+  };
+  const LS = { fontSize:11, color:C.textMuted, marginBottom:5, display:"block", fontWeight:500 };
+  const SS = { ...IS, appearance:"none" };
+
+  return (
+    <div style={{ padding:28, maxWidth:700, animation:"slide-in .35s ease" }}>
+      <div style={{ marginBottom:26 }}>
+        <h1 style={{ fontSize:22, fontWeight:600, letterSpacing:"-0.02em", marginBottom:4 }}>Onboard New SMB Client</h1>
+        <p style={{ color:C.textMuted, fontSize:13 }}>Deploy AI fraud detection for a small business in under 5 minutes</p>
+      </div>
+
+      <div style={{ display:"flex", gap:0, marginBottom:28, background:C.surface, borderRadius:10, border:`1px solid ${C.border}`, overflow:"hidden" }}>
+        {STEPS.map((s,i) => (
+          <div key={i} onClick={() => i<=step && setStep(i)} style={{
+            flex:1, padding:"12px 8px", textAlign:"center", cursor:i<=step?"pointer":"default",
+            background:i===step?C.tealGlow:"transparent",
+            borderRight:i<STEPS.length-1?`1px solid ${C.border}`:"none",
+            transition:"background .2s",
+          }}>
+            <div style={{ fontSize:16, marginBottom:4 }}>{s.icon}</div>
+            <div style={{ fontSize:11, color:i===step?C.teal:i<step?C.textMuted:C.textDim, fontWeight:i===step?600:400 }}>{s.label}</div>
+            {i<step && <div style={{ fontSize:10, color:C.green, marginTop:2 }}>✓</div>}
+          </div>
+        ))}
+      </div>
+
+      <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, padding:"22px 26px" }}>
+
+        {step===0 && (
+          <div style={{ animation:"slide-in .25s ease" }}>
+            <div style={{ fontWeight:600, fontSize:15, marginBottom:18 }}>Business Information</div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+              <div><label style={LS}>Business Name *</label><input style={IS} value={form.bizName} onChange={e=>f("bizName",e.target.value)} placeholder="e.g. Pinewood Bakery" /></div>
+              <div>
+                <label style={LS}>Industry *</label>
+                <select style={SS} value={form.industry} onChange={e=>f("industry",e.target.value)}>
+                  <option value="">Select industry…</option>
+                  {["Food & Beverage","Retail","Healthcare","Legal Services","Automotive","Construction","Professional Services","Other"].map(i=>(
+                    <option key={i} value={i}>{i}</option>
+                  ))}
+                </select>
+              </div>
+              <div><label style={LS}>Location</label><input style={IS} value={form.location} onChange={e=>f("location",e.target.value)} placeholder="e.g. Seattle, WA" /></div>
+              <div>
+                <label style={LS}>Number of Employees</label>
+                <select style={SS} value={form.employees} onChange={e=>f("employees",e.target.value)}>
+                  <option value="">Select range…</option>
+                  {["1–5","6–15","16–50","51–100","100+"].map(r=><option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+            </div>
+            <div style={{ marginTop:14 }}>
+              <label style={LS}>Alert Email *</label>
+              <input style={IS} type="email" value={form.alertEmail} onChange={e=>f("alertEmail",e.target.value)} placeholder="owner@business.com" />
+            </div>
+          </div>
+        )}
+
+        {step===1 && (
+          <div style={{ animation:"slide-in .25s ease" }}>
+            <div style={{ fontWeight:600, fontSize:15, marginBottom:18 }}>Financial Profile</div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+              <div>
+                <label style={LS}>Annual Revenue</label>
+                <select style={SS} value={form.annualRev} onChange={e=>f("annualRev",e.target.value)}>
+                  <option value="">Select range…</option>
+                  {["Under $250K","$250K–$1M","$1M–$5M","$5M–$20M","$20M+"].map(r=><option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={LS}>Primary Payment Processor</label>
+                <select style={SS} value={form.processorType} onChange={e=>f("processorType",e.target.value)}>
+                  <option value="">Select processor…</option>
+                  {["Square","Stripe","PayPal","Clover","Toast","Other"].map(p=><option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={LS}>Avg Transaction Size</label>
+                <select style={SS} value={form.avgTxnSize} onChange={e=>f("avgTxnSize",e.target.value)}>
+                  <option value="">Select range…</option>
+                  {["Under $50","$50–$500","$500–$5K","$5K–$50K","$50K+"].map(r=><option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step===2 && (
+          <div style={{ animation:"slide-in .25s ease" }}>
+            <div style={{ fontWeight:600, fontSize:15, marginBottom:18 }}>Risk Tolerance</div>
+            {[
+              { v:"conservative", label:"Conservative", desc:"Maximize fraud prevention. Higher false positive rate. More alerts to review.", color:C.red },
+              { v:"balanced",     label:"Balanced",     desc:"Balanced detection and precision. Recommended for most businesses.",           color:C.amber },
+              { v:"permissive",   label:"Permissive",   desc:"Minimize alert fatigue. Lower sensitivity. Best for low-risk businesses.",     color:C.green },
+            ].map(opt => (
+              <div key={opt.v} onClick={() => f("riskTolerance", opt.v)} style={{
+                border:`1px solid ${form.riskTolerance===opt.v?opt.color+"88":C.border}`,
+                borderRadius:8, padding:"14px 16px", marginBottom:10, cursor:"pointer",
+                background:form.riskTolerance===opt.v?`${opt.color}10`:"transparent",
+                transition:"all .15s",
+              }}>
+                <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
+                  <div style={{ width:10, height:10, borderRadius:"50%", background:form.riskTolerance===opt.v?opt.color:C.border, transition:"background .15s" }} />
+                  <span style={{ fontWeight:600, fontSize:13, color:form.riskTolerance===opt.v?opt.color:C.text }}>{opt.label}</span>
+                </div>
+                <div style={{ fontSize:12, color:C.textMuted, marginLeft:20 }}>{opt.desc}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {step===3 && (
+          <div style={{ animation:"slide-in .25s ease" }}>
+            <div style={{ fontWeight:600, fontSize:15, marginBottom:18 }}>ML Configuration</div>
+            <div style={{ marginBottom:18 }}>
+              <label style={LS}>Auto-Block Threshold: <span style={{ color:C.teal, fontFamily:"'Space Mono'" }}>{form.blockThreshold}</span></label>
+              <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+                <span style={{ fontSize:11, color:C.textMuted }}>60</span>
+                <input type="range" min={60} max={99} value={form.blockThreshold} onChange={e=>f("blockThreshold",+e.target.value)}
+                  style={{ flex:1, accentColor:C.teal }} />
+                <span style={{ fontSize:11, color:C.textMuted }}>99</span>
+              </div>
+              <div style={{ fontSize:11, color:C.textMuted, marginTop:6 }}>
+                Transactions scoring above this threshold are automatically blocked pending review.
+              </div>
+            </div>
+            <div style={{ background:C.surfaceAlt, borderRadius:8, padding:"14px 16px", border:`1px solid ${C.border}` }}>
+              <div style={{ fontWeight:600, fontSize:13, marginBottom:10 }}>Configuration Summary</div>
+              {[
+                ["Business",        form.bizName||"—"],
+                ["Industry",        form.industry||"—"],
+                ["Risk Tolerance",  form.riskTolerance],
+                ["Block Threshold", `Score ≥ ${form.blockThreshold}`],
+                ["Alert Email",     form.alertEmail||"—"],
+              ].map(([k,v]) => (
+                <div key={k} style={{ display:"flex", justifyContent:"space-between", marginBottom:6, fontSize:12 }}>
+                  <span style={{ color:C.textMuted }}>{k}</span>
+                  <span style={{ fontFamily:"'Space Mono'", color:C.text }}>{v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {step===4 && (
+          <div style={{ animation:"slide-in .25s ease" }}>
+            <div style={{ fontWeight:600, fontSize:15, marginBottom:18 }}>Deploy to AWS</div>
+            {!deploying && !deployed && (
+              <div style={{ textAlign:"center", padding:"20px 0" }}>
+                <div style={{ fontSize:48, marginBottom:16 }}>🚀</div>
+                <div style={{ fontWeight:600, fontSize:15, marginBottom:8 }}>Ready to Deploy</div>
+                <div style={{ color:C.textMuted, fontSize:13, marginBottom:24 }}>
+                  This will provision your AWS infrastructure and activate fraud detection for <strong style={{ color:C.text }}>{form.bizName||"your client"}</strong>.
+                </div>
+                <button onClick={startDeploy} style={{
+                  padding:"12px 32px", borderRadius:10, fontSize:14, fontWeight:700,
+                  background:C.teal, color:C.bg, boxShadow:`0 0 24px ${C.teal}55`,
+                }}>
+                  Deploy FraudShield SMB →
+                </button>
+              </div>
+            )}
+            {deploying && !deployed && (
+              <div style={{ fontFamily:"'Space Mono'", fontSize:12, background:C.surfaceAlt, borderRadius:8, padding:"16px 18px" }}>
+                {deployLog.map((msg,i) => (
+                  <div key={i} style={{ color:msg.startsWith("✓")?C.green:C.teal, marginBottom:8, animation:"ticker-in .3s ease" }}>{msg}</div>
+                ))}
+                {deployLog.length < deploySteps.length && (
+                  <div style={{ color:C.textDim }}>…</div>
+                )}
+              </div>
+            )}
+            {deployed && (
+              <div style={{ textAlign:"center", padding:"16px 0", animation:"slide-in .4s ease" }}>
+                <div style={{ fontSize:48, marginBottom:12 }}>✅</div>
+                <div style={{ fontFamily:"'Space Mono'", fontSize:16, color:C.green, fontWeight:700, marginBottom:8 }}>DEPLOYED SUCCESSFULLY</div>
+                <div style={{ color:C.textMuted, fontSize:13, marginBottom:20 }}>
+                  {form.bizName||"Client"} is now protected by FraudShield SMB AI fraud detection.
+                </div>
+                <div style={{ background:C.surfaceAlt, borderRadius:8, padding:"14px 18px", textAlign:"left", border:`1px solid ${C.border}` }}>
+                  {[
+                    ["Endpoint",   "api.fraudshield.io/v1/score"],
+                    ["Client ID",  `SMB-${Math.random().toString(36).substr(2,8).toUpperCase()}`],
+                    ["Block Threshold", `≥ ${form.blockThreshold}`],
+                    ["Alert Email",     form.alertEmail||"configured"],
+                    ["Status",     "🟢 ACTIVE"],
+                  ].map(([k,v]) => (
+                    <div key={k} style={{ display:"flex", justifyContent:"space-between", marginBottom:6, fontSize:12 }}>
+                      <span style={{ color:C.textMuted }}>{k}</span>
+                      <span style={{ fontFamily:"'Space Mono'", color:C.teal, fontSize:11 }}>{v}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {!deployed && (
+          <div style={{ display:"flex", justifyContent:"space-between", marginTop:22, paddingTop:18, borderTop:`1px solid ${C.border}` }}>
+            <button onClick={() => setStep(s=>Math.max(0,s-1))} disabled={step===0} style={{
+              padding:"9px 20px", borderRadius:8, fontSize:13, fontWeight:500,
+              background:step===0?"transparent":C.surfaceAlt,
+              color:step===0?C.textDim:C.text,
+              border:`1px solid ${step===0?C.textDim+"44":C.border}`,
+              cursor:step===0?"not-allowed":"pointer",
+            }}>← Previous</button>
+            {step<4 && (
+              <button onClick={() => setStep(s=>Math.min(4,s+1))} style={{
+                padding:"9px 24px", borderRadius:8, fontSize:13, fontWeight:600,
+                background:C.teal, color:C.bg, boxShadow:`0 0 16px ${C.teal}44`,
+              }}>
+                {step===3?"Review & Deploy →":"Next →"}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ── ARCHITECTURE VIEW ─────────────────────────────────────────────────────────
+const ArchView = () => {
+  const [hovered, setHovered] = useState(null);
+  const nodeMap = {};
+  ARCH_NODES.forEach(n => { nodeMap[n.id]=n; });
+
+  return (
+    <div style={{ padding:28, animation:"slide-in .35s ease" }}>
+      <div style={{ marginBottom:22 }}>
+        <h1 style={{ fontSize:22, fontWeight:600, letterSpacing:"-0.02em", marginBottom:4 }}>System Architecture</h1>
+        <p style={{ color:C.textMuted, fontSize:13 }}>Cloud-native fraud detection pipeline — AWS infrastructure</p>
+      </div>
+
+      <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:12, padding:24, marginBottom:22, position:"relative", overflow:"hidden" }}>
+        <div style={{
+          position:"absolute", inset:0, opacity:.04,
+          backgroundImage:`linear-gradient(${C.teal} 1px, transparent 1px), linear-gradient(90deg, ${C.teal} 1px, transparent 1px)`,
+          backgroundSize:"32px 32px",
+        }} />
+        <svg style={{ width:"100%", height:300, position:"relative", zIndex:1 }} viewBox="0 0 100 80" preserveAspectRatio="xMidYMid meet">
+          {ARCH_EDGES.map(([fid,tid],i) => {
+            const fn=nodeMap[fid], tn=nodeMap[tid];
+            if(!fn||!tn) return null;
+            return <line key={i} x1={fn.x+9} y1={fn.y+5} x2={tn.x+9} y2={tn.y+5}
+              stroke={C.border} strokeWidth={0.5} strokeDasharray="2,1" opacity={0.8} />;
+          })}
+          {ARCH_NODES.map(n => (
+            <g key={n.id} onMouseEnter={()=>setHovered(n.id)} onMouseLeave={()=>setHovered(null)} style={{ cursor:"pointer" }}>
+              <rect x={n.x} y={n.y-1} width={18} height={11} rx={2}
+                fill={hovered===n.id?n.color+"33":C.surfaceAlt}
+                stroke={hovered===n.id?n.color:C.border}
+                strokeWidth={hovered===n.id?.8:.4} />
+              <text x={n.x+9} y={n.y+4.5} textAnchor="middle" fontSize={3.5} fill={n.color} fontFamily="monospace">{n.icon}</text>
+              <text x={n.x+9} y={n.y+8}   textAnchor="middle" fontSize={2.2} fill={C.text}      fontFamily="sans-serif" fontWeight="600">{n.label}</text>
+              <text x={n.x+9} y={n.y+10.5} textAnchor="middle" fontSize={1.8} fill={C.textMuted} fontFamily="sans-serif">{n.sub}</text>
+            </g>
+          ))}
+        </svg>
+      </div>
+
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12, marginBottom:20 }}>
+        {[
+          { icon:"⚡", name:"AWS API Gateway",  desc:"Request routing, rate limiting, auth",             color:C.blue     },
+          { icon:"🧠", name:"AWS SageMaker",    desc:"ML fraud detection model inference (<120ms)",       color:C.amber    },
+          { icon:"⚙️", name:"AWS Lambda",       desc:"Serverless rules engine and alert triggers",        color:C.textMuted},
+          { icon:"📡", name:"AWS Kinesis",      desc:"Real-time event streaming pipeline",                color:C.textMuted},
+          { icon:"🗄️", name:"AWS DynamoDB",     desc:"Transaction storage, history, and audit log",       color:C.green    },
+          { icon:"🚨", name:"AWS SNS",          desc:"Alert delivery — email, SMS, webhook",               color:C.red      },
+          { icon:"🔐", name:"AWS Cognito",      desc:"Authentication, authorization, MFA",                color:C.textMuted},
+          { icon:"📊", name:"PM Dashboard",     desc:"Multi-client portfolio management interface",        color:C.teal     },
+          { icon:"📱", name:"SMB Dashboard",    desc:"Client-facing monitoring and alert review",          color:C.green    },
+        ].map(s => (
+          <div key={s.name} style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:8, padding:"14px 16px", borderLeft:`3px solid ${s.color}` }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+              <span style={{ fontSize:15 }}>{s.icon}</span>
+              <span style={{ fontWeight:600, fontSize:12 }}>{s.name}</span>
+            </div>
+            <div style={{ fontSize:11, color:C.textMuted }}>{s.desc}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, padding:"18px 20px" }}>
+        <div style={{ fontWeight:600, fontSize:14, marginBottom:12 }}>Transaction Flow</div>
+        <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", marginBottom:12 }}>
+          {["SMB Client","→","API Gateway","→","SageMaker ML","→","Rules Engine","→","DynamoDB","→","SNS Alert","→","PM + SMB Dashboard"].map((s,i) => (
+            <span key={i} style={{
+              color:s==="→"?C.textDim:C.teal,
+              fontFamily:s==="→"?"inherit":"'Space Mono'",
+              fontSize:s==="→"?16:11, fontWeight:s==="→"?300:600,
+              background:s==="→"?"transparent":C.tealGlow,
+              padding:s==="→"?"0":"3px 8px", borderRadius:4,
+              border:s==="→"?"none":`1px solid ${C.teal}33`,
+            }}>{s}</span>
+          ))}
+        </div>
+        <div style={{ color:C.textMuted, fontSize:12 }}>
+          Detection latency: <span style={{ color:C.teal, fontFamily:"'Space Mono'" }}>&lt;120ms avg (94ms validated)</span>
+          {" "}· Detection rate: <span style={{ color:C.green, fontFamily:"'Space Mono'" }}>87.5%</span>
+          {" "}· False positive rate: <span style={{ color:C.amber, fontFamily:"'Space Mono'" }}>6.5%</span>
+          {" "}· Alert delivery: <span style={{ color:C.teal, fontFamily:"'Space Mono'" }}>&lt;60s (38s avg)</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── APP ROOT ──────────────────────────────────────────────────────────────────
+function App() {
+  const [view, setView] = useState("pm");
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [showScore, setShowScore] = useState(false);
+
+  const handleSelectClient = (client) => {
+    setSelectedClient(client);
+    setView("client");
+  };
+
+  return (
+    <>
+      <div style={{ display:"flex", minHeight:"100vh", background:C.bg }}>
+        <Nav active={view} setActive={setView} clientName={selectedClient?.name} onScore={() => setShowScore(true)} />
+        <main style={{ flex:1, overflowY:"auto", minHeight:"100vh" }}>
+          {view==="pm"      && <PMOverview onSelectClient={handleSelectClient} />}
+          {view==="client"  && <ClientView client={selectedClient} />}
+          {view==="onboard" && <OnboardView />}
+          {view==="arch"    && <ArchView />}
+        </main>
+      </div>
+      {showScore && <ScoreModal onClose={() => setShowScore(false)} />}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
