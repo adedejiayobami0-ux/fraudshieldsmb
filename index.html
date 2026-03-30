@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>FraudShield Africa — AI Fraud Detection API for African Fintechs</title>
+<title>FraudShield SMB — AI Fraud Detection for Small Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
@@ -19,126 +19,117 @@ body {
   overflow-x: hidden;
   transition: background 0.25s ease, color 0.25s ease;
 }
-body.dark { background: #080C11; color: #E2EAF4; }
-body.light { background: #F4F6F9; color: #1A2535; }
+body.dark  { background: #0A0E14; color: #E2EAF4; }
+body.light { background: #F3F5F8; color: #1A2535; }
 ::-webkit-scrollbar { width: 4px; }
-body.dark ::-webkit-scrollbar-track { background: #080C11; }
-body.dark ::-webkit-scrollbar-thumb { background: #1A2A3A; border-radius: 2px; }
-body.light ::-webkit-scrollbar-track { background: #E8ECF2; }
-body.light ::-webkit-scrollbar-thumb { background: #B0BCCF; border-radius: 2px; }
-.mono { font-family: 'Space Mono', monospace; }
+body.dark  ::-webkit-scrollbar-track { background: #0A0E14; }
+body.dark  ::-webkit-scrollbar-thumb { background: #1E2D3D; border-radius: 2px; }
+body.light ::-webkit-scrollbar-track { background: #E4E8EF; }
+body.light ::-webkit-scrollbar-thumb { background: #B0BCCC; border-radius: 2px; }
 button { cursor: pointer; border: none; background: none; color: inherit; font-family: inherit; }
-input, select, textarea { font-family: 'DM Sans', sans-serif; outline: none; }
-@keyframes pulse-teal { 0%,100%{opacity:1} 50%{opacity:.4} }
-@keyframes slide-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-@keyframes ticker-in { from{opacity:0;transform:translateX(-12px)} to{opacity:1;transform:translateX(0)} }
-@keyframes modal-in { from{opacity:0;transform:scale(.96)} to{opacity:1;transform:scale(1)} }
-@keyframes scan { 0%{transform:translateX(-100%)} 100%{transform:translateX(200%)} }
-@keyframes fadeup { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-@keyframes toggle-slide { from{transform:translateX(0)} to{transform:translateX(18px)} }
-.animate-in { animation: slide-in .35s ease forwards; }
-.pulse-live { animation: pulse-teal 2s ease-in-out infinite; }
-.modal-backdrop {
-  position: fixed; inset: 0; background: rgba(0,0,0,.72);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 1000; backdrop-filter: blur(6px);
-}
-.modal-box { animation: modal-in .2s ease forwards; }
-.ticker-row { animation: ticker-in .4s ease forwards; }
+input, select { font-family: 'DM Sans', sans-serif; outline: none; }
+input::placeholder { opacity: 0.5; }
+@keyframes pulse-dot  { 0%,100%{opacity:1} 50%{opacity:.35} }
+@keyframes slide-in   { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes ticker-in  { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+@keyframes modal-in   { from{opacity:0;transform:scale(.96)} to{opacity:1;transform:scale(1)} }
+@keyframes scan       { 0%{transform:translateX(-100%)} 100%{transform:translateX(200%)} }
+@keyframes fadeup     { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+.pulse-live  { animation: pulse-dot 2s ease-in-out infinite; }
+.slide-in    { animation: slide-in .35s ease forwards; }
+.ticker-row  { animation: ticker-in .4s ease forwards; }
+.modal-wrap  { position:fixed; inset:0; background:rgba(0,0,0,.7); display:flex; align-items:center; justify-content:center; z-index:1000; backdrop-filter:blur(6px); }
+.modal-box   { animation: modal-in .2s ease forwards; }
 pre { font-family: 'Space Mono', monospace; }
-
-/* Theme toggle pill */
-.theme-toggle {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 12px; border-radius: 20px;
-  border: 1px solid; cursor: pointer;
-  font-size: 12px; font-weight: 500;
-  transition: all 0.2s ease;
-  white-space: nowrap;
+.theme-pill {
+  display:flex; align-items:center; gap:7px;
+  padding:6px 12px; border-radius:20px; border:1px solid;
+  font-size:12px; font-weight:500; cursor:pointer;
+  transition: all .2s ease; white-space:nowrap;
 }
-.theme-toggle .toggle-track {
-  width: 34px; height: 18px; border-radius: 9px;
-  position: relative; transition: background 0.25s ease;
-  flex-shrink: 0;
-}
-.theme-toggle .toggle-knob {
-  position: absolute; top: 2px; left: 2px;
-  width: 14px; height: 14px; border-radius: 50%;
-  background: white; transition: transform 0.25s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-}
-.theme-toggle.is-light .toggle-knob { transform: translateX(16px); }
-
-/* Smooth surface transitions */
-div, button, input, select, nav { transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+.track { width:32px; height:18px; border-radius:9px; position:relative; transition:background .25s; flex-shrink:0; }
+.knob  { position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:#fff; transition:transform .25s; box-shadow:0 1px 3px rgba(0,0,0,.25); }
+.knob.on { transform:translateX(14px); }
+div, button, input, select, nav { transition: background .2s ease, border-color .2s ease, color .15s ease; }
 </style>
 </head>
 <body class="dark">
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useEffect, useRef, useCallback, createContext, useContext } = React;
+const { useState, useEffect, useCallback, createContext, useContext } = React;
 
 // ── THEME PALETTES ────────────────────────────────────────────────────────────
 const DARK = {
-  bg: "#080C11", surface: "#0F1720", surfaceAlt: "#141E2A",
-  border: "#1A2A3A", borderLight: "#223344",
-  teal: "#00C2A8", tealDim: "#00997F", tealGlow: "rgba(0,194,168,0.10)",
-  amber: "#F59E0B", amberDim: "#D97706", amberGlow: "rgba(245,158,11,0.10)",
-  red: "#EF4444", redGlow: "rgba(239,68,68,0.10)",
-  green: "#10B981", greenGlow: "rgba(16,185,129,0.10)",
-  blue: "#3B82F6", blueGlow: "rgba(59,130,246,0.10)",
-  orange: "#F97316", orangeGlow: "rgba(249,115,22,0.10)",
-  text: "#E2EAF4", textMuted: "#6B8199", textDim: "#3D5066",
-  codeText: "#A8C4D0", isDark: true,
+  bg:"#0A0E14", surface:"#111820", surfaceAlt:"#161E28",
+  border:"#1E2D3D", borderHover:"#2A3D52",
+  teal:"#00C2A8", tealDim:"#009980", tealGlow:"rgba(0,194,168,0.10)",
+  amber:"#F59E0B", amberGlow:"rgba(245,158,11,0.10)",
+  red:"#EF4444", redGlow:"rgba(239,68,68,0.10)",
+  green:"#10B981", greenGlow:"rgba(16,185,129,0.10)",
+  blue:"#3B82F6", blueGlow:"rgba(59,130,246,0.10)",
+  purple:"#8B5CF6", purpleGlow:"rgba(139,92,246,0.10)",
+  text:"#E2EAF4", textMuted:"#6B8199", textDim:"#3D5066",
+  code:"#A8C4D0", isDark:true,
 };
-
 const LIGHT = {
-  bg: "#F4F6F9", surface: "#FFFFFF", surfaceAlt: "#EEF1F6",
-  border: "#D4DCE8", borderLight: "#C0CCD9",
-  teal: "#009982", tealDim: "#007A69", tealGlow: "rgba(0,153,130,0.08)",
-  amber: "#D97706", amberDim: "#B45309", amberGlow: "rgba(217,119,6,0.08)",
-  red: "#DC2626", redGlow: "rgba(220,38,38,0.08)",
-  green: "#059669", greenGlow: "rgba(5,150,105,0.08)",
-  blue: "#2563EB", blueGlow: "rgba(37,99,235,0.08)",
-  orange: "#EA580C", orangeGlow: "rgba(234,88,12,0.08)",
-  text: "#1A2535", textMuted: "#4A6080", textDim: "#8BA0B8",
-  codeText: "#2D5A8E", isDark: false,
+  bg:"#F3F5F8", surface:"#FFFFFF", surfaceAlt:"#EBF0F6",
+  border:"#D1D9E6", borderHover:"#B8C4D4",
+  teal:"#00897B", tealDim:"#00695C", tealGlow:"rgba(0,137,123,0.08)",
+  amber:"#D97706", amberGlow:"rgba(217,119,6,0.08)",
+  red:"#DC2626", redGlow:"rgba(220,38,38,0.08)",
+  green:"#059669", greenGlow:"rgba(5,150,105,0.08)",
+  blue:"#2563EB", blueGlow:"rgba(37,99,235,0.08)",
+  purple:"#7C3AED", purpleGlow:"rgba(124,58,237,0.08)",
+  text:"#1A2535", textMuted:"#4A6080", textDim:"#8BA0B8",
+  code:"#1E4976", isDark:false,
 };
 
-// ── THEME CONTEXT ─────────────────────────────────────────────────────────────
-const ThemeCtx = createContext({ C: DARK, isDark: true, toggle: () => {} });
+const ThemeCtx = createContext({ C: DARK, isDark: true, toggle: ()=>{} });
 const useTheme = () => useContext(ThemeCtx);
 
-// ── STATIC DATA ───────────────────────────────────────────────────────────────
+// ── SMB DATA — AMERICAN SMALL BUSINESSES ─────────────────────────────────────
 const CLIENTS = [
-  { id:1, name:"Brass Business", industry:"Neobank", location:"Lagos, NG", risk:"low", alerts:3, score:89, onboarded:"Nov 2024", transactions:14820, flagged:4, saved:2840000, corridor:"NG-GH", tier:"Growth" },
-  { id:2, name:"FairMoney Nigeria", industry:"Digital Lending", location:"Lagos, NG", risk:"medium", alerts:11, score:62, onboarded:"Oct 2024", transactions:38940, flagged:28, saved:9120000, corridor:"NG-NG", tier:"Growth" },
-  { id:3, name:"Moove Africa", industry:"Mobility Fintech", location:"Accra, GH", risk:"high", alerts:19, score:38, onboarded:"Sep 2024", transactions:21030, flagged:47, saved:18600000, corridor:"GH-NG", tier:"Pilot" },
-  { id:4, name:"Kippa Finance", industry:"SMB Payments", location:"Abuja, NG", risk:"low", alerts:1, score:94, onboarded:"Dec 2024", transactions:52110, flagged:2, saved:1340000, corridor:"NG-KE", tier:"Growth" },
-  { id:5, name:"Vella Finance", industry:"B2B Payments", location:"Lagos, NG", risk:"medium", alerts:7, score:71, onboarded:"Nov 2024", transactions:9670, flagged:9, saved:6720000, corridor:"NG-ZA", tier:"Pilot" },
-  { id:6, name:"Grey Finance", industry:"FX & Transfers", location:"Lagos, NG", risk:"low", alerts:2, score:91, onboarded:"Jan 2025", transactions:31100, flagged:3, saved:4200000, corridor:"NG-GB", tier:"Enterprise" },
+  { id:1, name:"Pinewood Bakery",      industry:"Food & Beverage",   location:"Seattle, WA",  risk:"low",    alerts:2,  score:91, onboarded:"Nov 2024", transactions:1842,  flagged:3,  saved:12400,  tier:"Starter" },
+  { id:2, name:"Cascade Auto Repair",  industry:"Automotive",        location:"Tacoma, WA",   risk:"medium", alerts:8,  score:61, onboarded:"Oct 2024", transactions:934,   flagged:13, saved:8700,   tier:"Growth" },
+  { id:3, name:"Northgate Dental",     industry:"Healthcare",        location:"Bellevue, WA", risk:"high",   alerts:15, score:38, onboarded:"Sep 2024", transactions:2103,  flagged:24, saved:31200,  tier:"Growth" },
+  { id:4, name:"Emerald Threads",      industry:"Retail",            location:"Redmond, WA",  risk:"low",    alerts:1,  score:94, onboarded:"Dec 2024", transactions:3211,  flagged:1,  saved:4100,   tier:"Starter" },
+  { id:5, name:"Summit Law Group",     industry:"Legal Services",    location:"Kirkland, WA", risk:"medium", alerts:5,  score:73, onboarded:"Nov 2024", transactions:672,   flagged:7,  saved:19800,  tier:"Growth" },
+  { id:6, name:"Harbor Fresh Seafood", industry:"Food & Beverage",   location:"Bremerton, WA",risk:"low",    alerts:0,  score:97, onboarded:"Jan 2025", transactions:1103,  flagged:0,  saved:0,      tier:"Enterprise" },
 ];
 
-const VENDORS = ["Flutterwave","Paystack","Moniepoint","Interswitch","OPay","PalmPay","Kuda Bank","GTBank","UBA","FirstBank","Mobile Money","USSD Transfer"];
-const CATS = ["Vendor Payment","Airtime Top-up","Agent Float","Payroll","Supplier Invoice","POS Withdrawal","Cross-Border","Refund","Loan Disbursement","Collection"];
-const CORRIDORS = ["NG-GH","NG-KE","NG-ZA","NG-GB","GH-NG","KE-UG","ZA-ZW","NG-US"];
+const VENDORS  = ["Stripe","Square","PayPal Business","ACH Transfer","Wire Transfer","Zelle","Venmo Business","Check Deposit","Chase Business","Bank of America","QuickBooks Payments","Clover"];
+const CATS     = ["Vendor Payment","Payroll","Supplies","Utilities","Insurance","Marketing","Equipment","Refund","Customer Payment","Subscription","Chargeback","Wire"];
+const STATES   = ["WA","CA","TX","NY","FL","IL","GA","AZ","CO","OH"];
+const FRAUD_SIGNALS = ["Card testing","Velocity anomaly","Geo-location mismatch","Unusual vendor","Amount threshold","Time-of-day anomaly","Device fingerprint","Check fraud","ACH return","Identity mismatch","Chargeback pattern","New account fraud"];
 
-// ── ML SCORING ENGINE ─────────────────────────────────────────────────────────
-function scoreTransaction({ amount, vendor, category, hour, corridor }) {
+// ── SCORING ENGINE — US SMB FRAUD PATTERNS ────────────────────────────────────
+function scoreTransaction({ amount, vendor, category, hour }) {
   let score = 0; const signals = [];
-  if (amount > 500000) { score += 28; signals.push("Amount threshold"); }
-  else if (amount > 200000) { score += 14; }
-  if (hour >= 23 || hour < 4) { score += 26; signals.push("Time-of-day anomaly"); }
-  else if (hour < 6) { score += 10; }
-  if (["USSD Transfer","Mobile Money","OPay","PalmPay"].includes(vendor)) { score += 22; signals.push("Informal merchant ID"); }
-  else if (["Agent Float","Kuda Bank"].includes(vendor)) { score += 8; }
-  if (category === "Agent Float") { score += 20; signals.push("Agent float abuse"); }
-  else if (category === "Cross-Border") { score += 15; signals.push("Corridor arbitrage"); }
-  else if (category === "Refund") { score += 12; signals.push("Velocity anomaly"); }
-  else if (category === "Loan Disbursement") { score += 8; }
-  if (Math.random() < 0.12) { score += 22; signals.push("SIM-swap chain"); }
-  if (Math.random() < 0.08) { score += 14; signals.push("Device fingerprint"); }
-  if (Math.random() < 0.06) { score += 18; signals.push("Geo-location mismatch"); }
+
+  // Amount threshold
+  if (amount > 5000)      { score += 26; signals.push("Amount threshold"); }
+  else if (amount > 2000) { score += 11; }
+
+  // Time-of-day anomaly (outside business hours)
+  if (hour >= 23 || hour < 5)  { score += 24; signals.push("Time-of-day anomaly"); }
+  else if (hour < 7)            { score += 9; }
+
+  // High-risk channels for US SMBs
+  if (["Wire Transfer","Zelle","Venmo Business"].includes(vendor)) { score += 21; signals.push("Unusual vendor"); }
+  else if (["ACH Transfer"].includes(vendor))                       { score += 7; }
+
+  // Category risk
+  if (category === "Chargeback")      { score += 22; signals.push("Chargeback pattern"); }
+  else if (category === "Wire")       { score += 18; signals.push("Velocity anomaly"); }
+  else if (category === "Refund")     { score += 13; signals.push("Velocity anomaly"); }
+  else if (category === "Equipment")  { score += 7; }
+
+  // Simulate probabilistic signals
+  if (Math.random() < 0.10) { score += 20; signals.push("Card testing"); }
+  if (Math.random() < 0.08) { score += 16; signals.push("Device fingerprint"); }
+  if (Math.random() < 0.07) { score += 18; signals.push("Geo-location mismatch"); }
+  if (Math.random() < 0.05) { score += 14; signals.push("Check fraud"); }
+
   score += Math.floor(Math.random() * 10);
   score = Math.min(99, Math.max(1, score));
   const status = score >= 85 ? "blocked" : score >= 70 ? "flagged" : score >= 50 ? "review" : "clear";
@@ -146,69 +137,49 @@ function scoreTransaction({ amount, vendor, category, hour, corridor }) {
 }
 
 function genTxn(clientName) {
-  const amount = Math.floor(Math.random() * 900000) + 5000;
-  const ts = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000);
+  const amount = Math.floor(Math.random() * 9000) + 50;
+  const ts     = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000);
   const vendor = VENDORS[Math.floor(Math.random() * VENDORS.length)];
-  const cat = CATS[Math.floor(Math.random() * CATS.length)];
-  const corridor = CORRIDORS[Math.floor(Math.random() * CORRIDORS.length)];
-  const { score, signals, status } = scoreTransaction({ amount, vendor, category: cat, hour: ts.getHours(), corridor });
+  const cat    = CATS[Math.floor(Math.random() * CATS.length)];
+  const { score, signals, status } = scoreTransaction({ amount, vendor, category: cat, hour: ts.getHours() });
   return {
     id: `TXN-${Math.random().toString(36).substr(2,8).toUpperCase()}`,
-    timestamp: ts, vendor, category: cat, amount, corridor,
+    timestamp: ts, vendor, category: cat, amount,
     riskScore: score, status, fraudType: signals[0] || null,
     blocked: score >= 85,
   };
 }
 
-// ── THEME TOGGLE BUTTON ───────────────────────────────────────────────────────
-const ThemeToggle = ({ compact = false }) => {
+// ── THEME TOGGLE ──────────────────────────────────────────────────────────────
+const ThemeToggle = ({ compact }) => {
   const { C, isDark, toggle } = useTheme();
   return (
-    <button
-      onClick={toggle}
-      className={`theme-toggle${isDark ? '' : ' is-light'}`}
-      style={{
-        background: isDark ? C.surfaceAlt : C.surface,
-        borderColor: C.border,
-        color: C.textMuted,
-      }}
-      title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-    >
-      <div className="toggle-track" style={{ background: isDark ? C.border : C.teal }}>
-        <div className="toggle-knob" />
+    <button onClick={toggle} className="theme-pill" style={{ background: isDark ? C.surfaceAlt : C.surface, borderColor: C.border, color: C.textMuted }}>
+      <div className="track" style={{ background: isDark ? C.border : C.teal }}>
+        <div className={`knob${isDark ? "" : " on"}`} />
       </div>
-      {!compact && (
-        <span style={{ fontSize: 12 }}>
-          {isDark ? '☀ Light' : '☽ Dark'}
-        </span>
-      )}
+      {!compact && <span>{isDark ? "☀ Light" : "☽ Dark"}</span>}
     </button>
   );
 };
 
-// ── SHARED UI ─────────────────────────────────────────────────────────────────
+// ── SHARED COMPONENTS ─────────────────────────────────────────────────────────
 const Badge = ({ status }) => {
   const { C } = useTheme();
   const map = {
-    low: { bg:C.greenGlow, color:C.green, label:"LOW RISK" },
-    medium: { bg:C.amberGlow, color:C.amber, label:"MED RISK" },
-    high: { bg:C.redGlow, color:C.red, label:"HIGH RISK" },
-    flagged: { bg:C.redGlow, color:C.red, label:"FLAGGED" },
-    blocked: { bg:C.redGlow, color:C.red, label:"BLOCKED" },
-    review: { bg:C.amberGlow, color:C.amber, label:"REVIEW" },
-    clear: { bg:C.greenGlow, color:C.green, label:"CLEAR" },
-    Pilot: { bg:C.blueGlow, color:C.blue, label:"PILOT" },
-    Growth: { bg:C.tealGlow, color:C.teal, label:"GROWTH" },
-    Enterprise: { bg:C.orangeGlow, color:C.orange, label:"ENTERPRISE" },
+    low:        { bg: C.greenGlow,  color: C.green,  label: "LOW RISK" },
+    medium:     { bg: C.amberGlow,  color: C.amber,  label: "MED RISK" },
+    high:       { bg: C.redGlow,    color: C.red,    label: "HIGH RISK" },
+    flagged:    { bg: C.redGlow,    color: C.red,    label: "FLAGGED" },
+    blocked:    { bg: C.redGlow,    color: C.red,    label: "BLOCKED" },
+    review:     { bg: C.amberGlow,  color: C.amber,  label: "REVIEW" },
+    clear:      { bg: C.greenGlow,  color: C.green,  label: "CLEAR" },
+    Starter:    { bg: C.blueGlow,   color: C.blue,   label: "STARTER" },
+    Growth:     { bg: C.tealGlow,   color: C.teal,   label: "GROWTH" },
+    Enterprise: { bg: C.purpleGlow, color: C.purple, label: "ENTERPRISE" },
   };
   const s = map[status] || map.clear;
-  return (
-    <span style={{
-      background:s.bg, color:s.color, border:`1px solid ${s.color}33`,
-      padding:"2px 8px", borderRadius:3, fontSize:10,
-      fontFamily:"'Space Mono',monospace", letterSpacing:"0.08em", fontWeight:700,
-    }}>{s.label}</span>
-  );
+  return <span style={{ background:s.bg, color:s.color, border:`1px solid ${s.color}33`, padding:"2px 8px", borderRadius:3, fontSize:10, fontFamily:"'Space Mono',monospace", letterSpacing:"0.08em", fontWeight:700 }}>{s.label}</span>;
 };
 
 const ScoreRing = ({ score, size=56 }) => {
@@ -218,10 +189,8 @@ const ScoreRing = ({ score, size=56 }) => {
   return (
     <div style={{ position:"relative", width:size, height:size }}>
       <svg width={size} height={size} style={{ transform:"rotate(-90deg)" }}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={C.border} strokeWidth={4} />
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={4}
-          strokeDasharray={`${dash} ${circ}`} strokeLinecap="round"
-          style={{ transition:"stroke-dasharray 1s ease" }} />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={C.border} strokeWidth={4}/>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={4} strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" style={{ transition:"stroke-dasharray 1s ease" }}/>
       </svg>
       <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
         <span style={{ fontFamily:"'Space Mono'", fontSize:size>48?13:10, color, fontWeight:700 }}>{score}</span>
@@ -234,37 +203,15 @@ const StatCard = ({ label, value, sub, color, icon }) => {
   const { C } = useTheme();
   const col = color || C.teal;
   return (
-    <div style={{
-      background:C.surface, border:`1px solid ${C.border}`,
-      borderRadius:8, padding:"16px 20px", flex:1, minWidth:130,
-      borderTop:`2px solid ${col}`,
-    }}>
+    <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:8, padding:"16px 20px", flex:1, minWidth:130, borderTop:`2px solid ${col}` }}>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
         <div>
           <div style={{ color:C.textMuted, fontSize:10, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:6, fontFamily:"'Space Mono'" }}>{label}</div>
           <div style={{ fontFamily:"'Space Mono'", fontSize:22, fontWeight:700, color:col }}>{value}</div>
           {sub && <div style={{ color:C.textMuted, fontSize:11, marginTop:4 }}>{sub}</div>}
         </div>
-        {icon && <div style={{ fontSize:20, opacity:0.6 }}>{icon}</div>}
+        {icon && <div style={{ fontSize:20, opacity:.55 }}>{icon}</div>}
       </div>
-    </div>
-  );
-};
-
-const SectionHeader = ({ title, sub, action, onAction }) => {
-  const { C } = useTheme();
-  return (
-    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
-      <div>
-        <h2 style={{ fontSize:15, fontWeight:600, color:C.text }}>{title}</h2>
-        {sub && <div style={{ color:C.textMuted, fontSize:12, marginTop:2 }}>{sub}</div>}
-      </div>
-      {action && (
-        <button onClick={onAction} style={{
-          background:C.tealGlow, color:C.teal, border:`1px solid ${C.teal}44`,
-          borderRadius:6, padding:"6px 14px", fontSize:12, fontWeight:500,
-        }}>{action}</button>
-      )}
     </div>
   );
 };
@@ -278,131 +225,115 @@ const MiniBar = ({ value, max=100, color }) => {
   );
 };
 
-// ── SCORE TRANSACTION MODAL ───────────────────────────────────────────────────
+const SectionHeader = ({ title, sub }) => {
+  const { C } = useTheme();
+  return (
+    <div style={{ marginBottom:16 }}>
+      <h2 style={{ fontSize:15, fontWeight:600, color:C.text }}>{title}</h2>
+      {sub && <div style={{ color:C.textMuted, fontSize:12, marginTop:2 }}>{sub}</div>}
+    </div>
+  );
+};
+
+// ── SCORE MODAL ───────────────────────────────────────────────────────────────
 const ScoreModal = ({ onClose }) => {
   const { C } = useTheme();
-  const [form, setForm] = useState({ amount:"", vendor:"", category:"", corridor:"NG-GH", hour: new Date().getHours() });
+  const [form, setForm] = useState({ amount:"", vendor:"", category:"", hour: new Date().getHours() });
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const f = (k,v) => setForm(p => ({...p,[k]:v}));
+  const f = (k,v) => setForm(p=>({...p,[k]:v}));
 
   const run = () => {
     if (!form.amount || !form.vendor || !form.category) return;
     setLoading(true); setResult(null);
-    setTimeout(() => {
-      const r = scoreTransaction({ amount:+form.amount, vendor:form.vendor, category:form.category, hour:+form.hour, corridor:form.corridor });
-      setResult(r); setLoading(false);
-    }, 1100);
+    setTimeout(() => { setResult(scoreTransaction({ amount:+form.amount, vendor:form.vendor, category:form.category, hour:+form.hour })); setLoading(false); }, 900);
   };
 
   const IS = { width:"100%", background:C.surfaceAlt, border:`1px solid ${C.border}`, borderRadius:6, padding:"9px 12px", color:C.text, fontSize:13 };
   const LS = { fontSize:11, color:C.textMuted, marginBottom:5, display:"block", fontWeight:500 };
-  const scoreColor = result ? (result.score >= 85 ? C.red : result.score >= 60 ? C.amber : C.green) : C.teal;
+  const sc = result ? (result.score>=85?C.red:result.score>=60?C.amber:C.green) : C.teal;
 
-  const curlCmd = form.amount && form.vendor && form.category ? `curl -X POST https://api.fraudshield.africa/v1/score \\
+  const preview = form.amount && form.vendor && form.category
+    ? `curl -X POST https://api.fraudshield.io/v1/score \\
   -H "Authorization: Bearer fs_live_xxxx" \\
-  -d '{
-    "amount": ${form.amount}, "currency": "NGN",
-    "vendor": "${form.vendor}", "category": "${form.category}",
-    "corridor": "${form.corridor}"
-  }'` : null;
+  -d '{ "amount": ${form.amount}, "vendor": "${form.vendor}", "category": "${form.category}" }'`
+    : null;
 
   return (
-    <div className="modal-backdrop" onClick={e => e.target===e.currentTarget && onClose()}>
-      <div className="modal-box" style={{
-        background:C.surface, border:`1px solid ${C.border}`, borderRadius:12,
-        padding:28, width:520, maxWidth:"95vw", maxHeight:"90vh", overflowY:"auto",
-      }}>
+    <div className="modal-wrap" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="modal-box" style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:12, padding:28, width:500, maxWidth:"95vw", maxHeight:"90vh", overflowY:"auto" }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
           <div>
-            <div style={{ fontFamily:"'Space Mono'", fontSize:13, color:C.teal, fontWeight:700 }}>⚡ SCORE A TRANSACTION</div>
-            <div style={{ color:C.textMuted, fontSize:12, marginTop:3 }}>African corridor ML engine · NGN-aware</div>
+            <div style={{ fontFamily:"'Space Mono'", fontSize:12, color:C.teal, fontWeight:700 }}>⚡ SCORE A TRANSACTION</div>
+            <div style={{ color:C.textMuted, fontSize:12, marginTop:3 }}>Live ML fraud scoring engine</div>
           </div>
-          <button onClick={onClose} style={{ color:C.textMuted, fontSize:18, padding:"4px 8px" }}>✕</button>
+          <button onClick={onClose} style={{ color:C.textMuted, fontSize:18 }}>✕</button>
         </div>
 
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
+          <div><label style={LS}>Amount ($)</label><input style={IS} type="number" placeholder="e.g. 3500" value={form.amount} onChange={e=>f("amount",e.target.value)}/></div>
+          <div><label style={LS}>Hour of Day (0–23)</label><input style={IS} type="number" min="0" max="23" value={form.hour} onChange={e=>f("hour",e.target.value)}/></div>
           <div>
-            <label style={LS}>Amount (₦ Naira)</label>
-            <input style={IS} type="number" placeholder="e.g. 250000" value={form.amount} onChange={e => f("amount", e.target.value)} />
-          </div>
-          <div>
-            <label style={LS}>Hour of Day (0–23)</label>
-            <input style={IS} type="number" min="0" max="23" value={form.hour} onChange={e => f("hour", e.target.value)} />
-          </div>
-          <div>
-            <label style={LS}>Payment Channel</label>
-            <select style={IS} value={form.vendor} onChange={e => f("vendor", e.target.value)}>
-              <option value="">Select channel…</option>
-              {VENDORS.map(v => <option key={v} value={v}>{v}</option>)}
+            <label style={LS}>Payment Vendor</label>
+            <select style={IS} value={form.vendor} onChange={e=>f("vendor",e.target.value)}>
+              <option value="">Select vendor…</option>
+              {VENDORS.map(v=><option key={v} value={v}>{v}</option>)}
             </select>
           </div>
           <div>
-            <label style={LS}>Transaction Category</label>
-            <select style={IS} value={form.category} onChange={e => f("category", e.target.value)}>
+            <label style={LS}>Category</label>
+            <select style={IS} value={form.category} onChange={e=>f("category",e.target.value)}>
               <option value="">Select category…</option>
-              {CATS.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          <div style={{ gridColumn:"span 2" }}>
-            <label style={LS}>Payment Corridor</label>
-            <select style={IS} value={form.corridor} onChange={e => f("corridor", e.target.value)}>
-              {CORRIDORS.map(c => <option key={c} value={c}>{c}</option>)}
+              {CATS.map(c=><option key={c} value={c}>{c}</option>)}
             </select>
           </div>
         </div>
 
-        {curlCmd && (
-          <div style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:6, padding:"12px 14px", marginBottom:14, overflowX:"auto" }}>
-            <div style={{ fontSize:10, color:C.textMuted, fontFamily:"'Space Mono'", marginBottom:6 }}>API REQUEST PREVIEW</div>
-            <pre style={{ fontSize:10, color:C.teal, lineHeight:1.6, whiteSpace:"pre-wrap" }}>{curlCmd}</pre>
+        {preview && (
+          <div style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:6, padding:"10px 14px", marginBottom:14 }}>
+            <div style={{ fontSize:9, color:C.textMuted, fontFamily:"'Space Mono'", marginBottom:5 }}>API PREVIEW</div>
+            <pre style={{ fontSize:10, color:C.teal, lineHeight:1.7, whiteSpace:"pre-wrap" }}>{preview}</pre>
           </div>
         )}
 
-        <button onClick={run} style={{
-          width:"100%", padding:"11px", borderRadius:8, fontSize:13, fontWeight:600,
-          background:C.teal, color:"#fff", marginBottom:20,
-          opacity: (!form.amount||!form.vendor||!form.category) ? 0.5 : 1,
-        }}>
-          {loading ? "Running corridor ML model…" : "POST /v1/score →"}
+        <button onClick={run} style={{ width:"100%", padding:"11px", borderRadius:8, fontSize:13, fontWeight:600, background:C.teal, color:"#fff", marginBottom:20, opacity:(!form.amount||!form.vendor||!form.category)?.5:1 }}>
+          {loading ? "Scoring…" : "Run Detection →"}
         </button>
 
         {loading && (
-          <div style={{ textAlign:"center", padding:"16px 0" }}>
-            <div style={{ color:C.teal, fontFamily:"'Space Mono'", fontSize:11, marginBottom:8 }}>QUERYING AFRICAN CORRIDOR MODEL…</div>
+          <div style={{ textAlign:"center", padding:"14px 0" }}>
+            <div style={{ color:C.teal, fontFamily:"'Space Mono'", fontSize:11, marginBottom:8 }}>QUERYING ML MODEL…</div>
             <div style={{ height:2, background:C.border, borderRadius:2, overflow:"hidden" }}>
-              <div style={{ height:"100%", background:`linear-gradient(90deg, transparent, ${C.teal}, transparent)`, animation:"scan 1.2s ease infinite", width:"50%" }} />
+              <div style={{ height:"100%", background:`linear-gradient(90deg, transparent, ${C.teal}, transparent)`, animation:"scan 1.2s ease infinite", width:"50%" }}/>
             </div>
           </div>
         )}
 
         {result && (
-          <div style={{ border:`1px solid ${scoreColor}33`, borderRadius:8, padding:16, background:`${scoreColor}08`, animation:"slide-in .3s ease" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+          <div style={{ border:`1px solid ${sc}33`, borderRadius:8, padding:16, background:`${sc}08` }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
               <div>
-                <div style={{ fontFamily:"'Space Mono'", fontSize:10, color:C.textMuted, marginBottom:2 }}>RISK SCORE · {form.corridor}</div>
-                <div style={{ fontFamily:"'Space Mono'", fontSize:36, fontWeight:700, color:scoreColor }}>{result.score}</div>
+                <div style={{ fontFamily:"'Space Mono'", fontSize:9, color:C.textMuted, marginBottom:2 }}>ML RISK SCORE</div>
+                <div style={{ fontFamily:"'Space Mono'", fontSize:38, fontWeight:700, color:sc }}>{result.score}</div>
               </div>
-              <Badge status={result.status} />
+              <Badge status={result.status}/>
             </div>
-            {result.signals.length > 0 && (
-              <div style={{ marginBottom:12 }}>
-                <div style={{ fontSize:10, color:C.textMuted, marginBottom:6, fontFamily:"'Space Mono'" }}>FRAUD VECTORS DETECTED</div>
-                <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
-                  {result.signals.map(s => (
-                    <span key={s} style={{ background:C.amberGlow, color:C.amber, border:`1px solid ${C.amber}33`, padding:"3px 10px", borderRadius:4, fontSize:11, fontFamily:"'Space Mono'" }}>⚠ {s}</span>
-                  ))}
+            {result.signals.length>0 && (
+              <div style={{ marginBottom:10 }}>
+                <div style={{ fontSize:9, color:C.textMuted, marginBottom:6, fontFamily:"'Space Mono'" }}>FRAUD SIGNALS</div>
+                <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
+                  {result.signals.map(s=><span key={s} style={{ background:C.amberGlow, color:C.amber, border:`1px solid ${C.amber}33`, padding:"3px 9px", borderRadius:4, fontSize:11, fontFamily:"'Space Mono'" }}>⚠ {s}</span>)}
                 </div>
               </div>
             )}
-            <div style={{ background:C.bg, borderRadius:6, padding:"10px 12px", fontFamily:"'Space Mono'", fontSize:11, color:C.teal, marginBottom:10 }}>
-              {`{\n  "score": ${result.score},\n  "status": "${result.status}",\n  "corridor": "${form.corridor}",\n  "signals": ${JSON.stringify(result.signals)}\n}`}
+            <div style={{ background:C.bg, borderRadius:6, padding:"9px 12px", fontFamily:"'Space Mono'", fontSize:11, color:C.teal, marginBottom:10 }}>
+              {`{ "score": ${result.score}, "status": "${result.status}", "signals": ${JSON.stringify(result.signals)} }`}
             </div>
             <div style={{ fontSize:12, color:C.textMuted }}>
-              {result.status === "blocked" && "⛔ Auto-blocked. Transaction halted — CBN compliance rule triggered."}
-              {result.status === "flagged" && "🚨 Flagged. Client alerted via Slack + email within 30 seconds."}
-              {result.status === "review" && "⚠️ Queued for review. Human-in-the-loop escalation initiated."}
-              {result.status === "clear" && "✅ Cleared. No African fraud vectors detected across this corridor."}
+              {result.status==="blocked" && "⛔ Auto-blocked. Flagged for immediate review."}
+              {result.status==="flagged" && "🚨 Alert sent to business owner via email + SMS."}
+              {result.status==="review"  && "⚠️ Queued for manual review within 2 hours."}
+              {result.status==="clear"   && "✅ Transaction cleared. No significant risk signals."}
             </div>
           </div>
         )}
@@ -414,89 +345,99 @@ const ScoreModal = ({ onClose }) => {
 // ── LANDING PAGE ──────────────────────────────────────────────────────────────
 const LandingView = ({ onEnterDashboard }) => {
   const { C } = useTheme();
-  const [activeTab, setActiveTab] = useState("score");
+  const [tab, setTab] = useState("score");
   const [demoRunning, setDemoRunning] = useState(false);
   const [demoResult, setDemoResult] = useState(null);
 
   const runDemo = () => {
     setDemoRunning(true); setDemoResult(null);
-    setTimeout(() => {
-      setDemoResult({ score:81, status:"flagged", signals:["SIM-swap chain","Agent float abuse","Time-of-day anomaly"], latency_ms:94 });
-      setDemoRunning(false);
-    }, 1400);
+    setTimeout(()=>{ setDemoResult({ score:77, status:"flagged", signals:["Card testing","Velocity anomaly","Time-of-day anomaly"], latency:82 }); setDemoRunning(false); }, 1300);
   };
 
-  const codeExamples = {
-    score: `const res = await fetch('https://api.fraudshield.africa/v1/score', {
+  const code = {
+    score:`const res = await fetch('https://api.fraudshield.io/v1/score', {
   method: 'POST',
   headers: { 'Authorization': 'Bearer fs_live_your_key' },
   body: JSON.stringify({
-    amount: 250000, currency: 'NGN',
-    vendor: 'OPay', category: 'Agent Float',
-    corridor: 'NG-GH', device_id: 'fp_abc123'
+    amount: 3500,
+    vendor: 'Stripe',
+    category: 'Vendor Payment',
+    business_id: 'biz_abc123',
+    device_id:   'fp_xyz456'
   })
 });
 const { score, status, signals } = await res.json();
-// score: 81, status: "flagged"
-// signals: ["SIM-swap chain", "Agent float abuse"]`,
-    webhook: `app.post('/fraudshield-webhook', (req, res) => {
+// score: 77, status: "flagged"
+// signals: ["Card testing", "Velocity anomaly"]`,
+    webhook:`app.post('/fraudshield-webhook', (req, res) => {
   const { event, transaction, score, signals } = req.body;
+
   if (event === 'fraud.flagged') {
-    await blockTransaction(transaction.id);
-    await notifyComplianceTeam({ transaction, signals });
+    await pauseTransaction(transaction.id);
+    await notifyOwner({ transaction, signals });
   }
+
+  if (event === 'fraud.blocked') {
+    await refundIfCharged(transaction);
+    await logForAudit(transaction);
+  }
+
   res.sendStatus(200);
 });`,
-    verify: `const identity = await fetch('https://api.fraudshield.africa/v1/verify', {
+    verify:`const biz = await fetch('https://api.fraudshield.io/v1/verify', {
   method: 'POST',
   headers: { 'Authorization': 'Bearer fs_live_your_key' },
   body: JSON.stringify({
-    business_name: "Alhaji Musa Supplies",
-    rc_number: "RC1234567", bvn_hash: "sha256...",
-    phone: "+2348012345678", state: "Kano"
+    business_name: "Cascade Auto Repair",
+    ein:  "12-3456789",
+    state: "WA",
+    industry: "automotive"
   })
 });
-// { confidence: 0.87, tier: "verified_informal", cac_match: true }`,
+// { confidence: 0.91, verified: true,
+//   flags: [], risk_tier: "low" }`,
   };
 
   const PRICING = [
-    { name:"Pilot", price:"$2,000", period:"/mo", calls:"10,000 API calls", color:C.blue,
-      features:["POST /score endpoint","Basic fraud signals","Email alerts","NG + GH corridors","99.5% uptime SLA"], cta:"Start Pilot" },
-    { name:"Growth", price:"$5,000", period:"/mo", calls:"100,000 API calls", color:C.teal, featured:true,
-      features:["All Pilot features","/explain + /verify","Real-time webhooks","Compliance dashboard","All African corridors","Custom fraud rules"], cta:"Get Growth" },
-    { name:"Enterprise", price:"Custom", period:"", calls:"Unlimited calls", color:C.orange,
-      features:["All Growth features","White-label API","Custom ML tuning","CBN/BOG compliance","99.99% SLA","Dedicated engineer"], cta:"Talk to Us" },
+    { name:"Starter", price:"$99", period:"/mo", calls:"5,000 transactions/mo", color:C.blue,
+      features:["Real-time fraud scoring","/score endpoint","Email + SMS alerts","Basic dashboard","99.5% uptime","Up to 3 users"], cta:"Start Free Trial" },
+    { name:"Growth", price:"$299", period:"/mo", calls:"25,000 transactions/mo", color:C.teal, featured:true,
+      features:["All Starter features","/explain + /verify","Webhook alerts","Advanced dashboard","Custom fraud rules","Up to 10 users","Priority support"], cta:"Get Growth" },
+    { name:"Business", price:"$799", period:"/mo", calls:"Unlimited transactions", color:C.purple,
+      features:["All Growth features","White-label reporting","API key management","Custom ML rules","99.99% SLA","Unlimited users","Dedicated support"], cta:"Contact Sales" },
   ];
 
   const VECTORS = [
-    { icon:"📱", title:"SIM-swap chains", desc:"Coordinated SIM replacement attacks on mobile money accounts across NG, GH, KE." },
-    { icon:"🏪", title:"Agent float abuse", desc:"Agent network collusion — float manipulation, fictitious transactions, roundtripping." },
-    { icon:"🌍", title:"Corridor arbitrage", desc:"Suspicious cross-border patterns on NG-GH, NG-KE, NG-ZA corridors Western tools miss." },
-    { icon:"🪪", title:"Informal merchant ID", desc:"SMB identity scoring via CAC, BVN, and informal business patterns — no credit bureau needed." },
-    { icon:"⚡", title:"Velocity anomaly", desc:"Account takeover via abnormal velocity — tuned for African mobile money patterns." },
-    { icon:"🔗", title:"Social trust graph", desc:"Supplier-customer relationship mapping to separate legitimate bulk payments from fraud." },
+    { icon:"💳", title:"Card testing", desc:"Catch fraudsters running small test charges before a large fraudulent purchase on your Stripe or Square account." },
+    { icon:"📬", title:"Check & ACH fraud", desc:"Detect fake check deposits and unauthorized ACH pulls before funds leave your account." },
+    { icon:"🔄", title:"Chargeback patterns", desc:"Identify customers with a history of abusive chargebacks before they transact with your business." },
+    { icon:"🆔", title:"Identity mismatch", desc:"Flag mismatches between billing info, device location, and account history in real time." },
+    { icon:"⚡", title:"Velocity anomaly", desc:"Alert on unusual spikes in transaction volume or rapid repeat purchases that signal account takeover." },
+    { icon:"🕐", title:"Time-of-day anomaly", desc:"Surface suspicious transactions happening at 3am that look nothing like your normal customer patterns." },
   ];
 
   return (
-    <div style={{ maxWidth:1100, margin:"0 auto", padding:"0 24px" }}>
-      <div style={{ padding:"60px 0 50px", textAlign:"center", animation:"fadeup .6s ease both" }}>
+    <div style={{ maxWidth:1080, margin:"0 auto", padding:"0 24px" }}>
+
+      {/* Hero */}
+      <div style={{ padding:"64px 0 52px", textAlign:"center", animation:"fadeup .6s ease both" }}>
         <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:C.tealGlow, border:`1px solid ${C.teal}33`, borderRadius:20, padding:"5px 14px", marginBottom:22 }}>
-          <div style={{ width:6, height:6, borderRadius:"50%", background:C.green }} className="pulse-live" />
-          <span style={{ fontFamily:"'Space Mono'", fontSize:11, color:C.teal }}>LIVE · SERVING AFRICAN FINTECHS</span>
+          <div style={{ width:6, height:6, borderRadius:"50%", background:C.green }} className="pulse-live"/>
+          <span style={{ fontFamily:"'Space Mono'", fontSize:11, color:C.teal }}>LIVE · PROTECTING AMERICAN SMALL BUSINESSES</span>
         </div>
-        <h1 style={{ fontSize:"clamp(28px, 5vw, 52px)", fontWeight:600, letterSpacing:"-0.03em", lineHeight:1.1, marginBottom:18, color:C.text }}>
-          AI Fraud Detection<br/>
-          <span style={{ color:C.teal }}>Built for African Rails</span>
+        <h1 style={{ fontSize:"clamp(28px,5vw,50px)", fontWeight:600, letterSpacing:"-0.03em", lineHeight:1.1, marginBottom:18, color:C.text }}>
+          Stop fraud before it<br/>
+          <span style={{ color:C.teal }}>costs you customers.</span>
         </h1>
-        <p style={{ color:C.textMuted, fontSize:"clamp(14px, 2vw, 18px)", maxWidth:540, margin:"0 auto 32px", lineHeight:1.6 }}>
-          FraudShield is the only fraud API trained on African transaction patterns — Flutterwave, Paystack, OPay, mobile money, agent networks, and USSD corridors.
+        <p style={{ color:C.textMuted, fontSize:"clamp(14px,2vw,17px)", maxWidth:520, margin:"0 auto 32px", lineHeight:1.65 }}>
+          FraudShield gives small businesses the same AI fraud detection that banks use — without the enterprise price tag or 6-month implementation.
         </p>
         <div style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>
-          <button onClick={onEnterDashboard} style={{ padding:"13px 28px", borderRadius:10, fontSize:14, fontWeight:600, background:C.teal, color:"#fff" }}>Enter Dashboard →</button>
-          <button onClick={runDemo} style={{ padding:"13px 28px", borderRadius:10, fontSize:14, fontWeight:500, background:"transparent", color:C.text, border:`1px solid ${C.border}` }}>Run Live Demo</button>
+          <button onClick={onEnterDashboard} style={{ padding:"13px 28px", borderRadius:10, fontSize:14, fontWeight:600, background:C.teal, color:"#fff" }}>See the Dashboard →</button>
+          <button onClick={runDemo} style={{ padding:"13px 28px", borderRadius:10, fontSize:14, fontWeight:500, background:"transparent", color:C.text, border:`1px solid ${C.border}` }}>Run a Live Demo</button>
         </div>
-        <div style={{ display:"flex", justifyContent:"center", gap:40, marginTop:50, flexWrap:"wrap" }}>
-          {[{v:"< 120ms",l:"API latency"},{v:"₦18B+",l:"Fraud prevented"},{v:"9 corridors",l:"African markets"},{v:"99.9%",l:"Uptime SLA"}].map(s => (
+        <div style={{ display:"flex", justifyContent:"center", gap:44, marginTop:52, flexWrap:"wrap" }}>
+          {[{v:"< 100ms",l:"Avg response time"},{v:"$2.1M+",l:"Fraud blocked"},{v:"500+",l:"SMBs protected"},{v:"99.9%",l:"Uptime SLA"}].map(s=>(
             <div key={s.l} style={{ textAlign:"center" }}>
               <div style={{ fontFamily:"'Space Mono'", fontSize:20, fontWeight:700, color:C.teal }}>{s.v}</div>
               <div style={{ color:C.textMuted, fontSize:12, marginTop:2 }}>{s.l}</div>
@@ -505,34 +446,35 @@ const { score, status, signals } = await res.json();
         </div>
       </div>
 
+      {/* Live demo */}
       {(demoRunning || demoResult) && (
-        <div style={{ background:C.surface, border:`1px solid ${C.teal}44`, borderRadius:12, padding:24, marginBottom:40, animation:"slide-in .3s ease" }}>
-          <div style={{ fontFamily:"'Space Mono'", fontSize:11, color:C.teal, marginBottom:14 }}>LIVE DEMO — POST /v1/score</div>
+        <div style={{ background:C.surface, border:`1px solid ${C.teal}44`, borderRadius:12, padding:24, marginBottom:44, animation:"slide-in .3s ease" }}>
+          <div style={{ fontFamily:"'Space Mono'", fontSize:10, color:C.teal, marginBottom:12 }}>LIVE DEMO — POST /v1/score</div>
           {demoRunning && (
             <div>
-              <div style={{ height:2, background:C.border, borderRadius:2, overflow:"hidden", marginBottom:12 }}>
-                <div style={{ height:"100%", background:`linear-gradient(90deg, transparent, ${C.teal}, transparent)`, animation:"scan 1.2s linear infinite", width:"50%" }} />
+              <div style={{ height:2, background:C.border, borderRadius:2, overflow:"hidden", marginBottom:10 }}>
+                <div style={{ height:"100%", background:`linear-gradient(90deg, transparent, ${C.teal}, transparent)`, animation:"scan 1.2s linear infinite", width:"50%" }}/>
               </div>
-              <div style={{ color:C.textMuted, fontSize:12, fontFamily:"'Space Mono'" }}>Querying African corridor model…</div>
+              <div style={{ color:C.textMuted, fontSize:12, fontFamily:"'Space Mono'" }}>Running fraud detection model…</div>
             </div>
           )}
           {demoResult && (
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }}>
               <div>
-                <div style={{ fontSize:11, color:C.textMuted, marginBottom:6, fontFamily:"'Space Mono'" }}>REQUEST</div>
-                <pre style={{ fontSize:11, color:C.textMuted, lineHeight:1.7, background:C.bg, padding:"12px 14px", borderRadius:6, overflowX:"auto" }}>{`{
-  "amount": 250000, "currency": "NGN",
-  "vendor": "OPay",
-  "category": "Agent Float",
-  "corridor": "NG-GH"
+                <div style={{ fontSize:10, color:C.textMuted, marginBottom:6, fontFamily:"'Space Mono'" }}>REQUEST</div>
+                <pre style={{ fontSize:11, color:C.textMuted, lineHeight:1.7, background:C.bg, padding:"12px 14px", borderRadius:6 }}>{`{
+  "amount": 3500,
+  "vendor": "Stripe",
+  "category": "Vendor Payment",
+  "hour": 2
 }`}</pre>
               </div>
               <div>
-                <div style={{ fontSize:11, color:C.textMuted, marginBottom:6, fontFamily:"'Space Mono'" }}>RESPONSE · {demoResult.latency_ms}ms</div>
-                <pre style={{ fontSize:11, color:C.teal, lineHeight:1.7, background:C.bg, padding:"12px 14px", borderRadius:6, overflowX:"auto" }}>{`{
+                <div style={{ fontSize:10, color:C.textMuted, marginBottom:6, fontFamily:"'Space Mono'" }}>RESPONSE · {demoResult.latency}ms</div>
+                <pre style={{ fontSize:11, color:C.teal, lineHeight:1.7, background:C.bg, padding:"12px 14px", borderRadius:6 }}>{`{
   "score": ${demoResult.score},
   "status": "${demoResult.status}",
-  "signals": ["SIM-swap chain", "Agent float abuse"],
+  "signals": ${JSON.stringify(demoResult.signals, null, 2)},
   "action": "FLAG_AND_ALERT"
 }`}</pre>
               </div>
@@ -541,58 +483,54 @@ const { score, status, signals } = await res.json();
         </div>
       )}
 
+      {/* Fraud vectors */}
       <div style={{ marginBottom:56 }}>
         <div style={{ textAlign:"center", marginBottom:32 }}>
-          <div style={{ fontFamily:"'Space Mono'", fontSize:11, color:C.teal, marginBottom:10, letterSpacing:"0.1em" }}>WHAT WE CATCH THAT OTHERS MISS</div>
-          <h2 style={{ fontSize:"clamp(20px,3vw,30px)", fontWeight:600, letterSpacing:"-0.02em", color:C.text }}>African fraud vectors, finally understood</h2>
+          <div style={{ fontFamily:"'Space Mono'", fontSize:10, color:C.teal, marginBottom:10, letterSpacing:"0.1em" }}>WHAT WE DETECT</div>
+          <h2 style={{ fontSize:"clamp(20px,3vw,30px)", fontWeight:600, letterSpacing:"-0.02em", color:C.text }}>The fraud patterns hitting small businesses hardest</h2>
         </div>
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(280px, 1fr))", gap:16 }}>
-          {VECTORS.map((v,i) => (
-            <div key={i} style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, padding:"20px 22px", transition:"border-color .2s" }}
-              onMouseEnter={e=>e.currentTarget.style.borderColor=C.teal+"44"}
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(280px, 1fr))", gap:14 }}>
+          {VECTORS.map((v,i)=>(
+            <div key={i} style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, padding:"20px 22px" }}
+              onMouseEnter={e=>e.currentTarget.style.borderColor=C.teal+"55"}
               onMouseLeave={e=>e.currentTarget.style.borderColor=C.border}>
-              <div style={{ fontSize:24, marginBottom:10 }}>{v.icon}</div>
+              <div style={{ fontSize:22, marginBottom:10 }}>{v.icon}</div>
               <div style={{ fontWeight:600, fontSize:14, marginBottom:6, color:C.text }}>{v.title}</div>
-              <div style={{ color:C.textMuted, fontSize:13, lineHeight:1.6 }}>{v.desc}</div>
+              <div style={{ color:C.textMuted, fontSize:13, lineHeight:1.65 }}>{v.desc}</div>
             </div>
           ))}
         </div>
       </div>
 
+      {/* Code examples */}
       <div style={{ marginBottom:56 }}>
         <div style={{ textAlign:"center", marginBottom:32 }}>
-          <div style={{ fontFamily:"'Space Mono'", fontSize:11, color:C.teal, marginBottom:10, letterSpacing:"0.1em" }}>DEVELOPER-FIRST API</div>
-          <h2 style={{ fontSize:"clamp(20px,3vw,30px)", fontWeight:600, letterSpacing:"-0.02em", color:C.text }}>Integrate in minutes, not months</h2>
+          <div style={{ fontFamily:"'Space Mono'", fontSize:10, color:C.teal, marginBottom:10, letterSpacing:"0.1em" }}>SIMPLE INTEGRATION</div>
+          <h2 style={{ fontSize:"clamp(20px,3vw,30px)", fontWeight:600, letterSpacing:"-0.02em", color:C.text }}>Works with tools you already use</h2>
         </div>
         <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:12, overflow:"hidden" }}>
           <div style={{ display:"flex", borderBottom:`1px solid ${C.border}`, padding:"0 20px" }}>
-            {[{id:"score",label:"POST /score"},{id:"webhook",label:"Webhooks"},{id:"verify",label:"POST /verify"}].map(t => (
-              <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
-                padding:"14px 18px", fontSize:12, fontFamily:"'Space Mono'",
-                color:activeTab===t.id?C.teal:C.textMuted,
-                borderBottom:activeTab===t.id?`2px solid ${C.teal}`:"2px solid transparent",
-                marginBottom:-1, background:"transparent",
-              }}>{t.label}</button>
+            {[{id:"score",label:"Score a transaction"},{id:"webhook",label:"Receive alerts"},{id:"verify",label:"Verify a business"}].map(t=>(
+              <button key={t.id} onClick={()=>setTab(t.id)} style={{ padding:"13px 16px", fontSize:12, fontFamily:"'Space Mono'", color:tab===t.id?C.teal:C.textMuted, borderBottom:tab===t.id?`2px solid ${C.teal}`:"2px solid transparent", marginBottom:-1, background:"transparent" }}>{t.label}</button>
             ))}
           </div>
-          <div style={{ padding:24, overflowX:"auto", background:C.bg }}>
-            <pre style={{ fontSize:12, color:C.codeText, lineHeight:1.8, margin:0 }}>{codeExamples[activeTab]}</pre>
+          <div style={{ padding:24, background:C.bg, overflowX:"auto" }}>
+            <pre style={{ fontSize:12, color:C.code, lineHeight:1.85, margin:0 }}>{code[tab]}</pre>
           </div>
         </div>
       </div>
 
-      <div style={{ marginBottom:60 }}>
+      {/* Pricing */}
+      <div style={{ marginBottom:64 }}>
         <div style={{ textAlign:"center", marginBottom:32 }}>
-          <div style={{ fontFamily:"'Space Mono'", fontSize:11, color:C.teal, marginBottom:10, letterSpacing:"0.1em" }}>PRICING</div>
-          <h2 style={{ fontSize:"clamp(20px,3vw,30px)", fontWeight:600, letterSpacing:"-0.02em", color:C.text }}>Simple, transparent pricing</h2>
-          <p style={{ color:C.textMuted, fontSize:14, marginTop:8 }}>3–5 Growth clients = $15K–25K MRR.</p>
+          <div style={{ fontFamily:"'Space Mono'", fontSize:10, color:C.teal, marginBottom:10, letterSpacing:"0.1em" }}>PRICING</div>
+          <h2 style={{ fontSize:"clamp(20px,3vw,30px)", fontWeight:600, letterSpacing:"-0.02em", color:C.text }}>Priced for small business, not enterprise</h2>
+          <p style={{ color:C.textMuted, fontSize:14, marginTop:8 }}>Start free for 14 days. No credit card required.</p>
         </div>
         <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(240px, 1fr))", gap:16 }}>
-          {PRICING.map((p,i) => (
+          {PRICING.map((p,i)=>(
             <div key={i} style={{ background:p.featured?C.tealGlow:C.surface, border:`1px solid ${p.featured?C.teal+"66":C.border}`, borderRadius:12, padding:"26px 24px", position:"relative" }}>
-              {p.featured && (
-                <div style={{ position:"absolute", top:14, right:14, background:C.teal, color:"#fff", fontSize:9, fontWeight:700, fontFamily:"'Space Mono'", padding:"3px 8px", borderRadius:4 }}>POPULAR</div>
-              )}
+              {p.featured && <div style={{ position:"absolute", top:14, right:14, background:C.teal, color:"#fff", fontSize:9, fontWeight:700, fontFamily:"'Space Mono'", padding:"3px 8px", borderRadius:4 }}>MOST POPULAR</div>}
               <div style={{ fontFamily:"'Space Mono'", fontSize:10, color:p.color, letterSpacing:"0.1em", marginBottom:10 }}>{p.name.toUpperCase()}</div>
               <div style={{ display:"flex", alignItems:"baseline", gap:2, marginBottom:4 }}>
                 <span style={{ fontFamily:"'Space Mono'", fontSize:30, fontWeight:700, color:p.featured?C.teal:C.text }}>{p.price}</span>
@@ -600,7 +538,7 @@ const { score, status, signals } = await res.json();
               </div>
               <div style={{ color:C.textMuted, fontSize:12, marginBottom:20 }}>{p.calls}</div>
               <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:18, marginBottom:22 }}>
-                {p.features.map((feat,fi) => (
+                {p.features.map((feat,fi)=>(
                   <div key={fi} style={{ display:"flex", gap:8, marginBottom:9, fontSize:13, color:C.textMuted }}>
                     <span style={{ color:C.teal, flexShrink:0 }}>✓</span>{feat}
                   </div>
@@ -619,94 +557,90 @@ const { score, status, signals } = await res.json();
 const PMOverview = ({ onSelectClient }) => {
   const { C } = useTheme();
   const totalAlerts = CLIENTS.reduce((s,c)=>s+c.alerts,0);
-  const totalSaved = CLIENTS.reduce((s,c)=>s+c.saved,0);
-  const totalTxns = CLIENTS.reduce((s,c)=>s+c.transactions,0);
-  const avgScore = Math.round(CLIENTS.reduce((s,c)=>s+c.score,0)/CLIENTS.length);
+  const totalSaved  = CLIENTS.reduce((s,c)=>s+c.saved,0);
+  const totalTxns   = CLIENTS.reduce((s,c)=>s+c.transactions,0);
+  const avgScore    = Math.round(CLIENTS.reduce((s,c)=>s+c.score,0)/CLIENTS.length);
 
-  const [ticker, setTicker] = useState(() =>
-    Array.from({length:6},()=>{ const c=CLIENTS[Math.floor(Math.random()*CLIENTS.length)]; return {...genTxn(c.name),client:c.name,_key:Math.random()}; })
+  const [ticker, setTicker] = useState(()=>
+    Array.from({length:6},()=>{ const c=CLIENTS[Math.floor(Math.random()*CLIENTS.length)]; return {...genTxn(c.name),client:c.name,_k:Math.random()}; })
   );
-
-  useEffect(() => {
-    const iv = setInterval(() => {
-      const c = CLIENTS[Math.floor(Math.random()*CLIENTS.length)];
-      setTicker(prev => [{...genTxn(c.name),client:c.name,_key:Math.random()}, ...prev.slice(0,7)]);
-    }, 2800);
-    return () => clearInterval(iv);
-  }, []);
+  useEffect(()=>{
+    const iv = setInterval(()=>{
+      const c=CLIENTS[Math.floor(Math.random()*CLIENTS.length)];
+      setTicker(p=>[{...genTxn(c.name),client:c.name,_k:Math.random()},...p.slice(0,7)]);
+    },2800);
+    return ()=>clearInterval(iv);
+  },[]);
 
   return (
-    <div style={{ padding:28, animation:"slide-in .35s ease" }}>
+    <div style={{ padding:28 }} className="slide-in">
       <div style={{ marginBottom:22 }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:4 }}>
           <h1 style={{ fontSize:22, fontWeight:600, letterSpacing:"-0.02em", color:C.text }}>Portfolio Overview</h1>
-          <Badge status="low" />
+          <Badge status="low"/>
         </div>
-        <p style={{ color:C.textMuted, fontSize:13 }}>{CLIENTS.length} active African fintech clients · NG, GH corridors · Real-time monitoring</p>
+        <p style={{ color:C.textMuted, fontSize:13 }}>{CLIENTS.length} active SMB clients · Pacific Northwest · Real-time monitoring</p>
       </div>
 
       <div style={{ display:"flex", gap:12, marginBottom:22, flexWrap:"wrap" }}>
-        <StatCard label="Active Clients" value={CLIENTS.length} sub="Across 2 markets" color={C.teal} icon="🏢" />
-        <StatCard label="Open Alerts" value={totalAlerts} sub="Portfolio-wide" color={totalAlerts>15?C.red:C.amber} icon="⚠️" />
-        <StatCard label="Fraud Blocked" value={`₦${(totalSaved/1000000).toFixed(0)}M`} sub="This quarter" color={C.green} icon="🛡" />
-        <StatCard label="Avg Risk Score" value={avgScore} sub="Portfolio health" color={avgScore>75?C.green:C.amber} icon="📊" />
-        <StatCard label="Transactions" value={totalTxns.toLocaleString()} sub="Last 30 days" color={C.blue} icon="💳" />
+        <StatCard label="Active Clients" value={CLIENTS.length} sub="6 businesses" color={C.teal} icon="🏪"/>
+        <StatCard label="Open Alerts" value={totalAlerts} sub="Portfolio-wide" color={totalAlerts>15?C.red:C.amber} icon="⚠️"/>
+        <StatCard label="Fraud Blocked" value={`$${(totalSaved/1000).toFixed(0)}K`} sub="This quarter" color={C.green} icon="🛡"/>
+        <StatCard label="Avg Risk Score" value={avgScore} sub="Portfolio health" color={avgScore>75?C.green:C.amber} icon="📊"/>
+        <StatCard label="Transactions" value={totalTxns.toLocaleString()} sub="Last 30 days" color={C.blue} icon="💳"/>
       </div>
 
       <div style={{ display:"grid", gridTemplateColumns:"1.7fr 1fr", gap:16, marginBottom:20 }}>
+        {/* Client table */}
         <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, overflow:"hidden" }}>
           <div style={{ padding:"14px 18px", borderBottom:`1px solid ${C.border}` }}>
-            <div style={{ fontWeight:600, fontSize:14, color:C.text }}>African Fintech Clients</div>
-            <div style={{ color:C.textMuted, fontSize:11, marginTop:1 }}>Click any client to monitor their transactions</div>
+            <div style={{ fontWeight:600, fontSize:14, color:C.text }}>Client Portfolio</div>
+            <div style={{ color:C.textMuted, fontSize:11, marginTop:1 }}>Click any client to view their transactions</div>
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"2fr 80px 64px 70px 80px 70px", padding:"8px 18px", borderBottom:`1px solid ${C.border}`, color:C.textMuted, fontSize:10, fontFamily:"'Space Mono'", letterSpacing:"0.06em" }}>
-            {["CLIENT","TIER","SCORE","ALERTS","BLOCKED","CORRIDOR"].map(h => <div key={h}>{h}</div>)}
+          <div style={{ display:"grid", gridTemplateColumns:"2fr 80px 60px 70px 90px", padding:"8px 18px", borderBottom:`1px solid ${C.border}`, color:C.textMuted, fontSize:10, fontFamily:"'Space Mono'", letterSpacing:"0.06em" }}>
+            {["CLIENT","TIER","SCORE","ALERTS","BLOCKED"].map(h=><div key={h}>{h}</div>)}
           </div>
-          {CLIENTS.map((c,i) => (
-            <div key={c.id} onClick={()=>onSelectClient(c)} style={{
-              display:"grid", gridTemplateColumns:"2fr 80px 64px 70px 80px 70px",
-              padding:"12px 18px", borderBottom:i<CLIENTS.length-1?`1px solid ${C.border}`:"none",
-              cursor:"pointer",
-            }}
+          {CLIENTS.map((c,i)=>(
+            <div key={c.id} onClick={()=>onSelectClient(c)} style={{ display:"grid", gridTemplateColumns:"2fr 80px 60px 70px 90px", padding:"12px 18px", borderBottom:i<CLIENTS.length-1?`1px solid ${C.border}`:"none", cursor:"pointer" }}
               onMouseEnter={e=>e.currentTarget.style.background=C.surfaceAlt}
               onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
               <div>
                 <div style={{ fontWeight:500, fontSize:13, color:C.text }}>{c.name}</div>
                 <div style={{ color:C.textMuted, fontSize:11, marginTop:1 }}>{c.industry} · {c.location}</div>
               </div>
-              <div style={{ alignSelf:"center" }}><Badge status={c.tier} /></div>
-              <div style={{ alignSelf:"center" }}><ScoreRing score={c.score} size={34} /></div>
+              <div style={{ alignSelf:"center" }}><Badge status={c.tier}/></div>
+              <div style={{ alignSelf:"center" }}><ScoreRing score={c.score} size={34}/></div>
               <div style={{ alignSelf:"center", fontFamily:"'Space Mono'", color:c.alerts>10?C.red:c.alerts>3?C.amber:C.green, fontWeight:700 }}>{c.alerts}</div>
-              <div style={{ alignSelf:"center", fontFamily:"'Space Mono'", fontSize:12, color:C.green }}>₦{(c.saved/1000000).toFixed(1)}M</div>
-              <div style={{ alignSelf:"center", fontFamily:"'Space Mono'", fontSize:10, color:C.tealDim }}>{c.corridor}</div>
+              <div style={{ alignSelf:"center", fontFamily:"'Space Mono'", fontSize:12, color:C.green }}>${c.saved.toLocaleString()}</div>
             </div>
           ))}
         </div>
 
+        {/* Live ticker */}
         <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, overflow:"hidden", display:"flex", flexDirection:"column" }}>
           <div style={{ padding:"14px 18px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:8 }}>
-            <div style={{ width:6, height:6, borderRadius:"50%", background:C.green }} className="pulse-live" />
+            <div style={{ width:6, height:6, borderRadius:"50%", background:C.green }} className="pulse-live"/>
             <div>
-              <div style={{ fontWeight:600, fontSize:13, color:C.text }}>Live Transaction Feed</div>
-              <div style={{ color:C.textMuted, fontSize:11, marginTop:1 }}>African corridors · ML scored</div>
+              <div style={{ fontWeight:600, fontSize:13, color:C.text }}>Live Feed</div>
+              <div style={{ color:C.textMuted, fontSize:11 }}>Real-time ML scoring</div>
             </div>
           </div>
           <div style={{ flex:1, overflowY:"auto" }}>
-            {ticker.map((t,i) => {
-              const rc = t.riskScore>=70?C.red:t.riskScore>=45?C.amber:C.green;
+            {ticker.map((t,i)=>{
+              const rc=t.riskScore>=70?C.red:t.riskScore>=45?C.amber:C.green;
               return (
-                <div key={t._key} className={i===0?"ticker-row":""} style={{ padding:"10px 16px", borderBottom:`1px solid ${C.border}`, background:t.status==="flagged"||t.status==="blocked"?C.redGlow:"transparent" }}>
+                <div key={t._k} className={i===0?"ticker-row":""} style={{ padding:"10px 16px", borderBottom:`1px solid ${C.border}`, background:t.status==="flagged"||t.status==="blocked"?C.redGlow:"transparent" }}>
                   <div style={{ display:"flex", justifyContent:"space-between", marginBottom:2 }}>
                     <span style={{ fontFamily:"'Space Mono'", fontSize:10, color:C.teal }}>{t.id}</span>
                     <span style={{ fontFamily:"'Space Mono'", fontSize:11, color:rc, fontWeight:700 }}>{t.riskScore}</span>
                   </div>
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                     <span style={{ fontSize:12, color:C.text }}>{t.vendor}</span>
-                    <Badge status={t.status} />
+                    <Badge status={t.status}/>
                   </div>
                   <div style={{ display:"flex", justifyContent:"space-between", marginTop:2 }}>
                     <span style={{ fontSize:11, color:C.textMuted }}>{t.client}</span>
-                    <span style={{ fontFamily:"'Space Mono'", fontSize:11, color:C.textMuted }}>₦{t.amount.toLocaleString()}</span>
+                    <span style={{ fontFamily:"'Space Mono'", fontSize:11, color:C.textMuted }}>${t.amount.toLocaleString()}</span>
                   </div>
                   {t.fraudType && <div style={{ fontSize:10, color:C.amber, marginTop:2 }}>⚠ {t.fraudType}</div>}
                 </div>
@@ -716,36 +650,35 @@ const PMOverview = ({ onSelectClient }) => {
         </div>
       </div>
 
+      {/* Bottom row */}
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:14 }}>
         <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, padding:"18px 20px" }}>
-          <SectionHeader title="Risk Distribution" sub="By client tier" />
-          {[{label:"Low Risk",count:CLIENTS.filter(c=>c.risk==="low").length,color:C.green},{label:"Medium Risk",count:CLIENTS.filter(c=>c.risk==="medium").length,color:C.amber},{label:"High Risk",count:CLIENTS.filter(c=>c.risk==="high").length,color:C.red}].map(r => (
-            <div key={r.label} style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
-              <div style={{ width:82, color:C.textMuted, fontSize:12 }}>{r.label}</div>
-              <MiniBar value={r.count} max={CLIENTS.length} color={r.color} />
-              <div style={{ fontFamily:"'Space Mono'", fontSize:13, color:r.color, width:14 }}>{r.count}</div>
+          <SectionHeader title="Risk Distribution" sub="By client tier"/>
+          {[{l:"Low Risk",n:CLIENTS.filter(c=>c.risk==="low").length,col:C.green},{l:"Medium Risk",n:CLIENTS.filter(c=>c.risk==="medium").length,col:C.amber},{l:"High Risk",n:CLIENTS.filter(c=>c.risk==="high").length,col:C.red}].map(r=>(
+            <div key={r.l} style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
+              <div style={{ width:80, color:C.textMuted, fontSize:12 }}>{r.l}</div>
+              <MiniBar value={r.n} max={CLIENTS.length} color={r.col}/>
+              <div style={{ fontFamily:"'Space Mono'", fontSize:13, color:r.col, width:14 }}>{r.n}</div>
             </div>
           ))}
         </div>
         <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, padding:"18px 20px" }}>
-          <SectionHeader title="Corridor Activity" sub="Volume by rail" />
-          {["NG-GH","NG-KE","NG-ZA","NG-GB"].map((cor,i) => {
-            const v=[38,24,19,19][i];
-            return (
-              <div key={cor} style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
-                <div style={{ width:52, fontFamily:"'Space Mono'", fontSize:10, color:C.teal }}>{cor}</div>
-                <MiniBar value={v} max={50} color={C.teal} />
-                <div style={{ fontFamily:"'Space Mono'", fontSize:11, color:C.textMuted, width:28 }}>{v}%</div>
+          <SectionHeader title="Weekly Alert Volume" sub="Last 7 days"/>
+          <div style={{ display:"flex", alignItems:"flex-end", gap:8, height:80, marginTop:8 }}>
+            {[4,8,5,11,7,3,totalAlerts].map((v,i)=>(
+              <div key={i} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
+                <div style={{ width:"100%", background:i===6?C.teal:C.border, borderRadius:"3px 3px 0 0", height:`${(v/14)*100}%`, transition:"height 1s ease" }}/>
+                <div style={{ fontSize:9, color:C.textDim, fontFamily:"'Space Mono'" }}>{"MTWTFST"[i]}</div>
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
         <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, padding:"18px 20px" }}>
-          <SectionHeader title="Fraud Vectors" sub="This week" />
-          {[{l:"SIM-swap chain",v:34,c:C.red},{l:"Agent float abuse",v:28,c:C.amber},{l:"Velocity anomaly",v:21,c:C.amber},{l:"Corridor arbitrage",v:17,c:C.blue}].map(r => (
+          <SectionHeader title="Top Fraud Signals" sub="This week"/>
+          {[{l:"Card testing",v:31,c:C.red},{l:"Velocity anomaly",v:26,c:C.amber},{l:"Chargeback pattern",v:20,c:C.amber},{l:"Time-of-day anomaly",v:16,c:C.blue}].map(r=>(
             <div key={r.l} style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10 }}>
-              <div style={{ width:100, color:C.textMuted, fontSize:11, flexShrink:0 }}>{r.l}</div>
-              <MiniBar value={r.v} max={40} color={r.c} />
+              <div style={{ width:110, color:C.textMuted, fontSize:11, flexShrink:0 }}>{r.l}</div>
+              <MiniBar value={r.v} max={38} color={r.c}/>
               <div style={{ fontFamily:"'Space Mono'", fontSize:11, color:r.c, width:22 }}>{r.v}%</div>
             </div>
           ))}
@@ -758,22 +691,22 @@ const PMOverview = ({ onSelectClient }) => {
 // ── CLIENT VIEW ───────────────────────────────────────────────────────────────
 const ClientView = ({ client }) => {
   const { C } = useTheme();
-  const [txns, setTxns] = useState(() => Array.from({length:20},()=>genTxn(client?.name||"")));
+  const [txns, setTxns] = useState(()=>Array.from({length:20},()=>genTxn(client?.name||"")));
   const [filter, setFilter] = useState("all");
   const [liveCount, setLiveCount] = useState(0);
 
-  useEffect(() => {
+  useEffect(()=>{
     if (!client) return;
-    const iv = setInterval(() => { setTxns(prev=>[genTxn(client.name),...prev.slice(0,26)]); setLiveCount(n=>n+1); }, 4500);
-    return () => clearInterval(iv);
-  }, [client?.id]);
+    const iv = setInterval(()=>{ setTxns(p=>[genTxn(client.name),...p.slice(0,26)]); setLiveCount(n=>n+1); }, 4500);
+    return ()=>clearInterval(iv);
+  },[client?.id]);
 
   if (!client) return (
     <div style={{ padding:28, display:"flex", alignItems:"center", justifyContent:"center", height:"60vh" }}>
       <div style={{ textAlign:"center", color:C.textMuted }}>
-        <div style={{ fontSize:40, marginBottom:16 }}>◉</div>
-        <div style={{ fontFamily:"'Space Mono'", fontSize:14 }}>SELECT A CLIENT</div>
-        <div style={{ fontSize:12, marginTop:6 }}>Choose a client from PM Overview</div>
+        <div style={{ fontSize:38, marginBottom:14 }}>◉</div>
+        <div style={{ fontFamily:"'Space Mono'", fontSize:13 }}>SELECT A CLIENT</div>
+        <div style={{ fontSize:12, marginTop:6 }}>Choose a business from PM Overview</div>
       </div>
     </div>
   );
@@ -781,65 +714,67 @@ const ClientView = ({ client }) => {
   const filtered = filter==="all"?txns:txns.filter(t=>t.status===filter);
 
   return (
-    <div style={{ padding:28, animation:"slide-in .35s ease" }}>
+    <div style={{ padding:28 }} className="slide-in">
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:22 }}>
         <div>
           <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:4 }}>
             <h1 style={{ fontSize:22, fontWeight:600, letterSpacing:"-0.02em", color:C.text }}>{client.name}</h1>
-            <Badge status={client.risk} /><Badge status={client.tier} />
+            <Badge status={client.risk}/><Badge status={client.tier}/>
             {liveCount>0 && <span style={{ fontSize:11, color:C.green, fontFamily:"'Space Mono'" }}>+{liveCount} live</span>}
           </div>
-          <div style={{ color:C.textMuted, fontSize:13 }}>{client.industry} · {client.location} · {client.corridor} · Onboarded {client.onboarded}</div>
+          <div style={{ color:C.textMuted, fontSize:13 }}>{client.industry} · {client.location} · Onboarded {client.onboarded}</div>
         </div>
-        <ScoreRing score={client.score} size={72} />
+        <ScoreRing score={client.score} size={72}/>
       </div>
 
       <div style={{ display:"flex", gap:12, marginBottom:22, flexWrap:"wrap" }}>
-        <StatCard label="Open Alerts" value={client.alerts} color={client.alerts>10?C.red:C.amber} icon="⚠️" />
-        <StatCard label="Fraud Score" value={client.score} sub="Risk index" color={client.score>75?C.green:client.score>50?C.amber:C.red} icon="📊" />
-        <StatCard label="Transactions" value={client.transactions.toLocaleString()} sub="30-day volume" color={C.blue} icon="💳" />
-        <StatCard label="Flagged" value={client.flagged} sub="For review" color={C.red} icon="🚩" />
-        <StatCard label="Fraud Blocked" value={`₦${(client.saved/1000000).toFixed(1)}M`} color={C.green} icon="🛡" />
+        <StatCard label="Open Alerts" value={client.alerts} color={client.alerts>10?C.red:C.amber} icon="⚠️"/>
+        <StatCard label="Risk Score" value={client.score} sub="Current index" color={client.score>75?C.green:client.score>50?C.amber:C.red} icon="📊"/>
+        <StatCard label="Transactions" value={client.transactions.toLocaleString()} sub="30-day volume" color={C.blue} icon="💳"/>
+        <StatCard label="Flagged" value={client.flagged} sub="For review" color={C.red} icon="🚩"/>
+        <StatCard label="Fraud Blocked" value={`$${client.saved.toLocaleString()}`} color={C.green} icon="🛡"/>
       </div>
 
       <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, overflow:"hidden" }}>
         <div style={{ padding:"14px 18px", borderBottom:`1px solid ${C.border}`, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
           <div>
             <div style={{ fontWeight:600, fontSize:14, color:C.text }}>Transaction Monitor</div>
-            <div style={{ color:C.textMuted, fontSize:12, marginTop:1 }}>Real-time ML scoring · {client.corridor} corridor</div>
+            <div style={{ color:C.textMuted, fontSize:12, marginTop:1 }}>Live ML scoring · new transaction every 4.5s</div>
           </div>
           <div style={{ display:"flex", gap:6 }}>
-            {["all","flagged","review","clear"].map(fi => (
+            {["all","flagged","review","clear"].map(fi=>(
               <button key={fi} onClick={()=>setFilter(fi)} style={{ padding:"5px 12px", borderRadius:4, fontSize:11, fontFamily:"'Space Mono'", background:filter===fi?C.tealGlow:"transparent", color:filter===fi?C.teal:C.textMuted, border:`1px solid ${filter===fi?C.teal+"44":C.border}` }}>{fi.toUpperCase()}</button>
             ))}
           </div>
         </div>
-        <div style={{ display:"grid", gridTemplateColumns:"1.2fr 1.5fr 0.9fr 0.9fr 100px 110px", padding:"9px 18px", borderBottom:`1px solid ${C.border}`, color:C.textMuted, fontSize:10, fontFamily:"'Space Mono'", letterSpacing:"0.06em" }}>
-          {["TXN ID","CHANNEL / CATEGORY","AMOUNT (₦)","CORRIDOR","RISK","STATUS"].map(h=><div key={h}>{h}</div>)}
+        <div style={{ display:"grid", gridTemplateColumns:"1.3fr 1.5fr 1fr 0.8fr 100px 110px", padding:"8px 18px", borderBottom:`1px solid ${C.border}`, color:C.textMuted, fontSize:10, fontFamily:"'Space Mono'", letterSpacing:"0.06em" }}>
+          {["TXN ID","VENDOR / CATEGORY","TIMESTAMP","AMOUNT","RISK","STATUS"].map(h=><div key={h}>{h}</div>)}
         </div>
-        <div style={{ maxHeight:420, overflowY:"auto" }}>
-          {filtered.map((t,i) => {
+        <div style={{ maxHeight:400, overflowY:"auto" }}>
+          {filtered.map((t,i)=>{
             const rc=t.riskScore>=78?C.red:t.riskScore>=55?C.amber:C.green;
             return (
-              <div key={t.id+i} style={{ display:"grid", gridTemplateColumns:"1.2fr 1.5fr 0.9fr 0.9fr 100px 110px", padding:"11px 18px", borderBottom:i<filtered.length-1?`1px solid ${C.border}`:"none", background:t.status==="flagged"||t.status==="blocked"?C.redGlow:"transparent" }}>
-                <div style={{ fontFamily:"'Space Mono'", fontSize:11, color:C.teal }}>{t.id}</div>
+              <div key={t.id+i} style={{ display:"grid", gridTemplateColumns:"1.3fr 1.5fr 1fr 0.8fr 100px 110px", padding:"10px 18px", borderBottom:i<filtered.length-1?`1px solid ${C.border}`:"none", background:t.status==="flagged"||t.status==="blocked"?C.redGlow:"transparent" }}>
+                <div style={{ fontFamily:"'Space Mono'", fontSize:10, color:C.teal }}>{t.id}</div>
                 <div>
                   <div style={{ fontSize:12, fontWeight:500, color:C.text }}>{t.vendor}</div>
-                  <div style={{ fontSize:11, color:C.textMuted, marginTop:1 }}>{t.category}</div>
+                  <div style={{ fontSize:11, color:C.textMuted }}>{t.category}</div>
                 </div>
-                <div style={{ fontFamily:"'Space Mono'", fontSize:12, fontWeight:700, alignSelf:"center", color:C.text }}>₦{t.amount.toLocaleString()}</div>
-                <div style={{ fontFamily:"'Space Mono'", fontSize:10, color:C.tealDim, alignSelf:"center" }}>{t.corridor}</div>
+                <div style={{ fontSize:11, color:C.textMuted, alignSelf:"center" }}>
+                  {t.timestamp.toLocaleDateString()} {t.timestamp.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
+                </div>
+                <div style={{ fontFamily:"'Space Mono'", fontSize:12, fontWeight:700, alignSelf:"center", color:C.text }}>${t.amount.toLocaleString()}</div>
                 <div style={{ alignSelf:"center" }}>
                   <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                    <div style={{ height:4, width:42, background:C.border, borderRadius:2 }}>
-                      <div style={{ height:"100%", width:`${t.riskScore}%`, background:rc, borderRadius:2 }} />
+                    <div style={{ height:4, width:40, background:C.border, borderRadius:2 }}>
+                      <div style={{ height:"100%", width:`${t.riskScore}%`, background:rc, borderRadius:2 }}/>
                     </div>
                     <span style={{ fontFamily:"'Space Mono'", fontSize:11, color:rc }}>{t.riskScore}</span>
                   </div>
-                  {t.fraudType && <div style={{ fontSize:10, color:C.textMuted, marginTop:3 }}>{t.fraudType}</div>}
+                  {t.fraudType && <div style={{ fontSize:10, color:C.textMuted, marginTop:2 }}>{t.fraudType}</div>}
                 </div>
                 <div style={{ alignSelf:"center" }}>
-                  <Badge status={t.status} />
+                  <Badge status={t.status}/>
                   {t.blocked && <div style={{ fontSize:10, color:C.red, marginTop:3, fontFamily:"'Space Mono'" }}>AUTO-BLOCKED</div>}
                 </div>
               </div>
@@ -852,10 +787,7 @@ const ClientView = ({ client }) => {
 };
 
 // ── ONBOARDING ────────────────────────────────────────────────────────────────
-const STEPS = [
-  {label:"Business Info",icon:"🏢"},{label:"Financials",icon:"💳"},
-  {label:"Risk Profile",icon:"🎯"},{label:"Configuration",icon:"⚙️"},{label:"Deploy",icon:"🚀"},
-];
+const STEPS = [{label:"Business Info",icon:"🏪"},{label:"Payments",icon:"💳"},{label:"Risk Profile",icon:"🎯"},{label:"Configuration",icon:"⚙️"},{label:"Activate",icon:"🚀"}];
 
 const OnboardView = () => {
   const { C } = useTheme();
@@ -864,27 +796,28 @@ const OnboardView = () => {
   const [deploying, setDeploying] = useState(false);
   const [deployLog, setDeployLog] = useState([]);
   const [apiKey] = useState(`fs_live_${Math.random().toString(36).substr(2,24)}`);
-  const [form, setForm] = useState({ bizName:"", industry:"", country:"Nigeria", employees:"", annualRev:"", processorType:"", avgTxnSize:"", riskTolerance:"balanced", alertEmail:"", corridors:["NG-GH"], blockThreshold:82 });
+  const [form, setForm] = useState({ bizName:"", industry:"", state:"WA", employees:"", annualRev:"", processor:"", avgTxn:"", riskTolerance:"balanced", alertEmail:"", blockThreshold:82 });
   const f = (k,v) => setForm(p=>({...p,[k]:v}));
 
-  const deploySteps = ["Provisioning AWS Lambda fraud functions…","Configuring Nigerian corridor ML model…","Initializing DynamoDB transaction store…","Starting Kinesis event stream…","Deploying SNS + Slack alert service…","Configuring API Gateway endpoints…","Activating CBN compliance mode…","Running African baseline fraud training…","Generating API key & webhook secrets…","✓ FraudShield Africa deployed successfully!"];
+  const deploySteps = ["Creating your FraudShield account…","Provisioning fraud detection engine…","Configuring ML model for your industry…","Setting up alert delivery…","Connecting to your payment processor…","Generating API credentials…","Running initial baseline scan…","✓ FraudShield is active and protecting your business!"];
 
   const startDeploy = () => {
     setDeploying(true);
-    deploySteps.forEach((msg,i) => setTimeout(()=>{ setDeployLog(p=>[...p,msg]); if(i===deploySteps.length-1) setTimeout(()=>setDeployed(true),500); }, i*650));
+    deploySteps.forEach((msg,i)=>setTimeout(()=>{ setDeployLog(p=>[...p,msg]); if(i===deploySteps.length-1) setTimeout(()=>setDeployed(true),400); },i*600));
   };
 
   const IS = { width:"100%", background:C.surfaceAlt, border:`1px solid ${C.border}`, borderRadius:6, padding:"9px 12px", color:C.text, fontSize:13 };
   const LS = { fontSize:11, color:C.textMuted, marginBottom:5, display:"block", fontWeight:500 };
 
   return (
-    <div style={{ padding:28, maxWidth:700, animation:"slide-in .35s ease" }}>
+    <div style={{ padding:28, maxWidth:680 }} className="slide-in">
       <div style={{ marginBottom:26 }}>
-        <h1 style={{ fontSize:22, fontWeight:600, letterSpacing:"-0.02em", marginBottom:4, color:C.text }}>Onboard New Fintech Client</h1>
-        <p style={{ color:C.textMuted, fontSize:13 }}>Deploy African corridor fraud detection in under 5 minutes</p>
+        <h1 style={{ fontSize:22, fontWeight:600, letterSpacing:"-0.02em", marginBottom:4, color:C.text }}>Add a New Business</h1>
+        <p style={{ color:C.textMuted, fontSize:13 }}>Set up AI fraud detection for a small business in under 5 minutes</p>
       </div>
-      <div style={{ display:"flex", gap:0, marginBottom:28, background:C.surface, borderRadius:10, border:`1px solid ${C.border}`, overflow:"hidden" }}>
-        {STEPS.map((s,i) => (
+
+      <div style={{ display:"flex", marginBottom:28, background:C.surface, borderRadius:10, border:`1px solid ${C.border}`, overflow:"hidden" }}>
+        {STEPS.map((s,i)=>(
           <div key={i} onClick={()=>i<=step&&setStep(i)} style={{ flex:1, padding:"12px 8px", textAlign:"center", cursor:i<=step?"pointer":"default", background:i===step?C.tealGlow:"transparent", borderRight:i<STEPS.length-1?`1px solid ${C.border}`:"none" }}>
             <div style={{ fontSize:16, marginBottom:4 }}>{s.icon}</div>
             <div style={{ fontSize:11, color:i===step?C.teal:i<step?C.textMuted:C.textDim, fontWeight:i===step?600:400 }}>{s.label}</div>
@@ -895,68 +828,63 @@ const OnboardView = () => {
 
       <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, padding:"22px 26px" }}>
         {step===0 && (
-          <div style={{ animation:"slide-in .25s ease" }}>
-            <div style={{ fontWeight:600, fontSize:15, marginBottom:18, color:C.text }}>Fintech Business Information</div>
+          <div className="slide-in">
+            <div style={{ fontWeight:600, fontSize:15, marginBottom:18, color:C.text }}>Business Information</div>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
-              <div><label style={LS}>Company Name *</label><input style={IS} value={form.bizName} onChange={e=>f("bizName",e.target.value)} placeholder="e.g. Brass Business" /></div>
+              <div><label style={LS}>Business Name *</label><input style={IS} value={form.bizName} onChange={e=>f("bizName",e.target.value)} placeholder="e.g. Pinewood Bakery"/></div>
               <div><label style={LS}>Industry *</label>
                 <select style={IS} value={form.industry} onChange={e=>f("industry",e.target.value)}>
                   <option value="">Select…</option>
-                  {["Neobank","Digital Lending","B2B Payments","FX & Transfers","SMB Payments","Mobility Fintech","Insurance Tech","Other"].map(i=><option key={i} value={i}>{i}</option>)}
+                  {["Food & Beverage","Retail","Healthcare","Legal Services","Automotive","Construction","Real Estate","Professional Services","E-commerce","Other"].map(i=><option key={i} value={i}>{i}</option>)}
                 </select>
               </div>
-              <div><label style={LS}>Country *</label>
-                <select style={IS} value={form.country} onChange={e=>f("country",e.target.value)}>
-                  {["Nigeria","Ghana","Kenya","South Africa","Uganda","Tanzania","Rwanda"].map(c=><option key={c} value={c}>{c}</option>)}
+              <div><label style={LS}>State</label>
+                <select style={IS} value={form.state} onChange={e=>f("state",e.target.value)}>
+                  {STATES.map(s=><option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
-              <div><label style={LS}>Monthly Transaction Volume</label>
+              <div><label style={LS}>Number of Employees</label>
                 <select style={IS} value={form.employees} onChange={e=>f("employees",e.target.value)}>
-                  <option value="">Select range…</option>
-                  {["Under 1,000","1K–10K","10K–100K","100K–1M","1M+"].map(r=><option key={r} value={r}>{r}</option>)}
+                  <option value="">Select…</option>
+                  {["1–5","6–15","16–50","51–100","100+"].map(r=><option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
-              <div style={{ gridColumn:"span 2" }}><label style={LS}>Alert Email *</label><input style={IS} type="email" value={form.alertEmail} onChange={e=>f("alertEmail",e.target.value)} placeholder="cto@yourfintech.com" /></div>
+              <div style={{ gridColumn:"span 2" }}><label style={LS}>Alert Email *</label><input style={IS} type="email" value={form.alertEmail} onChange={e=>f("alertEmail",e.target.value)} placeholder="owner@yourbusiness.com"/></div>
             </div>
           </div>
         )}
         {step===1 && (
-          <div style={{ animation:"slide-in .25s ease" }}>
-            <div style={{ fontWeight:600, fontSize:15, marginBottom:18, color:C.text }}>Financial & Payment Profile</div>
+          <div className="slide-in">
+            <div style={{ fontWeight:600, fontSize:15, marginBottom:18, color:C.text }}>Payment Profile</div>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
-              <div><label style={LS}>Annual GMV</label>
+              <div><label style={LS}>Annual Revenue</label>
                 <select style={IS} value={form.annualRev} onChange={e=>f("annualRev",e.target.value)}>
                   <option value="">Select…</option>
-                  {["Under ₦500M","₦500M–₦5B","₦5B–₦50B","₦50B+"].map(r=><option key={r} value={r}>{r}</option>)}
+                  {["Under $100K","$100K–$500K","$500K–$2M","$2M–$10M","$10M+"].map(r=><option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
-              <div><label style={LS}>Primary Rail / Processor</label>
-                <select style={IS} value={form.processorType} onChange={e=>f("processorType",e.target.value)}>
+              <div><label style={LS}>Primary Payment Processor</label>
+                <select style={IS} value={form.processor} onChange={e=>f("processor",e.target.value)}>
                   <option value="">Select…</option>
-                  {["Flutterwave","Paystack","Moniepoint","Interswitch","OPay","M-Pesa","MTN Mobile Money","Other"].map(p=><option key={p} value={p}>{p}</option>)}
+                  {["Stripe","Square","PayPal","Clover","Toast","QuickBooks","Other"].map(p=><option key={p} value={p}>{p}</option>)}
                 </select>
               </div>
-              <div><label style={LS}>Avg Transaction Size</label>
-                <select style={IS} value={form.avgTxnSize} onChange={e=>f("avgTxnSize",e.target.value)}>
+              <div><label style={LS}>Average Transaction Size</label>
+                <select style={IS} value={form.avgTxn} onChange={e=>f("avgTxn",e.target.value)}>
                   <option value="">Select…</option>
-                  {["Under ₦5K","₦5K–₦50K","₦50K–₦500K","₦500K+"].map(r=><option key={r} value={r}>{r}</option>)}
-                </select>
-              </div>
-              <div><label style={LS}>Primary Corridor</label>
-                <select style={IS} value={form.corridors[0]} onChange={e=>f("corridors",[e.target.value])}>
-                  {CORRIDORS.map(c=><option key={c} value={c}>{c}</option>)}
+                  {["Under $50","$50–$500","$500–$5K","$5K–$50K","$50K+"].map(r=><option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
             </div>
           </div>
         )}
         {step===2 && (
-          <div style={{ animation:"slide-in .25s ease" }}>
+          <div className="slide-in">
             <div style={{ fontWeight:600, fontSize:15, marginBottom:18, color:C.text }}>Risk Tolerance</div>
-            {[{v:"conservative",label:"Conservative",desc:"Maximum detection. Higher review queue. Best for high-risk corridors and agent networks.",color:C.red},{v:"balanced",label:"Balanced",desc:"Optimal for most African fintechs. Catches SIM-swap chains without excessive false positives.",color:C.amber},{v:"permissive",label:"Permissive",desc:"Minimal alert fatigue. Best for established neobanks with mature internal controls.",color:C.green}].map(opt=>(
+            {[{v:"conservative",label:"Conservative",desc:"Catch everything. Higher review queue. Best for businesses with past fraud incidents.",color:C.red},{v:"balanced",label:"Balanced",desc:"Optimized precision and recall. Recommended for most small businesses.",color:C.amber},{v:"permissive",label:"Permissive",desc:"Minimal false positives. Best for low-risk industries with strong customer relationships.",color:C.green}].map(opt=>(
               <div key={opt.v} onClick={()=>f("riskTolerance",opt.v)} style={{ border:`1px solid ${form.riskTolerance===opt.v?opt.color+"88":C.border}`, borderRadius:8, padding:"14px 16px", marginBottom:10, cursor:"pointer", background:form.riskTolerance===opt.v?`${opt.color}10`:"transparent" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
-                  <div style={{ width:10, height:10, borderRadius:"50%", background:form.riskTolerance===opt.v?opt.color:C.border }} />
+                  <div style={{ width:10, height:10, borderRadius:"50%", background:form.riskTolerance===opt.v?opt.color:C.border }}/>
                   <span style={{ fontWeight:600, fontSize:13, color:form.riskTolerance===opt.v?opt.color:C.text }}>{opt.label}</span>
                 </div>
                 <div style={{ fontSize:12, color:C.textMuted, marginLeft:20 }}>{opt.desc}</div>
@@ -965,20 +893,20 @@ const OnboardView = () => {
           </div>
         )}
         {step===3 && (
-          <div style={{ animation:"slide-in .25s ease" }}>
-            <div style={{ fontWeight:600, fontSize:15, marginBottom:18, color:C.text }}>ML Configuration</div>
+          <div className="slide-in">
+            <div style={{ fontWeight:600, fontSize:15, marginBottom:18, color:C.text }}>Detection Settings</div>
             <div style={{ marginBottom:18 }}>
               <label style={LS}>Auto-Block Threshold: <span style={{ color:C.teal, fontFamily:"'Space Mono'" }}>{form.blockThreshold}</span></label>
               <div style={{ display:"flex", alignItems:"center", gap:12 }}>
                 <span style={{ fontSize:11, color:C.textMuted }}>60</span>
-                <input type="range" min={60} max={99} value={form.blockThreshold} onChange={e=>f("blockThreshold",+e.target.value)} style={{ flex:1, accentColor:C.teal }} />
+                <input type="range" min={60} max={99} value={form.blockThreshold} onChange={e=>f("blockThreshold",+e.target.value)} style={{ flex:1, accentColor:C.teal }}/>
                 <span style={{ fontSize:11, color:C.textMuted }}>99</span>
               </div>
-              <div style={{ fontSize:11, color:C.textMuted, marginTop:6 }}>Transactions scoring above this are auto-blocked with CBN compliance logs.</div>
+              <div style={{ fontSize:11, color:C.textMuted, marginTop:6 }}>Transactions scoring above this are auto-blocked pending manual review.</div>
             </div>
             <div style={{ background:C.surfaceAlt, borderRadius:8, padding:"14px 16px", border:`1px solid ${C.border}` }}>
-              <div style={{ fontWeight:600, fontSize:13, marginBottom:10, color:C.text }}>Configuration Summary</div>
-              {[["Company",form.bizName||"—"],["Country",form.country],["Corridor",form.corridors[0]],["Risk Profile",form.riskTolerance],["Block Threshold",`Score ≥ ${form.blockThreshold}`],["Alert Email",form.alertEmail||"—"]].map(([k,v])=>(
+              <div style={{ fontWeight:600, fontSize:13, marginBottom:10, color:C.text }}>Summary</div>
+              {[["Business",form.bizName||"—"],["Industry",form.industry||"—"],["State",form.state],["Processor",form.processor||"—"],["Risk Profile",form.riskTolerance],["Block Threshold",`Score ≥ ${form.blockThreshold}`],["Alert Email",form.alertEmail||"—"]].map(([k,v])=>(
                 <div key={k} style={{ display:"flex", justifyContent:"space-between", marginBottom:6, fontSize:12 }}>
                   <span style={{ color:C.textMuted }}>{k}</span>
                   <span style={{ fontFamily:"'Space Mono'", color:C.text }}>{v}</span>
@@ -988,14 +916,14 @@ const OnboardView = () => {
           </div>
         )}
         {step===4 && (
-          <div style={{ animation:"slide-in .25s ease" }}>
-            <div style={{ fontWeight:600, fontSize:15, marginBottom:18, color:C.text }}>Deploy to AWS</div>
+          <div className="slide-in">
+            <div style={{ fontWeight:600, fontSize:15, marginBottom:18, color:C.text }}>Activate FraudShield</div>
             {!deploying && !deployed && (
               <div style={{ textAlign:"center", padding:"20px 0" }}>
-                <div style={{ fontSize:48, marginBottom:16 }}>🚀</div>
-                <div style={{ fontWeight:600, fontSize:15, marginBottom:8, color:C.text }}>Ready to Deploy</div>
-                <div style={{ color:C.textMuted, fontSize:13, marginBottom:24 }}>Provisioning for <strong style={{ color:C.text }}>{form.bizName||"your client"}</strong> on AWS af-south-1.</div>
-                <button onClick={startDeploy} style={{ padding:"12px 32px", borderRadius:10, fontSize:14, fontWeight:700, background:C.teal, color:"#fff" }}>Deploy FraudShield Africa →</button>
+                <div style={{ fontSize:48, marginBottom:14 }}>🚀</div>
+                <div style={{ fontWeight:600, fontSize:15, marginBottom:8, color:C.text }}>Ready to activate</div>
+                <div style={{ color:C.textMuted, fontSize:13, marginBottom:24 }}>Start protecting <strong style={{ color:C.text }}>{form.bizName||"your business"}</strong> against fraud immediately.</div>
+                <button onClick={startDeploy} style={{ padding:"12px 32px", borderRadius:10, fontSize:14, fontWeight:700, background:C.teal, color:"#fff" }}>Activate FraudShield →</button>
               </div>
             )}
             {deploying && !deployed && (
@@ -1005,15 +933,15 @@ const OnboardView = () => {
               </div>
             )}
             {deployed && (
-              <div style={{ animation:"slide-in .4s ease" }}>
-                <div style={{ textAlign:"center", padding:"16px 0 20px" }}>
+              <div className="slide-in">
+                <div style={{ textAlign:"center", padding:"14px 0 20px" }}>
                   <div style={{ fontSize:48, marginBottom:12 }}>✅</div>
-                  <div style={{ fontFamily:"'Space Mono'", fontSize:15, color:C.green, fontWeight:700, marginBottom:8 }}>DEPLOYED — FRAUDSHIELD AFRICA</div>
-                  <div style={{ color:C.textMuted, fontSize:13 }}>{form.bizName||"Client"} is now protected on {form.corridors[0]} corridor.</div>
+                  <div style={{ fontFamily:"'Space Mono'", fontSize:14, color:C.green, fontWeight:700, marginBottom:8 }}>FRAUDSHIELD IS ACTIVE</div>
+                  <div style={{ color:C.textMuted, fontSize:13 }}>{form.bizName||"Your business"} is now protected.</div>
                 </div>
-                <div style={{ background:C.surfaceAlt, borderRadius:8, padding:"16px 18px", border:`1px solid ${C.border}`, marginBottom:14 }}>
-                  <div style={{ fontFamily:"'Space Mono'", fontSize:10, color:C.teal, marginBottom:10 }}>YOUR API CREDENTIALS</div>
-                  {[["Endpoint","https://api.fraudshield.africa/v1/score"],["API Key",apiKey],["Corridor",form.corridors[0]],["Status","🟢 ACTIVE"]].map(([k,v])=>(
+                <div style={{ background:C.surfaceAlt, borderRadius:8, padding:"16px 18px", border:`1px solid ${C.border}` }}>
+                  <div style={{ fontFamily:"'Space Mono'", fontSize:9, color:C.teal, marginBottom:10 }}>YOUR API CREDENTIALS</div>
+                  {[["Endpoint","https://api.fraudshield.io/v1/score"],["API Key",apiKey],["Block Threshold",`≥ ${form.blockThreshold}`],["Status","🟢 ACTIVE"]].map(([k,v])=>(
                     <div key={k} style={{ display:"flex", justifyContent:"space-between", marginBottom:7, fontSize:12 }}>
                       <span style={{ color:C.textMuted }}>{k}</span>
                       <span style={{ fontFamily:"'Space Mono'", color:k==="API Key"?C.amber:C.teal, fontSize:11, wordBreak:"break-all", textAlign:"right", maxWidth:280 }}>{v}</span>
@@ -1026,60 +954,10 @@ const OnboardView = () => {
         )}
         {!deployed && (
           <div style={{ display:"flex", justifyContent:"space-between", marginTop:22, paddingTop:18, borderTop:`1px solid ${C.border}` }}>
-            <button onClick={()=>setStep(s=>Math.max(0,s-1))} disabled={step===0} style={{ padding:"9px 20px", borderRadius:8, fontSize:13, fontWeight:500, background:step===0?"transparent":C.surfaceAlt, color:step===0?C.textDim:C.text, border:`1px solid ${step===0?C.textDim+"44":C.border}`, cursor:step===0?"not-allowed":"pointer" }}>← Previous</button>
-            {step<4 && <button onClick={()=>setStep(s=>Math.min(4,s+1))} style={{ padding:"9px 24px", borderRadius:8, fontSize:13, fontWeight:600, background:C.teal, color:"#fff" }}>{step===3?"Review & Deploy →":"Next →"}</button>}
+            <button onClick={()=>setStep(s=>Math.max(0,s-1))} disabled={step===0} style={{ padding:"9px 20px", borderRadius:8, fontSize:13, background:step===0?"transparent":C.surfaceAlt, color:step===0?C.textDim:C.text, border:`1px solid ${step===0?C.textDim+"33":C.border}`, cursor:step===0?"not-allowed":"pointer" }}>← Back</button>
+            {step<4 && <button onClick={()=>setStep(s=>Math.min(4,s+1))} style={{ padding:"9px 24px", borderRadius:8, fontSize:13, fontWeight:600, background:C.teal, color:"#fff" }}>{step===3?"Review & Activate →":"Next →"}</button>}
           </div>
         )}
-      </div>
-    </div>
-  );
-};
-
-// ── API DOCS VIEW ─────────────────────────────────────────────────────────────
-const DocsView = () => {
-  const { C } = useTheme();
-  const [active, setActive] = useState("score");
-  const endpoints = {
-    score: { method:"POST", path:"/v1/score", desc:"Score a transaction in real-time. Returns a risk score (0–99), fraud signals, and recommended action. Sub-120ms p95 latency.", request:`{\n  "amount": 250000,\n  "currency": "NGN",\n  "vendor": "OPay",\n  "category": "Agent Float",\n  "corridor": "NG-GH",\n  "device_id": "fp_abc123"\n}`, response:`{\n  "score": 81,\n  "status": "flagged",\n  "action": "FLAG_AND_ALERT",\n  "signals": ["SIM-swap chain", "Agent float abuse"],\n  "corridor": "NG-GH",\n  "latency_ms": 94\n}` },
-    explain: { method:"POST", path:"/v1/explain", desc:"Get a human-readable explanation of a fraud score for compliance teams and manual review queues.", request:`{\n  "transaction_id": "TXN-ABC12345",\n  "score": 81,\n  "signals": ["SIM-swap chain"]\n}`, response:`{\n  "summary": "High-risk transaction flagged for agent float manipulation on NG-GH corridor.",\n  "signal_weights": { "SIM-swap chain": 0.42, "Agent float abuse": 0.34 },\n  "recommendation": "Require additional OTP verification.",\n  "cbn_rule": "CBN/AML/001/2023 §4.2"\n}` },
-    verify: { method:"POST", path:"/v1/verify", desc:"Verify informal SMB merchant identity using CAC registration, BVN correlation, and behavioural signals.", request:`{\n  "business_name": "Alhaji Musa Wholesale Supplies",\n  "rc_number": "RC1234567",\n  "bvn_hash": "sha256...",\n  "phone": "+2348012345678",\n  "state": "Kano"\n}`, response:`{\n  "confidence": 0.87,\n  "tier": "verified_informal",\n  "cac_match": true,\n  "bvn_correlated": true,\n  "recommended_limit": 5000000\n}` },
-  };
-  const ep = endpoints[active];
-
-  return (
-    <div style={{ padding:28, animation:"slide-in .35s ease" }}>
-      <div style={{ marginBottom:24 }}>
-        <h1 style={{ fontSize:22, fontWeight:600, letterSpacing:"-0.02em", marginBottom:4, color:C.text }}>API Reference</h1>
-        <p style={{ color:C.textMuted, fontSize:13 }}>FraudShield Africa · Base URL: <span style={{ fontFamily:"'Space Mono'", color:C.teal }}>https://api.fraudshield.africa</span></p>
-      </div>
-      <div style={{ display:"flex", gap:16 }}>
-        <div style={{ width:180, flexShrink:0 }}>
-          <div style={{ fontFamily:"'Space Mono'", fontSize:10, color:C.textMuted, marginBottom:10, letterSpacing:"0.08em" }}>ENDPOINTS</div>
-          {Object.entries(endpoints).map(([id,e])=>(
-            <button key={id} onClick={()=>setActive(id)} style={{ width:"100%", textAlign:"left", padding:"9px 12px", borderRadius:6, marginBottom:4, background:active===id?C.tealGlow:"transparent", color:active===id?C.teal:C.textMuted, border:`1px solid ${active===id?C.teal+"44":"transparent"}`, fontSize:12, fontFamily:"'Space Mono'" }}>
-              <span style={{ color:active===id?C.teal:C.textDim, fontSize:10 }}>{e.method} </span>{e.path}
-            </button>
-          ))}
-        </div>
-        <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, overflow:"hidden", marginBottom:16 }}>
-            <div style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:12 }}>
-              <span style={{ background:C.tealGlow, color:C.teal, border:`1px solid ${C.teal}44`, padding:"3px 10px", borderRadius:4, fontFamily:"'Space Mono'", fontSize:11, fontWeight:700 }}>{ep.method}</span>
-              <span style={{ fontFamily:"'Space Mono'", fontSize:13, color:C.text }}>https://api.fraudshield.africa{ep.path}</span>
-            </div>
-            <div style={{ padding:"16px 20px" }}><p style={{ color:C.textMuted, fontSize:13, lineHeight:1.7 }}>{ep.desc}</p></div>
-          </div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
-            {[{label:"REQUEST BODY",color:C.textMuted,content:ep.request},{label:"200 RESPONSE",color:C.green,content:ep.response}].map(panel=>(
-              <div key={panel.label} style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, overflow:"hidden" }}>
-                <div style={{ padding:"12px 18px", borderBottom:`1px solid ${C.border}`, fontFamily:"'Space Mono'", fontSize:10, color:panel.color, letterSpacing:"0.08em" }}>{panel.label}</div>
-                <div style={{ padding:"16px 18px", overflowX:"auto", background:C.bg }}>
-                  <pre style={{ fontSize:11, color:panel.label==="200 RESPONSE"?C.teal:C.codeText, lineHeight:1.8, margin:0, whiteSpace:"pre-wrap" }}>{panel.content}</pre>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -1087,57 +965,56 @@ const DocsView = () => {
 
 // ── NAV ───────────────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
-  {id:"landing",label:"Product",icon:"◈"},
-  {id:"pm",label:"PM Overview",icon:"◉"},
-  {id:"client",label:"Client View",icon:"◎"},
-  {id:"onboard",label:"Onboard Client",icon:"⊕"},
-  {id:"docs",label:"API Docs",icon:"◇"},
+  {id:"landing", label:"Product",        icon:"◈"},
+  {id:"pm",      label:"PM Overview",    icon:"◉"},
+  {id:"client",  label:"Client View",    icon:"◎"},
+  {id:"onboard", label:"Add Business",   icon:"⊕"},
 ];
 
 const Nav = ({ active, setActive, clientName, onScore }) => {
   const { C } = useTheme();
   return (
-    <div style={{ width:224, background:C.surface, borderRight:`1px solid ${C.border}`, display:"flex", flexDirection:"column", flexShrink:0, height:"100vh", position:"sticky", top:0 }}>
+    <div style={{ width:220, background:C.surface, borderRight:`1px solid ${C.border}`, display:"flex", flexDirection:"column", flexShrink:0, height:"100vh", position:"sticky", top:0 }}>
       <div style={{ padding:"20px 20px 16px", borderBottom:`1px solid ${C.border}` }}>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           <div style={{ width:34, height:34, background:C.teal, borderRadius:9, display:"flex", alignItems:"center", justifyContent:"center", fontSize:17 }}>🛡</div>
           <div>
-            <div style={{ fontFamily:"'Space Mono'", fontWeight:700, fontSize:13, color:C.teal, letterSpacing:"0.04em" }}>FRAUDSHIELD</div>
-            <div style={{ fontSize:10, color:C.textMuted, letterSpacing:"0.06em" }}>AFRICA · API v1</div>
+            <div style={{ fontFamily:"'Space Mono'", fontWeight:700, fontSize:13, color:C.teal }}>FRAUDSHIELD</div>
+            <div style={{ fontSize:10, color:C.textMuted, letterSpacing:"0.05em" }}>SMB PROTECT</div>
           </div>
         </div>
       </div>
       <div style={{ padding:"9px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:8 }}>
-        <div style={{ width:6, height:6, borderRadius:"50%", background:C.green }} className="pulse-live" />
-        <span style={{ fontSize:11, color:C.textMuted, fontFamily:"'Space Mono'" }}>LIVE · 9 CORRIDORS</span>
+        <div style={{ width:6, height:6, borderRadius:"50%", background:C.green }} className="pulse-live"/>
+        <span style={{ fontSize:11, color:C.textMuted, fontFamily:"'Space Mono'" }}>LIVE MONITORING</span>
       </div>
       <nav style={{ padding:"12px 10px", flex:1 }}>
-        {NAV_ITEMS.map(item => (
+        {NAV_ITEMS.map(item=>(
           <button key={item.id} onClick={()=>setActive(item.id)} style={{ width:"100%", textAlign:"left", padding:"10px 12px", borderRadius:6, display:"flex", alignItems:"center", gap:10, marginBottom:2, background:active===item.id?C.tealGlow:"transparent", color:active===item.id?C.teal:C.textMuted, border:active===item.id?`1px solid ${C.teal}33`:"1px solid transparent", fontSize:13, fontWeight:active===item.id?600:400 }}>
             <span style={{ fontFamily:"'Space Mono'", fontSize:14 }}>{item.icon}</span>
             {item.label}
-            {item.id==="client"&&active==="client"&&clientName&&<span style={{ marginLeft:"auto", fontSize:10, color:C.tealDim, maxWidth:70, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{clientName}</span>}
+            {item.id==="client"&&active==="client"&&clientName&&<span style={{ marginLeft:"auto", fontSize:10, color:C.tealDim, maxWidth:72, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{clientName}</span>}
           </button>
         ))}
-        <div style={{ borderTop:`1px solid ${C.border}`, margin:"12px 0 8px" }} />
+        <div style={{ borderTop:`1px solid ${C.border}`, margin:"12px 0 8px" }}/>
         <button onClick={onScore} style={{ width:"100%", textAlign:"left", padding:"10px 12px", borderRadius:6, display:"flex", alignItems:"center", gap:10, background:C.amberGlow, color:C.amber, border:`1px solid ${C.amber}33`, fontSize:13, fontWeight:600 }}>
           <span style={{ fontFamily:"'Space Mono'", fontSize:14 }}>⚡</span>Score Transaction
         </button>
       </nav>
       <div style={{ padding:"12px 16px", borderTop:`1px solid ${C.border}` }}>
-        <ThemeToggle />
+        <ThemeToggle/>
       </div>
-      <div style={{ padding:"10px 20px 16px" }}>
-        <div style={{ fontSize:10, color:C.textDim, fontFamily:"'Space Mono'" }}>v2.0.0 · AWS af-south-1</div>
-        <div style={{ fontSize:10, color:C.textDim, marginTop:2 }}>A. Adedeji — FraudShield Africa</div>
+      <div style={{ padding:"8px 20px 16px" }}>
+        <div style={{ fontSize:10, color:C.textDim, fontFamily:"'Space Mono'" }}>v1.0.0-beta</div>
+        <div style={{ fontSize:10, color:C.textDim, marginTop:2 }}>FraudShield SMB</div>
       </div>
     </div>
   );
 };
 
-// ── APP ROOT ──────────────────────────────────────────────────────────────────
+// ── APP ───────────────────────────────────────────────────────────────────────
 const App = () => {
-  const [isDark, setIsDark] = useState(() => {
+  const [isDark, setIsDark] = useState(()=>{
     const saved = localStorage.getItem("fs_theme");
     if (saved) return saved === "dark";
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -1145,56 +1022,51 @@ const App = () => {
 
   const C = isDark ? DARK : LIGHT;
 
-  const toggle = useCallback(() => {
-    setIsDark(d => {
+  const toggle = useCallback(()=>{
+    setIsDark(d=>{
       const next = !d;
-      localStorage.setItem("fs_theme", next ? "dark" : "light");
-      document.body.className = next ? "dark" : "light";
+      localStorage.setItem("fs_theme", next?"dark":"light");
+      document.body.className = next?"dark":"light";
       return next;
     });
-  }, []);
+  },[]);
 
-  useEffect(() => {
-    document.body.className = isDark ? "dark" : "light";
-    document.body.style.color = C.text;
-  }, [isDark]);
+  useEffect(()=>{ document.body.className = isDark?"dark":"light"; },[isDark]);
 
   const [view, setView] = useState("landing");
   const [selectedClient, setSelectedClient] = useState(null);
   const [showScore, setShowScore] = useState(false);
 
-  const handleSelectClient = (c) => { setSelectedClient(c); setView("client"); };
-  const handleEnterDashboard = () => setView("pm");
-
   return (
     <ThemeCtx.Provider value={{ C, isDark, toggle }}>
       <div style={{ display:"flex", height:"100vh", background:C.bg }}>
         {view !== "landing" && (
-          <Nav active={view} setActive={setView} clientName={selectedClient?.name} onScore={()=>setShowScore(true)} />
+          <Nav active={view} setActive={setView} clientName={selectedClient?.name} onScore={()=>setShowScore(true)}/>
         )}
         <div style={{ flex:1, overflowY:"auto", overflowX:"hidden", background:C.bg }}>
           {view === "landing" && (
             <div>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"16px 24px", borderBottom:`1px solid ${C.border}`, background:C.surface, position:"sticky", top:0, zIndex:10 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"15px 24px", borderBottom:`1px solid ${C.border}`, background:C.surface, position:"sticky", top:0, zIndex:10 }}>
                 <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                   <div style={{ width:30, height:30, background:C.teal, borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center" }}>🛡</div>
-                  <div style={{ fontFamily:"'Space Mono'", fontWeight:700, fontSize:13, color:C.teal }}>FRAUDSHIELD AFRICA</div>
+                  <div>
+                    <div style={{ fontFamily:"'Space Mono'", fontWeight:700, fontSize:13, color:C.teal }}>FRAUDSHIELD SMB</div>
+                  </div>
                 </div>
                 <div style={{ display:"flex", gap:10, alignItems:"center" }}>
-                  <ThemeToggle />
-                  <button onClick={()=>setView("docs")} style={{ padding:"8px 16px", borderRadius:7, fontSize:13, color:C.textMuted, border:`1px solid ${C.border}`, background:"transparent" }}>API Docs</button>
-                  <button onClick={handleEnterDashboard} style={{ padding:"8px 18px", borderRadius:7, fontSize:13, fontWeight:600, background:C.teal, color:"#fff" }}>Dashboard →</button>
+                  <ThemeToggle/>
+                  <button onClick={()=>setView("onboard")} style={{ padding:"8px 16px", borderRadius:7, fontSize:13, color:C.textMuted, border:`1px solid ${C.border}`, background:"transparent" }}>Add Business</button>
+                  <button onClick={()=>setView("pm")} style={{ padding:"8px 18px", borderRadius:7, fontSize:13, fontWeight:600, background:C.teal, color:"#fff" }}>Dashboard →</button>
                 </div>
               </div>
-              <LandingView onEnterDashboard={handleEnterDashboard} />
+              <LandingView onEnterDashboard={()=>setView("pm")}/>
             </div>
           )}
-          {view === "pm" && <PMOverview onSelectClient={handleSelectClient} />}
-          {view === "client" && <ClientView client={selectedClient} />}
-          {view === "onboard" && <OnboardView />}
-          {view === "docs" && <DocsView />}
+          {view === "pm"      && <PMOverview onSelectClient={c=>{ setSelectedClient(c); setView("client"); }}/>}
+          {view === "client"  && <ClientView client={selectedClient}/>}
+          {view === "onboard" && <OnboardView/>}
         </div>
-        {showScore && <ScoreModal onClose={()=>setShowScore(false)} />}
+        {showScore && <ScoreModal onClose={()=>setShowScore(false)}/>}
       </div>
     </ThemeCtx.Provider>
   );
