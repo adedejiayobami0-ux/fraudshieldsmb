@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FraudShield SMB — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  transition: background .25s, color .25s;
+}
+body.dark  { background: #0A0E14; color: #E2EAF4; }
+body.light { background: #F3F5F8; color: #1A2535; }
+
+/* ── LAYOUT ── */
+.page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+@media (max-width: 720px) {
+  .page { grid-template-columns: 1fr; }
+  .left-panel { display: none; }
+}
+
+/* ── LEFT PANEL ── */
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+}
+body.dark  .left-panel { background: #111820; border-right: 1px solid #1E2D3D; }
+body.light .left-panel { background: #FFFFFF; border-right: 1px solid #D1D9E6; }
+
+.left-panel::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,194,168,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: #00C2A8;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 0 20px rgba(0,194,168,0.35);
+}
+.brand-name { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; color: #00C2A8; }
+.brand-sub  { font-size: 11px; letter-spacing: .05em; }
+body.dark  .brand-sub { color: #6B8199; }
+body.light .brand-sub { color: #4A6080; }
+
+.left-hero { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 32px 0; }
+.left-hero h1 {
+  font-size: 28px; font-weight: 600; letter-spacing: -.02em;
+  line-height: 1.2; margin-bottom: 16px;
+}
+body.dark  .left-hero h1 { color: #E2EAF4; }
+body.light .left-hero h1 { color: #1A2535; }
+.left-hero h1 span { color: #00C2A8; }
+.left-hero p { font-size: 14px; line-height: 1.65; max-width: 340px; }
+body.dark  .left-hero p { color: #6B8199; }
+body.light .left-hero p { color: #4A6080; }
+
+.feature-list { margin-top: 32px; display: flex; flex-direction: column; gap: 14px; }
+.feature-item { display: flex; align-items: flex-start; gap: 12px; }
+.feature-icon {
+  width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 15px;
+}
+body.dark  .feature-icon { background: rgba(0,194,168,0.10); }
+body.light .feature-icon { background: rgba(0,137,123,0.08); }
+.feature-text strong { font-size: 13px; font-weight: 600; display: block; margin-bottom: 2px; }
+body.dark  .feature-text strong { color: #E2EAF4; }
+body.light .feature-text strong { color: #1A2535; }
+.feature-text span { font-size: 12px; }
+body.dark  .feature-text span { color: #6B8199; }
+body.light .feature-text span { color: #4A6080; }
+
+.left-footer { font-size: 11px; font-family: 'Space Mono', monospace; }
+body.dark  .left-footer { color: #3D5066; }
+body.light .left-footer { color: #8BA0B8; }
+
+/* ── RIGHT PANEL ── */
+.right-panel {
+  display: flex; align-items: center; justify-content: center;
+  padding: 48px 32px; position: relative;
+}
+body.dark  .right-panel { background: #0A0E14; }
+body.light .right-panel { background: #F3F5F8; }
+
+.theme-toggle-abs {
+  position: absolute; top: 24px; right: 24px;
+  display: flex; align-items: center; gap: 7px;
+  padding: 6px 12px; border-radius: 20px;
+  border: 1px solid; cursor: pointer;
+  font-size: 12px; font-weight: 500;
+  font-family: 'DM Sans', sans-serif;
+  transition: all .2s;
+}
+body.dark  .theme-toggle-abs { background: #111820; border-color: #1E2D3D; color: #6B8199; }
+body.light .theme-toggle-abs { background: #FFFFFF; border-color: #D1D9E6; color: #4A6080; }
+.track { width: 30px; height: 17px; border-radius: 9px; position: relative; transition: background .25s; flex-shrink: 0; }
+.knob  { position: absolute; top: 2px; left: 2px; width: 13px; height: 13px; border-radius: 50%; background: #fff; transition: transform .25s; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+.knob.on { transform: translateX(13px); }
+
+/* ── CARD ── */
+.auth-card { width: 100%; max-width: 400px; }
+.auth-card h2 { font-size: 22px; font-weight: 600; letter-spacing: -.02em; margin-bottom: 6px; }
+body.dark  .auth-card h2 { color: #E2EAF4; }
+body.light .auth-card h2 { color: #1A2535; }
+.auth-card .subtitle { font-size: 13px; margin-bottom: 32px; }
+body.dark  .auth-card .subtitle { color: #6B8199; }
+body.light .auth-card .subtitle { color: #4A6080; }
+
+/* ── TABS ── */
+.tabs { display: flex; margin-bottom: 28px; border-radius: 8px; padding: 3px; }
+body.dark  .tabs { background: #111820; border: 1px solid #1E2D3D; }
+body.light .tabs { background: #EBF0F6; border: 1px solid #D1D9E6; }
+.tab-btn {
+  flex: 1; padding: 8px; border-radius: 6px; font-size: 13px; font-weight: 500;
+  cursor: pointer; border: none; font-family: 'DM Sans', sans-serif;
+  transition: all .2s;
+}
+body.dark  .tab-btn          { background: transparent; color: #6B8199; }
+body.dark  .tab-btn.active   { background: #1E2D3D;     color: #E2EAF4; }
+body.light .tab-btn          { background: transparent; color: #4A6080; }
+body.light .tab-btn.active   { background: #FFFFFF;     color: #1A2535; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+
+/* ── FORM ── */
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 6px; }
+body.dark  .form-group label { color: #6B8199; }
+body.light .form-group label { color: #4A6080; }
+.form-group input {
+  width: 100%; padding: 10px 14px;
+  border-radius: 8px; font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none; transition: border-color .2s, box-shadow .2s;
+}
+body.dark  .form-group input {
+  background: #111820; border: 1px solid #1E2D3D; color: #E2EAF4;
+}
+body.dark  .form-group input:focus {
+  border-color: #00C2A844; box-shadow: 0 0 0 3px rgba(0,194,168,0.08);
+}
+body.light .form-group input {
+  background: #FFFFFF; border: 1px solid #D1D9E6; color: #1A2535;
+}
+body.light .form-group input:focus {
+  border-color: #00897B88; box-shadow: 0 0 0 3px rgba(0,137,123,0.08);
+}
+.form-group input::placeholder { opacity: .45; }
+
+/* ── SUBMIT ── */
+.submit-btn {
+  width: 100%; padding: 11px; border-radius: 8px; border: none;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: opacity .2s, box-shadow .2s;
+  margin-top: 4px;
+}
+body.dark  .submit-btn { background: #00C2A8; color: #0A0E14; box-shadow: 0 0 18px rgba(0,194,168,0.30); }
+body.light .submit-btn { background: #00897B; color: #FFFFFF;  box-shadow: 0 0 14px rgba(0,137,123,0.20); }
+.submit-btn:disabled { opacity: .55; cursor: not-allowed; }
+.submit-btn:not(:disabled):hover { opacity: .9; }
+
+/* ── MESSAGES ── */
+.msg {
+  padding: 11px 14px; border-radius: 8px; font-size: 13px;
+  margin-bottom: 18px; display: none;
+}
+.msg.show { display: block; }
+.msg.error  { background: rgba(239,68,68,0.10);  border: 1px solid rgba(239,68,68,0.25);  color: #EF4444; }
+.msg.success{ background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.25); color: #10B981; }
+.msg.info   { background: rgba(0,194,168,0.10);  border: 1px solid rgba(0,194,168,0.25);  color: #00C2A8; }
+
+/* ── DIVIDER ── */
+.divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+.divider hr { flex: 1; border: none; border-top: 1px solid; }
+body.dark  .divider hr   { border-color: #1E2D3D; }
+body.light .divider hr   { border-color: #D1D9E6; }
+.divider span { font-size: 12px; }
+body.dark  .divider span { color: #3D5066; }
+body.light .divider span { color: #8BA0B8; }
+
+/* ── MAGIC LINK ── */
+.magic-btn {
+  width: 100%; padding: 10px; border-radius: 8px;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: all .2s;
+}
+body.dark  .magic-btn { background: transparent; border: 1px solid #1E2D3D; color: #6B8199; }
+body.dark  .magic-btn:hover { border-color: #00C2A844; color: #00C2A8; }
+body.light .magic-btn { background: transparent; border: 1px solid #D1D9E6; color: #4A6080; }
+body.light .magic-btn:hover { border-color: #00897B88; color: #00897B; }
+
+/* ── FOOTER ── */
+.auth-footer { text-align: center; font-size: 12px; margin-top: 24px; }
+body.dark  .auth-footer { color: #3D5066; }
+body.light .auth-footer { color: #8BA0B8; }
+.auth-footer a { color: #00C2A8; text-decoration: none; }
+body.light .auth-footer a { color: #00897B; }
+
+/* ── CONFIRM STATE ── */
+.confirm-screen { text-align: center; padding: 20px 0; display: none; }
+.confirm-screen.show { display: block; }
+.confirm-icon { font-size: 52px; margin-bottom: 16px; }
+.confirm-screen h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+body.dark  .confirm-screen h3 { color: #E2EAF4; }
+body.light .confirm-screen h3 { color: #1A2535; }
+.confirm-screen p { font-size: 13px; line-height: 1.65; }
+body.dark  .confirm-screen p { color: #6B8199; }
+body.light .confirm-screen p { color: #4A6080; }
+
+/* ── LOADING SPINNER ── */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  animation: spin .7s linear infinite;
+  display: inline-block; vertical-align: middle; margin-right: 8px;
+}
+
+/* ── LIVE BADGE ── */
+@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.35} }
+.live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #10B981; display: inline-block;
+  animation: pulse-dot 2s ease-in-out infinite;
+  vertical-align: middle; margin-right: 6px;
+}
+</style>
+</head>
+<body class="dark">
+
+<div class="page">
+
+  <!-- ── LEFT PANEL ── -->
+  <div class="left-panel">
+    <div class="brand">
+      <div class="brand-icon">🛡</div>
+      <div>
+        <div class="brand-name">FRAUDSHIELD SMB</div>
+        <div class="brand-sub">REAL-TIME FRAUD DETECTION</div>
+      </div>
+    </div>
+
+    <div class="left-hero">
+      <h1>Stop fraud before it costs you <span>customers.</span></h1>
+      <p>AI-powered fraud detection built for American small businesses. The same protection banks use — without the enterprise price tag.</p>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-icon">💳</div>
+          <div class="feature-text">
+            <strong>Card testing detection</strong>
+            <span>Catch fraudsters before a large charge hits your account</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📬</div>
+          <div class="feature-text">
+            <strong>ACH & check fraud</strong>
+            <span>Flag fake deposits and unauthorized pulls in real time</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-text">
+            <strong>Instant alerts</strong>
+            <span>Email and SMS the moment suspicious activity is detected</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🔑</div>
+          <div class="feature-text">
+            <strong>Simple API integration</strong>
+            <span>One API key, works with Stripe, Square, and PayPal</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="left-footer">
+      <span class="live-dot"></span>
+      500+ small businesses protected · $2.1M+ fraud blocked
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-panel">
+
+    <button class="theme-toggle-abs" onclick="toggleTheme()">
+      <div class="track" id="track">
+        <div class="knob" id="knob"></div>
+      </div>
+      <span id="theme-label">☀ Light</span>
+    </button>
+
+    <div class="auth-card">
+
+      <!-- Normal form state -->
+      <div id="form-state">
+        <h2 id="card-title">Welcome back</h2>
+        <p class="subtitle" id="card-subtitle">Sign in to your FraudShield dashboard</p>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab-btn active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+          <button class="tab-btn"        id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+        </div>
+
+        <!-- Messages -->
+        <div class="msg" id="msg"></div>
+
+        <!-- Business name (sign up only) -->
+        <div class="form-group" id="biz-group" style="display:none">
+          <label>Business Name</label>
+          <input type="text" id="biz-name" placeholder="e.g. Pinewood Bakery" />
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="email" placeholder="owner@yourbusiness.com" />
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="At least 8 characters" />
+        </div>
+
+        <!-- Submit -->
+        <button class="submit-btn" id="submit-btn" onclick="handleSubmit()">
+          Sign In
+        </button>
+
+        <!-- Divider + magic link -->
+        <div class="divider">
+          <hr/><span>or</span><hr/>
+        </div>
+
+        <button class="magic-btn" onclick="handleMagicLink()">
+          ✉ Send magic link instead
+        </button>
+
+        <div class="auth-footer" id="footer-text">
+          No account? <a href="#" onclick="switchTab('signup'); return false;">Create one free →</a>
+        </div>
+      </div>
+
+      <!-- Confirm email state -->
+      <div class="confirm-screen" id="confirm-state">
+        <div class="confirm-icon">📬</div>
+        <h3>Check your inbox</h3>
+        <p id="confirm-msg">We sent a confirmation link to <strong id="confirm-email"></strong>. Click it to activate your account and access your dashboard.</p>
+        <div style="margin-top:24px">
+          <button class="magic-btn" onclick="resetToForm()" style="max-width:200px; margin:0 auto; display:block;">← Back to sign in</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// CONFIGURATION — paste your Supabase credentials here
+// ─────────────────────────────────────────────────────────────────────────────
+const SUPABASE_URL  = "YOUR_SUPABASE_PROJECT_URL";   // e.g. https://xyzxyz.supabase.co
+const SUPABASE_ANON = "YOUR_SUPABASE_ANON_KEY";      // from Settings → API
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT SUPABASE
+// ─────────────────────────────────────────────────────────────────────────────
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// THEME
+// ─────────────────────────────────────────────────────────────────────────────
+let isDark = localStorage.getItem("fs_theme")
+  ? localStorage.getItem("fs_theme") === "dark"
+  : window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+function applyTheme() {
+  document.body.className = isDark ? "dark" : "light";
+  document.getElementById("knob").className   = isDark ? "knob" : "knob on";
+  document.getElementById("track").style.background = isDark ? "#1E2D3D" : "#00897B";
+  document.getElementById("theme-label").textContent = isDark ? "☀ Light" : "☽ Dark";
+}
+
+function toggleTheme() {
+  isDark = !isDark;
+  localStorage.setItem("fs_theme", isDark ? "dark" : "light");
+  applyTheme();
+}
+
+applyTheme();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TAB SWITCHING
+// ─────────────────────────────────────────────────────────────────────────────
+let currentTab = "signin";
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById("tab-signin").className = "tab-btn" + (tab === "signin" ? " active" : "");
+  document.getElementById("tab-signup").className = "tab-btn" + (tab === "signup" ? " active" : "");
+  document.getElementById("biz-group").style.display  = tab === "signup" ? "block" : "none";
+  document.getElementById("card-title").textContent    = tab === "signin" ? "Welcome back"          : "Create your account";
+  document.getElementById("card-subtitle").textContent = tab === "signin" ? "Sign in to your FraudShield dashboard" : "Start protecting your business today";
+  document.getElementById("submit-btn").textContent    = tab === "signin" ? "Sign In"               : "Create Account";
+  document.getElementById("footer-text").innerHTML     = tab === "signin"
+    ? 'No account? <a href="#" onclick="switchTab(\'signup\'); return false;">Create one free →</a>'
+    : 'Already have an account? <a href="#" onclick="switchTab(\'signin\'); return false;">Sign in →</a>';
+  clearMsg();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MESSAGES
+// ─────────────────────────────────────────────────────────────────────────────
+function showMsg(text, type = "error") {
+  const el = document.getElementById("msg");
+  el.textContent = text;
+  el.className = `msg show ${type}`;
+}
+function clearMsg() {
+  const el = document.getElementById("msg");
+  el.className = "msg";
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LOADING STATE
+// ─────────────────────────────────────────────────────────────────────────────
+function setLoading(loading, label) {
+  const btn = document.getElementById("submit-btn");
+  btn.disabled = loading;
+  btn.innerHTML = loading
+    ? `<span class="spinner"></span>${label}`
+    : (currentTab === "signin" ? "Sign In" : "Create Account");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CONFIRM SCREEN
+// ─────────────────────────────────────────────────────────────────────────────
+function showConfirm(email, isMagic) {
+  document.getElementById("form-state").style.display    = "none";
+  document.getElementById("confirm-state").className     = "confirm-screen show";
+  document.getElementById("confirm-email").textContent   = email;
+  document.getElementById("confirm-msg").innerHTML       = isMagic
+    ? `We sent a magic link to <strong>${email}</strong>. Click it to sign in instantly — no password needed.`
+    : `We sent a confirmation link to <strong>${email}</strong>. Click it to activate your account and access your dashboard.`;
+}
+
+function resetToForm() {
+  document.getElementById("form-state").style.display    = "block";
+  document.getElementById("confirm-state").className     = "confirm-screen";
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SIGN IN / SIGN UP
+// ─────────────────────────────────────────────────────────────────────────────
+async function handleSubmit() {
+  const email    = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const bizName  = document.getElementById("biz-name").value.trim();
+
+  clearMsg();
+
+  if (!email)    return showMsg("Please enter your email address.");
+  if (!password) return showMsg("Please enter your password.");
+  if (password.length < 8) return showMsg("Password must be at least 8 characters.");
+
+  if (currentTab === "signup") {
+    // ── SIGN UP ──────────────────────────────────────────────────────────────
+    setLoading(true, "Creating account…");
+    const { data, error } = await sb.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { business_name: bizName || "My Business" },
+        emailRedirectTo: window.location.origin + "/index.html"
+      }
+    });
+    setLoading(false);
+    if (error) return showMsg(error.message);
+    showConfirm(email, false);
+
+  } else {
+    // ── SIGN IN ──────────────────────────────────────────────────────────────
+    setLoading(true, "Signing in…");
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    if (error) return showMsg(error.message === "Invalid login credentials"
+      ? "Incorrect email or password. Try again."
+      : error.message
+    );
+    // Redirect to dashboard on success
+    window.location.href = "index.html";
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAGIC LINK
+// ─────────────────────────────────────────────────────────────────────────────
+async function handleMagicLink() {
+  const email = document.getElementById("email").value.trim();
+  clearMsg();
+  if (!email) return showMsg("Enter your email address first, then click the magic link button.");
+
+  const btn = document.querySelector(".magic-btn");
+  btn.disabled = true;
+  btn.textContent = "Sending…";
+
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.origin + "/index.html" }
+  });
+
+  btn.disabled = false;
+  btn.textContent = "✉ Send magic link instead";
+  if (error) return showMsg(error.message);
+  showConfirm(email, true);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CHECK IF ALREADY LOGGED IN — redirect straight to dashboard
+// ─────────────────────────────────────────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) window.location.href = "index.html";
+})();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ENTER KEY SUPPORT
+// ─────────────────────────────────────────────────────────────────────────────
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter") handleSubmit();
+});
+</script>
+</body>
+</html>
