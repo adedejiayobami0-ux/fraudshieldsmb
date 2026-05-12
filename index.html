@@ -70,13 +70,18 @@ pre { font-family: 'Space Mono', monospace; }
 .theme-pill {
   display:flex; align-items:center; gap:7px;
   padding:6px 12px; border-radius:20px; border:1px solid;
-  font-size:12px; font-weight:500; cursor:pointer;
-  transition: all .2s ease; white-space:nowrap;
+  font-size:12px; font-weight:500; cursor:pointer !important;
+  white-space:nowrap;
+  width:fit-content; height:fit-content;
+  position:relative; z-index:50;
+  pointer-events:auto !important;
+  -webkit-tap-highlight-color: transparent;
 }
 .track { width:32px; height:18px; border-radius:9px; position:relative; transition:background .25s; flex-shrink:0; }
 .knob  { position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:#fff; transition:transform .25s; box-shadow:0 1px 3px rgba(0,0,0,.25); }
 .knob.on { transform:translateX(14px); }
-div, button, input, select, nav { transition: background .2s ease, border-color .2s ease, color .15s ease; }
+input, select { transition: background .2s ease, border-color .2s ease, color .15s ease; }
+button { pointer-events: auto !important; cursor: pointer !important; }
 /* API Key section */
 .key-display {
   font-family: 'Space Mono', monospace;
