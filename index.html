@@ -995,7 +995,7 @@ const OnboardView = () => {
                   <div style={{ color:C.textMuted, fontSize:13 }}>{form.bizName||"Your business"} is now protected.</div>
                 </div>
                 <div style={{ textAlign:"center", marginTop:16 }}>
-                  <button onClick={()=>{ window.location.reload(); }} style={{ padding:"11px 28px", borderRadius:8, fontSize:14, fontWeight:600, background:C.teal, color:"#fff" }}>Go to Dashboard →</button>
+                  <button onClick={()=>{ window.location.href="index.html"; }} style={{ padding:"11px 28px", borderRadius:8, fontSize:14, fontWeight:600, background:C.teal, color:"#fff" }}>Go to Dashboard →</button>
                 </div>
                 <div style={{ background:C.surfaceAlt, borderRadius:8, padding:"16px 18px", border:`1px solid ${C.border}` }}>
                   <div style={{ fontFamily:"'Space Mono'", fontSize:9, color:C.teal, marginBottom:10 }}>YOUR API CREDENTIALS</div>
@@ -1175,7 +1175,7 @@ const App = () => {
                   }
                 </div>
               </div>
-              <LandingView onEnterDashboard={()=>user?setView("pm"):window.location.href="auth.html"}/>
+              <LandingView onEnterDashboard={()=>window.location.href="auth.html"}/>
             </div>
           )}
           {view === "pm"      && <PMOverview onSelectClient={c=>{ setSelectedClient(c); setView("client"); }}/>}
