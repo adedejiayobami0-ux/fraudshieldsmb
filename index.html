@@ -851,8 +851,17 @@ const OnboardView = () => {
   const [form, setForm] = useState({ bizName:"", industry:"", state:"WA", employees:"", annualRev:"", processor:"", avgTxn:"", riskTolerance:"balanced", alertEmail:"", blockThreshold:82 });
   const f = (k,v) => setForm(p=>({...p,[k]:v}));
   const deploySteps = ["Creating your FraudShield account…","Provisioning fraud detection engine…","Configuring ML model for your industry…","Setting up alert delivery…","Connecting to your payment processor…","Generating API credentials…","Running initial baseline scan…","✓ FraudShield is active and protecting your business!"];
-  const startDeploy = () => {
+  const startDeploy = async () => {
     setDeploying(true);
+    // Save business name to user metadata so routing works on next login
+    try {
+      const { data: { user } } = await window.sb.auth.getUser();
+      if (user) {
+        await window.sb.auth.updateUser({
+          data: { business_name: form.bizName || "My Business" }
+        });
+      }
+    } catch(e) { console.warn("Could not update user metadata:", e); }
     deploySteps.forEach((msg,i)=>setTimeout(()=>{ setDeployLog(p=>[...p,msg]); if(i===deploySteps.length-1) setTimeout(()=>setDeployed(true),400); },i*600));
   };
   const IS = { width:"100%", background:C.surfaceAlt, border:`1px solid ${C.border}`, borderRadius:6, padding:"9px 12px", color:C.text, fontSize:13 };
@@ -985,6 +994,9 @@ const OnboardView = () => {
                   <div style={{ fontFamily:"'Space Mono'", fontSize:14, color:C.green, fontWeight:700, marginBottom:8 }}>FRAUDSHIELD IS ACTIVE</div>
                   <div style={{ color:C.textMuted, fontSize:13 }}>{form.bizName||"Your business"} is now protected.</div>
                 </div>
+                <div style={{ textAlign:"center", marginTop:16 }}>
+                  <button onClick={()=>{ window.location.reload(); }} style={{ padding:"11px 28px", borderRadius:8, fontSize:14, fontWeight:600, background:C.teal, color:"#fff" }}>Go to Dashboard →</button>
+                </div>
                 <div style={{ background:C.surfaceAlt, borderRadius:8, padding:"16px 18px", border:`1px solid ${C.border}` }}>
                   <div style={{ fontFamily:"'Space Mono'", fontSize:9, color:C.teal, marginBottom:10 }}>YOUR API CREDENTIALS</div>
                   {[["Endpoint","https://api.fraudshield.io/v1/score"],["API Key",apiKey],["Block Threshold",`≥ ${form.blockThreshold}`],["Status","🟢 ACTIVE"]].map(([k,v])=>(
@@ -1091,11 +1103,31 @@ const App = () => {
   // ── AUTH GUARD ──────────────────────────────────────────────
   useEffect(()=>{
     window.sb.auth.getSession().then(({ data: { session } })=>{
-      setUser(session?.user || null);
+      const u = session?.user || null;
+      setUser(u);
       setAuthChecked(true);
+      // Route new users to onboarding, returning users to dashboard
+      if (u) {
+        const bizName = u.user_metadata?.business_name;
+        if (!bizName || bizName === "My Business") {
+          setView("onboard");
+        } else {
+          setView("pm");
+        }
+      }
     });
     const { data: { subscription } } = window.sb.auth.onAuthStateChange((_event, session)=>{
-      setUser(session?.user || null);
+      const u = session?.user || null;
+      setUser(u);
+      // On sign in, route based on business name
+      if (_event === "SIGNED_IN" && u) {
+        const bizName = u.user_metadata?.business_name;
+        if (!bizName || bizName === "My Business") {
+          setView("onboard");
+        } else {
+          setView("pm");
+        }
+      }
     });
     return () => subscription.unsubscribe();
   },[]);
