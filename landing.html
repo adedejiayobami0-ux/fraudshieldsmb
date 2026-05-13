@@ -3,38 +3,587 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FraudShield SMB — Stop Fraud Before It Costs You</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<title>FraudShield SMB — Create Your Account</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.6;background:#08080C;color:#F0EDE8;overflow-x:hidden}
+html,body{height:100%;font-family:'DM Sans',sans-serif;font-size:14px}
 
-/* GRID BG */
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,210,180,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,210,180,.03) 1px,transparent 1px);background-size:52px 52px;pointer-events:none;z-index:0}
+/* THEMES */
+body.dark{background:#08080C;color:#F0EDE8}
+body.light{background:#F4F6FA;color:#1A1A2E}
 
-/* ORBS */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(0,210,180,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,210,180,.03) 1px,transparent 1px);
+  background-size:48px 48px}
+body.light::before{background-image:linear-gradient(rgba(0,137,123,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,137,123,.04) 1px,transparent 1px)}
+
 .orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0}
-.orb1{width:700px;height:700px;background:radial-gradient(circle,rgba(0,210,180,.1) 0%,transparent 70%);top:-300px;left:-200px}
-.orb2{width:500px;height:500px;background:radial-gradient(circle,rgba(100,60,255,.08) 0%,transparent 70%);bottom:-200px;right:-100px}
-.orb3{width:400px;height:400px;background:radial-gradient(circle,rgba(0,210,180,.06) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%)}
+body.dark .orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(0,210,180,.1) 0%,transparent 70%);top:-250px;left:-200px}
+body.dark .orb2{width:400px;height:400px;background:radial-gradient(circle,rgba(100,60,255,.07) 0%,transparent 70%);bottom:-150px;right:-100px}
+body.light .orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(0,137,123,.07) 0%,transparent 70%);top:-250px;left:-200px}
+body.light .orb2{width:400px;height:400px;background:radial-gradient(circle,rgba(100,60,255,.04) 0%,transparent 70%);bottom:-150px;right:-100px}
 
-/* UTILS */
-.container{max-width:1080px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
-.teal{color:#00D2B4}
-.tag{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#00D2B4;background:rgba(0,210,180,.08);border:1px solid rgba(0,210,180,.2);padding:5px 14px;border-radius:20px}
-.dot{width:6px;height:6px;border-radius:50%;background:#00D2B4;animation:blink 2s infinite}
+/* LAYOUT */
+.page{position:relative;z-index:1;min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+@media(max-width:760px){.page{grid-template-columns:1fr}.left-side{display:none}}
+
+/* LEFT */
+.left-side{
+  padding:44px;display:flex;flex-direction:column;justify-content:space-between;
+  border-right:1px solid;
+}
+body.dark .left-side{background:rgba(255,255,255,.015);border-color:rgba(255,255,255,.06)}
+body.light .left-side{background:#fff;border-color:#E8ECF2}
+
+.brand{display:flex;align-items:center;gap:10px}
+.brand-box{width:36px;height:36px;background:linear-gradient(135deg,#00D2B4,#00A896);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 20px rgba(0,210,180,.35)}
+.brand-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em}
+body.dark .brand-name{color:#00D2B4}
+body.light .brand-name{color:#00897B}
+
+.left-body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:36px 0}
+.left-h{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.2;margin-bottom:10px}
+body.dark .left-h{color:#F0EDE8}
+body.light .left-h{color:#1A1A2E}
+.left-h em{font-style:normal}
+body.dark .left-h em{color:#00D2B4}
+body.light .left-h em{color:#00897B}
+
+.left-p{font-size:13px;line-height:1.7;max-width:340px;margin-bottom:28px}
+body.dark .left-p{color:rgba(240,237,232,.5)}
+body.light .left-p{color:rgba(26,26,46,.5)}
+
+.review-cards{display:flex;flex-direction:column;gap:12px}
+.review-card{border-radius:12px;padding:16px 18px;border:1px solid}
+body.dark .review-card{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.07)}
+body.light .review-card{background:rgba(0,0,0,.025);border-color:rgba(0,0,0,.07)}
+.review-stars{color:#F59E0B;font-size:12px;margin-bottom:6px;letter-spacing:2px}
+.review-text{font-size:12px;line-height:1.6;margin-bottom:10px}
+body.dark .review-text{color:rgba(240,237,232,.65)}
+body.light .review-text{color:rgba(26,26,46,.65)}
+.review-author{display:flex;align-items:center;gap:8px}
+.review-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#00D2B4,#6C60FF);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#08080C;font-family:'Syne',sans-serif}
+.review-name{font-size:12px;font-weight:600}
+body.dark .review-name{color:#F0EDE8}
+body.light .review-name{color:#1A1A2E}
+.review-biz{font-size:11px}
+body.dark .review-biz{color:rgba(240,237,232,.35)}
+body.light .review-biz{color:rgba(26,26,46,.35)}
+
+.trust-row{display:flex;gap:20px;margin-top:24px}
+.trust-val{font-family:'Syne',sans-serif;font-size:17px;font-weight:700}
+body.dark .trust-val{color:#00D2B4}
+body.light .trust-val{color:#00897B}
+.trust-lbl{font-size:11px;margin-top:1px}
+body.dark .trust-lbl{color:rgba(240,237,232,.35)}
+body.light .trust-lbl{color:rgba(26,26,46,.35)}
+
+.left-foot{font-size:11px}
+body.dark .left-foot{color:rgba(240,237,232,.2)}
+body.light .left-foot{color:rgba(26,26,46,.25)}
+
+/* RIGHT */
+.right-side{display:flex;flex-direction:column;position:relative}
+body.light .right-side{background:#F4F6FA}
+
+.right-top{
+  padding:16px 28px;display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid;
+}
+body.dark .right-top{border-color:rgba(255,255,255,.05)}
+body.light .right-top{border-color:#E8ECF2}
+
+.back-link{font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;text-decoration:none;transition:color .15s}
+body.dark .back-link{color:rgba(240,237,232,.4)}
+body.light .back-link{color:rgba(26,26,46,.4)}
+.back-link:hover{color:inherit!important}
+
+/* THEME TOGGLE */
+.theme-pill{display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:20px;border:1px solid;cursor:pointer;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;transition:all .15s}
+body.dark .theme-pill{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);color:rgba(240,237,232,.5)}
+body.light .theme-pill{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.1);color:rgba(26,26,46,.5)}
+.t-track{width:28px;height:16px;border-radius:8px;position:relative;flex-shrink:0;transition:background .25s}
+body.dark .t-track{background:rgba(255,255,255,.15)}
+body.light .t-track{background:#00897B}
+.t-knob{position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+body.light .t-knob{transform:translateX(12px)}
+
+.right-form{flex:1;display:flex;align-items:center;justify-content:center;padding:28px 28px 44px;overflow-y:auto}
+
+/* FORM CARD */
+.card{width:100%;max-width:420px}
+
+.free-tag{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:18px;width:fit-content}
+body.dark .free-tag{color:#00D2B4;background:rgba(0,210,180,.1);border:1px solid rgba(0,210,180,.2)}
+body.light .free-tag{color:#00897B;background:rgba(0,137,123,.08);border:1px solid rgba(0,137,123,.2)}
+.tag-dot{width:6px;height:6px;border-radius:50%;animation:blink 2s infinite}
+body.dark .tag-dot{background:#10B981}
+body.light .tag-dot{background:#059669}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-@keyframes fadein{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes floatin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
-/* NAV */
-nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);background:rgba(8,8,12,.85);border-bottom:1px solid rgba(255,255,255,.06)}
-.nav-inner{display:flex;justify-content:space-between;align-items:center;padding:16px 28px;max-width:1080px;margin:0 auto}
-.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.logo-box{width:36px;height:36px;background:linear-gradient(135deg,#00D2B4,#00897B);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 20px rgba(0,210,180,.35)}
-.logo-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#00D2B4;letter-spacing:.04em}
-.nav-links{display:flex;align-items:center;gap:8px}
+.card-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:5px;line-height:1.1}
+body.dark .card-title{color:#F0EDE8}
+body.light .card-title{color:#1A1A2E}
+.card-sub{font-size:13px;line-height:1.55;margin-bottom:22px}
+body.dark .card-sub{color:rgba(240,237,232,.45)}
+body.light .card-sub{color:rgba(26,26,46,.5)}
+
+/* TABS */
+.tabs{display:flex;border-radius:10px;padding:3px;margin-bottom:20px;gap:2px;border:1px solid}
+body.dark .tabs{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
+body.light .tabs{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.08)}
+.tab{flex:1;padding:8px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;background:transparent;transition:all .2s}
+body.dark .tab{color:rgba(240,237,232,.4)}
+body.dark .tab.active{background:rgba(255,255,255,.08);color:#F0EDE8;font-weight:600}
+body.light .tab{color:rgba(26,26,46,.4)}
+body.light .tab.active{background:rgba(0,0,0,.06);color:#1A1A2E;font-weight:600}
+
+/* STEP INDICATOR */
+.step-bar{display:flex;align-items:center;gap:6px;margin-bottom:18px}
+.step-dot{width:8px;height:8px;border-radius:50%;border:2px solid;transition:all .3s;cursor:pointer}
+body.dark .step-dot{border-color:rgba(255,255,255,.15);background:transparent}
+body.dark .step-dot.active{background:#00D2B4;border-color:#00D2B4}
+body.dark .step-dot.done{background:#00D2B4;border-color:#00D2B4;opacity:.5}
+body.light .step-dot{border-color:rgba(0,0,0,.15);background:transparent}
+body.light .step-dot.active{background:#00897B;border-color:#00897B}
+body.light .step-dot.done{background:#00897B;border-color:#00897B;opacity:.5}
+.step-line{flex:1;height:2px;border-radius:1px}
+body.dark .step-line{background:rgba(255,255,255,.08)}
+body.light .step-line{background:rgba(0,0,0,.08)}
+body.dark .step-line.done{background:#00D2B4;opacity:.5}
+body.light .step-line.done{background:#00897B;opacity:.5}
+.step-label-text{font-size:11px;font-weight:500;margin-left:4px}
+body.dark .step-label-text{color:rgba(240,237,232,.4)}
+body.light .step-label-text{color:rgba(26,26,46,.4)}
+
+/* FIELDS */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:500;letter-spacing:.04em;margin-bottom:5px}
+body.dark .field label{color:rgba(240,237,232,.45)}
+body.light .field label{color:rgba(26,26,46,.5)}
+.field input,.field select{
+  width:100%;padding:10px 13px;border-radius:9px;font-size:13px;
+  font-family:'DM Sans',sans-serif;border:1px solid;outline:none;transition:all .2s;
+}
+body.dark .field input,body.dark .field select{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:#F0EDE8}
+body.dark .field input:focus,body.dark .field select:focus{border-color:rgba(0,210,180,.5);background:rgba(0,210,180,.04)}
+body.light .field input,body.light .field select{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.1);color:#1A1A2E}
+body.light .field input:focus,body.light .field select:focus{border-color:rgba(0,137,123,.5);background:rgba(0,137,123,.03)}
+body.dark .field input::placeholder{color:rgba(240,237,232,.25)}
+body.light .field input::placeholder{color:rgba(26,26,46,.25)}
+body.dark .field select option{background:#1A1A2E;color:#F0EDE8}
+body.light .field select option{background:#fff;color:#1A1A2E}
+
+/* PAYMENT CHECKBOXES */
+.payment-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.pay-opt{
+  display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;
+  border:1px solid;cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;user-select:none;
+}
+body.dark .pay-opt{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.09);color:rgba(240,237,232,.6)}
+body.dark .pay-opt:hover{border-color:rgba(0,210,180,.35);color:#F0EDE8}
+body.dark .pay-opt.selected{background:rgba(0,210,180,.08);border-color:rgba(0,210,180,.4);color:#00D2B4}
+body.light .pay-opt{background:rgba(0,0,0,.025);border-color:rgba(0,0,0,.08);color:rgba(26,26,46,.6)}
+body.light .pay-opt:hover{border-color:rgba(0,137,123,.35);color:#1A1A2E}
+body.light .pay-opt.selected{background:rgba(0,137,123,.07);border-color:rgba(0,137,123,.4);color:#00897B}
+.pay-icon{font-size:15px;flex-shrink:0}
+.pay-check{margin-left:auto;width:16px;height:16px;border-radius:4px;border:1px solid;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+body.dark .pay-check{border-color:rgba(255,255,255,.2)}
+body.dark .pay-opt.selected .pay-check{background:#00D2B4;border-color:#00D2B4;color:#08080C}
+body.light .pay-check{border-color:rgba(0,0,0,.2)}
+body.light .pay-opt.selected .pay-check{background:#00897B;border-color:#00897B;color:#fff}
+
+/* BUTTONS */
+.btn-main{
+  width:100%;padding:12px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;
+  border:none;background:linear-gradient(135deg,#00D2B4,#00A896);color:#08080C;
+  font-family:'DM Sans',sans-serif;margin-bottom:14px;
+  box-shadow:0 0 20px rgba(0,210,180,.3);transition:all .2s;
+}
+body.light .btn-main{color:#fff}
+.btn-main:hover:not(:disabled){box-shadow:0 0 32px rgba(0,210,180,.5);transform:translateY(-1px)}
+.btn-main:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-back{
+  width:100%;padding:10px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;
+  background:transparent;font-family:'DM Sans',sans-serif;margin-bottom:10px;border:1px solid;transition:all .2s;
+}
+body.dark .btn-back{border-color:rgba(255,255,255,.1);color:rgba(240,237,232,.5)}
+body.dark .btn-back:hover{border-color:rgba(255,255,255,.2);color:#F0EDE8}
+body.light .btn-back{border-color:rgba(0,0,0,.1);color:rgba(26,26,46,.5)}
+body.light .btn-back:hover{border-color:rgba(0,0,0,.2);color:#1A1A2E}
+.btn-magic{
+  width:100%;padding:10px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;
+  background:transparent;font-family:'DM Sans',sans-serif;border:1px solid;transition:all .2s;
+}
+body.dark .btn-magic{border-color:rgba(255,255,255,.1);color:rgba(240,237,232,.45)}
+body.dark .btn-magic:hover{border-color:rgba(255,255,255,.2);color:#F0EDE8}
+body.light .btn-magic{border-color:rgba(0,0,0,.1);color:rgba(26,26,46,.45)}
+body.light .btn-magic:hover{border-color:rgba(0,0,0,.2);color:#1A1A2E}
+
+/* DIVIDER */
+.divider{display:flex;align-items:center;gap:10px;margin:12px 0}
+.divider hr{flex:1;border:none;border-top:1px solid}
+body.dark .divider hr{border-color:rgba(255,255,255,.08)}
+body.light .divider hr{border-color:rgba(0,0,0,.08)}
+.divider span{font-size:11px}
+body.dark .divider span{color:rgba(240,237,232,.25)}
+body.light .divider span{color:rgba(26,26,46,.25)}
+
+/* MSG */
+.msg{padding:10px 13px;border-radius:9px;font-size:13px;margin-bottom:14px;display:none;line-height:1.5}
+.msg.show{display:block}
+.msg.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#FCA5A5}
+body.light .msg.error{color:#DC2626}
+.msg.success{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:#6EE7B7}
+
+/* FOOTER */
+.form-foot{text-align:center;font-size:12px;margin-top:16px}
+body.dark .form-foot{color:rgba(240,237,232,.3)}
+body.light .form-foot{color:rgba(26,26,46,.3)}
+body.dark .form-foot a{color:#00D2B4;text-decoration:none;cursor:pointer}
+body.light .form-foot a{color:#00897B;text-decoration:none;cursor:pointer}
+
+/* CONFIRM */
+.confirm{display:none;text-align:center;padding:16px 0;animation:fadein .3s ease}
+.confirm.show{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.confirm-icon{font-size:52px;margin-bottom:16px}
+.confirm-h{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:8px}
+body.dark .confirm-h{color:#F0EDE8}
+body.light .confirm-h{color:#1A1A2E}
+.confirm-p{font-size:13px;line-height:1.65;margin-bottom:20px}
+body.dark .confirm-p{color:rgba(240,237,232,.5)}
+body.light .confirm-p{color:rgba(26,26,46,.5)}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{display:inline-block;width:13px;height:13px;border-radius:50%;border:2px solid rgba(8,8,12,.3);border-top-color:#08080C;animation:spin .7s linear infinite;vertical-align:middle;margin-right:7px}
+body.light .spinner{border-color:rgba(255,255,255,.3);border-top-color:#fff}
+</style>
+</head>
+<body class="dark">
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<div class="page">
+  <!-- LEFT -->
+  <div class="left-side">
+    <div class="brand">
+      <div class="brand-box">🛡</div>
+      <span class="brand-name">FRAUDSHIELD SMB</span>
+    </div>
+    <div class="left-body">
+      <h1 class="left-h">Protect your business<br>from fraud — <em>for free.</em></h1>
+      <p class="left-p">Every day, small businesses lose money to card scams, fake checks, and chargeback abuse. FraudShield stops it before it happens.</p>
+      <div class="review-cards">
+        <div class="review-card">
+          <div class="review-stars">★★★★★</div>
+          <div class="review-text">"Caught a card testing attack on day three. Would have cost us thousands. Setup took 15 minutes."</div>
+          <div class="review-author">
+            <div class="review-avatar">M</div>
+            <div><div class="review-name">Maria Chen</div><div class="review-biz">Emerald Threads · Retail, Seattle WA</div></div>
+          </div>
+        </div>
+        <div class="review-card">
+          <div class="review-stars">★★★★★</div>
+          <div class="review-text">"Finally something built for businesses like mine. Simple, fast, and actually explains why something was flagged."</div>
+          <div class="review-author">
+            <div class="review-avatar">J</div>
+            <div><div class="review-name">James Okonkwo</div><div class="review-biz">Summit Auto Repair · Automotive, Tacoma WA</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="trust-row">
+        <div><div class="trust-val">$0</div><div class="trust-lbl">During beta</div></div>
+        <div><div class="trust-val">&lt;100ms</div><div class="trust-lbl">Response time</div></div>
+        <div><div class="trust-val">99.9%</div><div class="trust-lbl">Uptime</div></div>
+      </div>
+    </div>
+    <div class="left-foot">No credit card required · Free during beta testing</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-side">
+    <div class="right-top">
+      <a class="back-link" href="landing.html">← Back to home</a>
+      <button class="theme-pill" onclick="toggleTheme()">
+        <div class="t-track"><div class="t-knob"></div></div>
+        <span id="theme-lbl">☀ Light</span>
+      </button>
+    </div>
+
+    <div class="right-form">
+      <div class="card">
+
+        <!-- SIGN IN / SIGN UP TABS STATE -->
+        <div id="auth-wrap">
+          <div class="free-tag"><div class="tag-dot"></div>Free during beta</div>
+          <h1 class="card-title" id="card-title">Create your account</h1>
+          <p class="card-sub" id="card-sub">Start protecting your business. Free during our beta — no card needed.</p>
+
+          <div class="tabs">
+            <button class="tab active" id="tab-up" onclick="switchTab('up')">Create Account</button>
+            <button class="tab" id="tab-in" onclick="switchTab('in')">Sign In</button>
+          </div>
+
+          <!-- SIGN IN FORM (simple) -->
+          <div id="signin-form" style="display:none">
+            <div class="msg" id="signin-msg"></div>
+            <div class="field"><label>Email Address</label><input type="email" id="si-email" placeholder="owner@yourbusiness.com"/></div>
+            <div class="field"><label>Password</label><input type="password" id="si-pass" placeholder="Your password"/></div>
+            <button class="btn-main" id="si-btn" onclick="handleSignIn()">Sign In →</button>
+            <div class="divider"><hr/><span>or</span><hr/></div>
+            <button class="btn-magic" onclick="handleMagic()">✉ Send me a magic link</button>
+          </div>
+
+          <!-- SIGN UP MULTI-STEP FORM -->
+          <div id="signup-form">
+            <!-- Step indicator -->
+            <div class="step-bar" id="step-bar"></div>
+            <div class="msg" id="signup-msg"></div>
+            <div id="step-content"></div>
+          </div>
+
+          <p class="form-foot" id="form-foot">Already have an account? <a onclick="switchTab('in')">Sign in →</a></p>
+        </div>
+
+        <!-- CONFIRM STATE -->
+        <div class="confirm" id="confirm-wrap">
+          <div class="confirm-icon">📬</div>
+          <div class="confirm-h">Check your inbox!</div>
+          <p class="confirm-p" id="confirm-text">We sent you a confirmation link. Click it to activate your account.</p>
+          <button class="btn-magic" onclick="resetToAuth()" style="max-width:200px;margin:0 auto;display:block">← Back to sign in</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SUPABASE ──────────────────────────────────────────────────────────────────
+const SUPABASE_URL  = "https://nivqhnqquwszwtsgupgx.supabase.co";
+const SUPABASE_ANON = "PASTE_YOUR_EYJ_KEY_HERE";
+let sb;
+try{const{createClient}=supabase;sb=createClient(SUPABASE_URL,SUPABASE_ANON)}
+catch(e){sb={auth:{getSession:async()=>({data:{session:null}}),signUp:async()=>({error:{message:"Supabase credentials not configured."}}),signInWithPassword:async()=>({error:{message:"Supabase credentials not configured."}}),signInWithOtp:async()=>({error:{message:"Supabase credentials not configured."}})}}}
+
+// ── THEME ─────────────────────────────────────────────────────────────────────
+let isDark=localStorage.getItem("fs_theme")?localStorage.getItem("fs_theme")==="dark":window.matchMedia("(prefers-color-scheme:dark)").matches;
+function applyTheme(){
+  document.body.className=isDark?"dark":"light";
+  const lbl=document.getElementById("theme-lbl");
+  if(lbl) lbl.textContent=isDark?"☀ Light":"☽ Dark";
+}
+function toggleTheme(){isDark=!isDark;localStorage.setItem("fs_theme",isDark?"dark":"light");applyTheme()}
+applyTheme();
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentTab="up";
+let signupStep=0;
+const TOTAL_STEPS=3;
+const formData={
+  email:"",password:"",
+  bizName:"",website:"",phone:"",
+  processors:[],monthlyTxns:"",
+};
+
+const PROCESSORS=[
+  {id:"stripe",icon:"💳",label:"Stripe"},
+  {id:"square",icon:"◼",label:"Square"},
+  {id:"paypal",icon:"🔵",label:"PayPal"},
+  {id:"clover",icon:"🍀",label:"Clover"},
+  {id:"toast",icon:"🍞",label:"Toast"},
+  {id:"quickbooks",icon:"📊",label:"QuickBooks"},
+  {id:"cash",icon:"💵",label:"Cash / Check"},
+  {id:"other",icon:"➕",label:"Other"},
+];
+
+const MONTHLY_TXNS=[
+  {v:"under-50",l:"Under 50"},
+  {v:"50-200",l:"50 – 200"},
+  {v:"200-1000",l:"200 – 1,000"},
+  {v:"1000-5000",l:"1,000 – 5,000"},
+  {v:"5000+",l:"5,000+"},
+];
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(t){
+  currentTab=t;
+  document.getElementById("tab-up").className="tab"+(t==="up"?" active":"");
+  document.getElementById("tab-in").className="tab"+(t==="in"?" active":"");
+  document.getElementById("signup-form").style.display=t==="up"?"block":"none";
+  document.getElementById("signin-form").style.display=t==="in"?"block":"none";
+  document.getElementById("card-title").textContent=t==="up"?"Create your account":"Welcome back";
+  document.getElementById("card-sub").textContent=t==="up"?"Start protecting your business. Free during our beta.":"Sign in to your FraudShield dashboard.";
+  document.getElementById("form-foot").innerHTML=t==="up"?'Already have an account? <a onclick="switchTab(\'in\')">Sign in →</a>':'No account? <a onclick="switchTab(\'up\')">Create one free →</a>';
+  clearMsg("signup-msg");clearMsg("signin-msg");
+  if(t==="up"){signupStep=0;renderStep();}
+}
+
+// ── STEP INDICATOR ────────────────────────────────────────────────────────────
+function renderStepBar(){
+  const bar=document.getElementById("step-bar");
+  if(!bar) return;
+  const labels=["Account","Business","Payments"];
+  let html="";
+  labels.forEach((l,i)=>{
+    if(i>0) html+=`<div class="step-line${i<=signupStep?" done":""}"></div>`;
+    html+=`<div class="step-dot${i===signupStep?" active":i<signupStep?" done":""}" onclick="if(${i}<=${signupStep})goStep(${i})"></div>`;
+  });
+  html+=`<span class="step-label-text">${labels[signupStep]}</span>`;
+  bar.innerHTML=html;
+}
+
+function renderStep(){
+  renderStepBar();
+  const IS=`width:100%;padding:10px 13px;border-radius:9px;font-size:13px;font-family:'DM Sans',sans-serif;border:1px solid;outline:none;transition:all .2s;${isDark?"background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:#F0EDE8":"background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.1);color:#1A1A2E"}`;
+  const LS=`display:block;font-size:11px;font-weight:500;letter-spacing:.04em;margin-bottom:5px;${isDark?"color:rgba(240,237,232,.45)":"color:rgba(26,26,46,.5)"}`;
+  let html="";
+
+  if(signupStep===0){
+    html=`
+      <div class="field"><label style="${LS}">Email Address *</label><input style="${IS}" type="email" id="f-email" value="${formData.email}" placeholder="owner@yourbusiness.com" oninput="formData.email=this.value"/></div>
+      <div class="field"><label style="${LS}">Password *</label><input style="${IS}" type="password" id="f-pass" value="${formData.password}" placeholder="At least 8 characters" oninput="formData.password=this.value"/></div>
+      <button class="btn-main" onclick="nextStep()">Continue →</button>`;
+  } else if(signupStep===1){
+    html=`
+      <div class="field"><label style="${LS}">Business Name *</label><input style="${IS}" type="text" id="f-bizname" value="${formData.bizName}" placeholder="e.g. Pinewood Bakery" oninput="formData.bizName=this.value"/></div>
+      <div class="field"><label style="${LS}">Business Website</label><input style="${IS}" type="url" id="f-website" value="${formData.website}" placeholder="https://yourbusiness.com" oninput="formData.website=this.value"/></div>
+      <div class="field"><label style="${LS}">Business Phone Number</label><input style="${IS}" type="tel" id="f-phone" value="${formData.phone}" placeholder="(555) 123-4567" oninput="formData.phone=this.value"/></div>
+      <button class="btn-main" onclick="nextStep()">Continue →</button>
+      <button class="btn-back" onclick="goStep(0)">← Back</button>`;
+  } else if(signupStep===2){
+    html=`
+      <div class="field">
+        <label style="${LS}">Payment Processors You Use *</label>
+        <div class="payment-grid">${PROCESSORS.map(p=>`
+          <div class="pay-opt${formData.processors.includes(p.id)?" selected":""}" onclick="toggleProcessor('${p.id}',this)">
+            <span class="pay-icon">${p.icon}</span>
+            <span>${p.label}</span>
+            <div class="pay-check">${formData.processors.includes(p.id)?"✓":""}</div>
+          </div>`).join("")}</div>
+      </div>
+      <div class="field">
+        <label style="${LS}">Monthly Transactions *</label>
+        <select style="${IS}" id="f-txns" onchange="formData.monthlyTxns=this.value">
+          <option value="">How many transactions per month?</option>
+          ${MONTHLY_TXNS.map(t=>`<option value="${t.v}"${formData.monthlyTxns===t.v?" selected":""}>${t.l}</option>`).join("")}
+        </select>
+      </div>
+      <button class="btn-main" id="finish-btn" onclick="handleSignUp()">Create My Account →</button>
+      <button class="btn-back" onclick="goStep(1)">← Back</button>`;
+  }
+
+  document.getElementById("step-content").innerHTML=html;
+}
+
+function goStep(i){signupStep=i;renderStep()}
+
+function toggleProcessor(id,el){
+  const idx=formData.processors.indexOf(id);
+  if(idx===-1){formData.processors.push(id);el.classList.add("selected");el.querySelector(".pay-check").textContent="✓"}
+  else{formData.processors.splice(idx,1);el.classList.remove("selected");el.querySelector(".pay-check").textContent=""}
+}
+
+function nextStep(){
+  clearMsg("signup-msg");
+  if(signupStep===0){
+    const email=document.getElementById("f-email")?.value.trim()||formData.email;
+    const pass=document.getElementById("f-pass")?.value||formData.password;
+    formData.email=email;formData.password=pass;
+    if(!email) return showMsg("signup-msg","Please enter your email address.");
+    if(!pass||pass.length<8) return showMsg("signup-msg","Password must be at least 8 characters.");
+  } else if(signupStep===1){
+    const biz=document.getElementById("f-bizname")?.value.trim()||formData.bizName;
+    formData.bizName=biz;
+    formData.website=document.getElementById("f-website")?.value.trim()||formData.website;
+    formData.phone=document.getElementById("f-phone")?.value.trim()||formData.phone;
+    if(!biz) return showMsg("signup-msg","Please enter your business name.");
+    if(!formData.phone&&!formData.website) return showMsg("signup-msg","Please enter your website or phone number so we can verify your business.");
+  }
+  signupStep++;renderStep();
+}
+
+// ── SIGN UP ───────────────────────────────────────────────────────────────────
+async function handleSignUp(){
+  clearMsg("signup-msg");
+  if(formData.processors.length===0) return showMsg("signup-msg","Please select at least one payment processor you use.");
+  if(!formData.monthlyTxns) return showMsg("signup-msg","Please select your monthly transaction volume.");
+  const btn=document.getElementById("finish-btn");
+  btn.disabled=true;btn.innerHTML=`<span class="spinner"></span>Creating account…`;
+  const{error}=await sb.auth.signUp({
+    email:formData.email,password:formData.password,
+    options:{
+      data:{
+        business_name:formData.bizName,
+        website:formData.website,
+        phone:formData.phone,
+        processors:formData.processors.join(","),
+        monthly_txns:formData.monthlyTxns,
+      },
+      emailRedirectTo:window.location.origin+"/fraudshieldsmb/index.html"
+    }
+  });
+  btn.disabled=false;btn.textContent="Create My Account →";
+  if(error) return showMsg("signup-msg",error.message);
+  showConfirm(formData.email,false);
+}
+
+// ── SIGN IN ───────────────────────────────────────────────────────────────────
+async function handleSignIn(){
+  clearMsg("signin-msg");
+  const email=document.getElementById("si-email").value.trim();
+  const pass=document.getElementById("si-pass").value;
+  if(!email) return showMsg("signin-msg","Please enter your email.");
+  if(!pass) return showMsg("signin-msg","Please enter your password.");
+  const btn=document.getElementById("si-btn");
+  btn.disabled=true;btn.innerHTML=`<span class="spinner"></span>Signing in…`;
+  const{error}=await sb.auth.signInWithPassword({email,password:pass});
+  btn.disabled=false;btn.textContent="Sign In →";
+  if(error) return showMsg("signin-msg",error.message==="Invalid login credentials"?"Incorrect email or password. Try again.":error.message);
+  window.location.href="index.html";
+}
+
+// ── MAGIC LINK ────────────────────────────────────────────────────────────────
+async function handleMagic(){
+  const email=document.getElementById("si-email").value.trim();
+  if(!email) return showMsg("signin-msg","Enter your email address first.");
+  const btn=document.querySelector(".btn-magic");
+  btn.disabled=true;btn.textContent="Sending…";
+  const{error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:window.location.origin+"/fraudshieldsmb/index.html"}});
+  btn.disabled=false;btn.textContent="✉ Send me a magic link";
+  if(error) return showMsg("signin-msg",error.message);
+  showConfirm(email,true);
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function showMsg(id,text){const el=document.getElementById(id);el.textContent=text;el.className="msg show error"}
+function clearMsg(id){const el=document.getElementById(id);if(el)el.className="msg"}
+function showConfirm(email,isMagic){
+  document.getElementById("auth-wrap").style.display="none";
+  document.getElementById("confirm-wrap").className="confirm show";
+  document.getElementById("confirm-text").innerHTML=isMagic
+    ?`We sent a magic link to <strong>${email}</strong>. Click it to sign in instantly.`
+    :`We sent a confirmation link to <strong>${email}</strong>. Click it to activate your account.`;
+}
+function resetToAuth(){
+  document.getElementById("auth-wrap").style.display="block";
+  document.getElementById("confirm-wrap").className="confirm";
+  switchTab("in");
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+switchTab("up");
+(async()=>{
+  try{const{data:{session}}=await sb.auth.getSession();if(session)window.location.href="index.html"}
+  catch(e){console.warn(e)}
+})();
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&currentTab==="in")handleSignIn()});
+</script>
+</body>
+</html>.nav-links{display:flex;align-items:center;gap:8px}
 .nav-link{padding:8px 16px;border-radius:8px;font-size:13px;color:rgba(240,237,232,.6);text-decoration:none;cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif}
 .nav-link:hover{color:#F0EDE8}
 .btn-nav-outline{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:500;color:#F0EDE8;border:1px solid rgba(255,255,255,.15);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif}
