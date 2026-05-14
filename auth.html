@@ -523,7 +523,7 @@ async function handleSignUp(){
         processors:formData.processors.join(","),
         monthly_txns:formData.monthlyTxns,
       },
-      emailRedirectTo:window.location.origin+"/fraudshieldsmb/index.html"
+      emailRedirectTo:window.location.origin+"/fraudshieldsmb/dashboard.html"
     }
   });
   btn.disabled=false;btn.textContent="Create My Account →";
@@ -543,7 +543,7 @@ async function handleSignIn(){
   const{error}=await sb.auth.signInWithPassword({email,password:pass});
   btn.disabled=false;btn.textContent="Sign In →";
   if(error) return showMsg("signin-msg",error.message==="Invalid login credentials"?"Incorrect email or password. Try again.":error.message);
-  window.location.href="index.html";
+  window.location.href="dashboard.html";
 }
 
 // ── MAGIC LINK ────────────────────────────────────────────────────────────────
@@ -552,7 +552,7 @@ async function handleMagic(){
   if(!email) return showMsg("signin-msg","Enter your email address first.");
   const btn=document.querySelector(".btn-magic");
   btn.disabled=true;btn.textContent="Sending…";
-  const{error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:window.location.origin+"/fraudshieldsmb/index.html"}});
+  const{error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:window.location.origin+"/fraudshieldsmb/dashboard.html"}});
   btn.disabled=false;btn.textContent="✉ Send me a magic link";
   if(error) return showMsg("signin-msg",error.message);
   showConfirm(email,true);
@@ -577,7 +577,7 @@ function resetToAuth(){
 // ── INIT ──────────────────────────────────────────────────────────────────────
 switchTab("up");
 (async()=>{
-  try{const{data:{session}}=await sb.auth.getSession();if(session)window.location.href="index.html"}
+  try{const{data:{session}}=await sb.auth.getSession();if(session)window.location.href="dashboard.html"}
   catch(e){console.warn(e)}
 })();
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&currentTab==="in")handleSignIn()});
