@@ -377,7 +377,7 @@ body.light .spinner{border-color:rgba(255,255,255,.3);border-top-color:#fff}
 <script>
 // ── SUPABASE ──────────────────────────────────────────────────────────────────
 const SUPABASE_URL  = "https://nivqhnqquwszwtsgupgx.supabase.co";
-const SUPABASE_ANON = "PASTE_YOUR_EYJ_KEY_HERE";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pdnFobnFxdXdzend0c2d1cGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1OTk3NDQsImV4cCI6MjA5NDE3NTc0NH0.IlaMbd-s4BjhUmazzvwJOc_F5f9BiJzcQ99agtuDaiA";
 let sb;
 try{const{createClient}=supabase;sb=createClient(SUPABASE_URL,SUPABASE_ANON)}
 catch(e){sb={auth:{getSession:async()=>({data:{session:null}}),signUp:async()=>({error:{message:"Supabase credentials not configured."}}),signInWithPassword:async()=>({error:{message:"Supabase credentials not configured."}}),signInWithOtp:async()=>({error:{message:"Supabase credentials not configured."}})}}}
