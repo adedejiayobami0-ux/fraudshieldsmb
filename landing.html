@@ -521,7 +521,10 @@ body.light .footer-text{color:rgba(26,26,46,.3)}
     <div class="faq-item"><div class="faq-q">What happens when a transaction is flagged?</div><div class="faq-a">You get an instant notification with a plain-English explanation. You decide what to do — review it, reach out to the customer, or let the automatic block stand. You're always in control.</div></div>
     <div class="faq-item"><div class="faq-q">Will it slow down my checkout?</div><div class="faq-a">No. FraudShield responds in under 100 milliseconds on average — faster than a blink. Your customers will never notice it's running.</div></div>
     <div class="faq-item"><div class="faq-q">What if it blocks a real customer?</div><div class="faq-a">It can happen, and we take it seriously. We show you exactly why something was flagged so you can override any decision. During beta we're actively tuning to reduce false positives.</div></div>
-    <div class="faq-item"><div class="faq-q">Is my customer data safe?</div><div class="faq-a">We never store card numbers. We analyze transaction patterns and metadata only. Your data is encrypted, never sold, never shared with third parties.</div></div>
+    <div class="faq-item"><div class="faq-q">Is my customer data safe?</div><div class="faq-a">Yes. Your data is stored in Supabase — a SOC 2 certified database built on AWS. All data is encrypted at rest and in transit. We never sell or share your data with third parties.</div></div>
+    <div class="faq-item"><div class="faq-q">Do you store card numbers?</div><div class="faq-a">Never. FraudShield only receives transaction metadata — the amount, payment method, category, and time. No card numbers, no CVV, no bank account details ever touch our system. Zero PCI compliance risk.</div></div>
+    <div class="faq-item"><div class="faq-q">Who can see my transactions?</div><div class="faq-a">Only you. We use Row Level Security — it is technically impossible for one customer to see another customer's data. Your transactions are yours alone.</div></div>
+    <div class="faq-item"><div class="faq-q">What if someone steals my API key?</div><div class="faq-a">Regenerate it instantly from your dashboard with one click. The old key stops working immediately. Treat your API key like a password — never share it publicly.</div></div>
   </div>
 </div>
 
