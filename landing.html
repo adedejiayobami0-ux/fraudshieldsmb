@@ -260,6 +260,44 @@ body.light .cta-box{background:rgba(0,137,123,.04);border-color:rgba(0,137,123,.
 .cta-h{margin-bottom:13px}
 .cta-sub{max-width:440px;margin:0 auto 28px}
 
+/* CONTACT */
+.contact-section{padding:72px 0 0}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px;align-items:start}
+@media(max-width:680px){.contact-grid{grid-template-columns:1fr}}
+.contact-info h3{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:10px}
+body.dark .contact-info h3{color:#F0EDE8}
+body.light .contact-info h3{color:#1A1A2E}
+.contact-info p{font-size:13px;line-height:1.7;margin-bottom:20px}
+body.dark .contact-info p{color:rgba(240,237,232,.5)}
+body.light .contact-info p{color:rgba(26,26,46,.5)}
+.contact-detail{display:flex;align-items:center;gap:10px;font-size:13px;margin-bottom:12px}
+body.dark .contact-detail{color:rgba(240,237,232,.6)}
+body.light .contact-detail{color:rgba(26,26,46,.6)}
+.contact-detail .ic{font-size:16px;flex-shrink:0}
+.contact-form{border-radius:16px;padding:28px;border:1px solid}
+body.dark .contact-form{background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.08)}
+body.light .contact-form{background:#fff;border-color:#E8ECF2;box-shadow:0 2px 16px rgba(0,0,0,.06)}
+.cf-field{margin-bottom:14px}
+.cf-field label{display:block;font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:5px}
+body.dark .cf-field label{color:rgba(240,237,232,.4)}
+body.light .cf-field label{color:rgba(26,26,46,.4)}
+.cf-field input,.cf-field select,.cf-field textarea{width:100%;padding:10px 13px;border-radius:9px;font-size:13px;font-family:'DM Sans',sans-serif;border:1px solid;outline:none;transition:border-color .2s;resize:none}
+body.dark .cf-field input,body.dark .cf-field select,body.dark .cf-field textarea{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:#F0EDE8}
+body.dark .cf-field input:focus,body.dark .cf-field select:focus,body.dark .cf-field textarea:focus{border-color:rgba(0,210,180,.4)}
+body.light .cf-field input,body.light .cf-field select,body.light .cf-field textarea{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.1);color:#1A1A2E}
+body.light .cf-field input:focus,body.light .cf-field select:focus,body.light .cf-field textarea:focus{border-color:rgba(0,137,123,.4)}
+body.dark .cf-field input::placeholder,body.dark .cf-field textarea::placeholder{color:rgba(240,237,232,.25)}
+body.light .cf-field input::placeholder,body.light .cf-field textarea::placeholder{color:rgba(26,26,46,.25)}
+body.dark .cf-field select option{background:#1A1A2E;color:#F0EDE8}
+.cf-submit{width:100%;padding:12px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:linear-gradient(135deg,#00D2B4,#00A896);color:#08080C;font-family:'DM Sans',sans-serif;transition:all .2s}
+body.light .cf-submit{color:#fff}
+.cf-submit:hover{box-shadow:0 0 24px rgba(0,210,180,.4)}
+.cf-submit:disabled{opacity:.5;cursor:not-allowed}
+.cf-msg{padding:10px 13px;border-radius:9px;font-size:13px;margin-top:12px;display:none;line-height:1.5}
+.cf-msg.show{display:block}
+.cf-msg.success{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:#10B981}
+.cf-msg.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#EF4444}
+
 /* FOOTER */
 footer{padding:32px 24px;border-top:1px solid;text-align:center}
 body.dark footer{border-color:rgba(255,255,255,.06)}
@@ -286,6 +324,7 @@ body.light .footer-text{color:rgba(26,26,46,.3)}
       <a class="nav-link" href="#how">How it works</a>
       <a class="nav-link" href="#pricing">Pricing</a>
       <a class="nav-link" href="#faq">FAQ</a>
+      <a class="nav-link" href="#contact">Contact</a>
       <button class="theme-pill" onclick="toggleTheme()">
         <div class="t-track"><div class="t-knob"></div></div>
         <span id="theme-lbl">☀ Light</span>
@@ -495,6 +534,52 @@ body.light .footer-text{color:rgba(26,26,46,.3)}
 
 </div><!-- end container -->
 
+<!-- CONTACT -->
+<div class="contact-section" id="contact">
+  <div class="section-eyebrow">Get in touch</div>
+  <h2 class="h2">Have a question?<br>We'd love to hear from you.</h2>
+  <div class="contact-grid">
+    <div class="contact-info">
+      <h3>We're here to help</h3>
+      <p>Whether you're a small business owner curious about FraudShield, a developer with integration questions, or just want to learn more — reach out. We respond to every message personally.</p>
+      <div class="contact-detail"><span class="ic">📧</span><span>support@fraudshieldsmb.com</span></div>
+      <div class="contact-detail"><span class="ic">⚡</span><span>We respond within 24 hours</span></div>
+      <div class="contact-detail"><span class="ic">🛡</span><span>Free beta — no sales pressure</span></div>
+      <div class="contact-detail"><span class="ic">🇺🇸</span><span>Built for American small businesses</span></div>
+    </div>
+    <div class="contact-form">
+      <div class="cf-field">
+        <label>Your Name</label>
+        <input type="text" id="cf-name" placeholder="Jane Smith"/>
+      </div>
+      <div class="cf-field">
+        <label>Email Address</label>
+        <input type="email" id="cf-email" placeholder="jane@yourbusiness.com"/>
+      </div>
+      <div class="cf-field">
+        <label>Business Type</label>
+        <select id="cf-type">
+          <option value="">Select your business type…</option>
+          <option>Restaurant / Food & Beverage</option>
+          <option>Retail Store</option>
+          <option>Healthcare / Dental</option>
+          <option>Auto Repair</option>
+          <option>Legal / Professional Services</option>
+          <option>E-commerce</option>
+          <option>Construction</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="cf-field">
+        <label>Message</label>
+        <textarea id="cf-message" rows="4" placeholder="Tell us about your business and what you'd like to know about FraudShield…"></textarea>
+      </div>
+      <button class="cf-submit" id="cf-btn" onclick="submitContact()">Send Message →</button>
+      <div class="cf-msg" id="cf-msg"></div>
+    </div>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">
@@ -506,6 +591,49 @@ body.light .footer-text{color:rgba(26,26,46,.3)}
 </div>
 
 <script>
+// CONTACT FORM
+async function submitContact(){
+  const name=document.getElementById("cf-name").value.trim();
+  const email=document.getElementById("cf-email").value.trim();
+  const type=document.getElementById("cf-type").value;
+  const message=document.getElementById("cf-message").value.trim();
+  const msg=document.getElementById("cf-msg");
+  const btn=document.getElementById("cf-btn");
+
+  if(!name||!email||!message){
+    msg.textContent="Please fill in your name, email, and message.";
+    msg.className="cf-msg show error";
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent="Sending…";
+
+  try{
+    const res=await fetch("https://formspree.io/f/xojroyqg",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Accept":"application/json"},
+      body:JSON.stringify({name,email,business_type:type,message})
+    });
+    if(res.ok){
+      msg.textContent="✓ Message sent! We'll get back to you within 24 hours.";
+      msg.className="cf-msg show success";
+      document.getElementById("cf-name").value="";
+      document.getElementById("cf-email").value="";
+      document.getElementById("cf-type").value="";
+      document.getElementById("cf-message").value="";
+    } else {
+      msg.textContent="Something went wrong. Please email us directly at support@fraudshieldsmb.com";
+      msg.className="cf-msg show error";
+    }
+  } catch(e){
+    msg.textContent="Something went wrong. Please email us directly at support@fraudshieldsmb.com";
+    msg.className="cf-msg show error";
+  }
+  btn.disabled=false;
+  btn.textContent="Send Message →";
+}
+
 function go(url){window.location.href=url}
 
 // THEME
