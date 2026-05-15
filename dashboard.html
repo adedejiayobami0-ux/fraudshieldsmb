@@ -552,7 +552,17 @@ async function loadTransactions() {
 
 function renderTxnRow(t) {
   const rc=t.score>=78?"var(--red)":t.score>=55?"var(--amber)":"var(--green)";
-  return `<div style="display:grid;grid-template-columns:1.3fr 1.5fr 1fr 0.8fr 100px 110px;padding:10px 18px;border-bottom:1px solid var(--border);background:${t.status==="flagged"||t.status==="blocked"?"var(--red-glow)":"transparent"}">
+  const isFlagged=t.status==="flagged"||t.status==="blocked";
+  const feedbackHtml = t.is_fraud===true
+    ? `<div style="font-size:10px;color:var(--red);font-family:'Space Mono',monospace;margin-top:4px">🚨 CONFIRMED FRAUD</div>`
+    : t.is_fraud===false
+    ? `<div style="font-size:10px;color:var(--green);font-family:'Space Mono',monospace;margin-top:4px">✅ LEGITIMATE</div>`
+    : isFlagged ? `<div style="display:flex;gap:4px;margin-top:5px">
+        <button onclick="markFraud('${t.id}',true)" style="padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--red);font-family:'DM Sans',sans-serif">🚨 Fraud</button>
+        <button onclick="markFraud('${t.id}',false)" style="padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);color:var(--green);font-family:'DM Sans',sans-serif">✅ Legit</button>
+      </div>` : "";
+
+  return `<div id="row-${t.id}" style="display:grid;grid-template-columns:1.3fr 1.5fr 1fr 0.8fr 100px 130px;padding:10px 18px;border-bottom:1px solid var(--border);background:${isFlagged?"var(--red-glow)":"transparent"}">
     <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--teal)">${t.id.substr(0,13)}…</div>
     <div><div style="font-size:12px;font-weight:500">${t.vendor||"—"}</div><div style="font-size:11px;color:var(--muted)">${t.category||"—"}</div></div>
     <div style="font-size:11px;color:var(--muted);align-self:center">${fmtDate(t.created_at)}</div>
@@ -564,7 +574,10 @@ function renderTxnRow(t) {
       </div>
       ${t.signals?`<div style="font-size:10px;color:var(--muted);margin-top:2px">${t.signals.split(",")[0]}</div>`:""}
     </div>
-    <div style="align-self:center">${badge(t.status||"clear")}</div>
+    <div style="align-self:center">
+      ${badge(t.status||"clear")}
+      ${feedbackHtml}
+    </div>
   </div>`;
 }
 
@@ -827,6 +840,28 @@ async function activateFraudShield(){
       });
     }
   },i*600));
+}
+
+// ── ML FEEDBACK ───────────────────────────────────────────────────────────────
+async function markFraud(txnId, isFraud){
+  const{error}=await window.sb.from("transactions")
+    .update({is_fraud:isFraud})
+    .eq("id",txnId);
+  if(error){ console.error("Feedback error:",error); return; }
+
+  // Update the row visually without full reload
+  allTxns=allTxns.map(t=>t.id===txnId?{...t,is_fraud:isFraud}:t);
+  const row=document.getElementById("row-"+txnId);
+  if(row){
+    const feedbackEl=row.querySelector(".feedback-area");
+    const msg=isFraud
+      ?`<div style="font-size:10px;color:var(--red);font-family:'Space Mono',monospace;margin-top:4px">🚨 CONFIRMED FRAUD</div>`
+      :`<div style="font-size:10px;color:var(--green);font-family:'Space Mono',monospace;margin-top:4px">✅ LEGITIMATE</div>`;
+    // Re-render just this row
+    const newRow=document.createElement("div");
+    newRow.innerHTML=renderTxnRow(allTxns.find(t=>t.id===txnId));
+    row.replaceWith(newRow.firstChild);
+  }
 }
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
