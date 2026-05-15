@@ -557,9 +557,9 @@ function renderTxnRow(t) {
     ? `<div style="font-size:10px;color:var(--red);font-family:'Space Mono',monospace;margin-top:4px">🚨 CONFIRMED FRAUD</div>`
     : t.is_fraud===false
     ? `<div style="font-size:10px;color:var(--green);font-family:'Space Mono',monospace;margin-top:4px">✅ LEGITIMATE</div>`
-    : isFlagged ? `<div style="display:flex;gap:4px;margin-top:5px">
-        <button onclick="markFraud('${t.id}',true)" style="padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--red);font-family:'DM Sans',sans-serif">🚨 Fraud</button>
-        <button onclick="markFraud('${t.id}',false)" style="padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);color:var(--green);font-family:'DM Sans',sans-serif">✅ Legit</button>
+    : isFlagged ? `<div style="display:flex;gap:4px;margin-top:5px;position:relative;z-index:10">
+        <button onclick="event.stopPropagation();markFraud('${t.id}',true)" style="padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer!important;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--red);font-family:'DM Sans',sans-serif;pointer-events:auto!important;z-index:10;position:relative">🚨 Fraud</button>
+        <button onclick="event.stopPropagation();markFraud('${t.id}',false)" style="padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer!important;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);color:var(--green);font-family:'DM Sans',sans-serif;pointer-events:auto!important;z-index:10;position:relative">✅ Legit</button>
       </div>` : "";
 
   return `<div id="row-${t.id}" style="display:grid;grid-template-columns:1.3fr 1.5fr 1fr 0.8fr 100px 130px;padding:10px 18px;border-bottom:1px solid var(--border);background:${isFlagged?"var(--red-glow)":"transparent"}">
