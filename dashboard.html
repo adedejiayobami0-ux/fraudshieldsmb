@@ -550,9 +550,35 @@ async function loadTransactions() {
   renderStats();
 }
 
+function getSignalExplanation(signals, status, amount, vendor, hour) {
+  const explanations = {
+    "Amount threshold": `This transaction ($${(amount||0).toLocaleString()}) is unusually large. Large amounts are a common target for fraud.`,
+    "Time-of-day anomaly": `This transaction happened at an unusual hour (${hour||"unknown"}:00). Most legitimate business payments don't happen in the middle of the night.`,
+    "Unusual vendor": `${vendor} is a higher-risk payment method. Wire transfers and Zelle payments are harder to reverse if fraud occurs.`,
+    "Chargeback pattern": `This transaction type has a history of chargeback disputes. A chargeback means a customer disputes the charge with their bank.`,
+    "Velocity anomaly": `An unusual number of transactions happened in a short time. This can signal automated fraud attempts.`,
+    "Card testing": `Small test charges were detected — a common technique fraudsters use to check if a card is active before making a large purchase.`,
+    "Device fingerprint": `The device used for this transaction doesn't match previous patterns for this account.`,
+    "Geo-location mismatch": `The location of this transaction doesn't match the billing address or previous transaction locations.`,
+    "Check fraud": `This payment type has elevated risk of bouncing or being fraudulent.`,
+  };
+  const sigList = signals ? signals.split(",").map(s=>s.trim()) : [];
+  const topSignal = sigList[0];
+  return explanations[topSignal] || "This transaction triggered multiple fraud indicators.";
+}
+
+function getInstruction(status, vendor) {
+  if(status === "blocked") return "⛔ This transaction was auto-blocked. Check your payment processor to confirm it did not go through. If you know this customer personally and it is legitimate, click ✅ Legit below.";
+  if(status === "flagged") return "⚠️ Hold this transaction before processing. Check if you recognize this customer. Log into your Stripe or Square account to verify the payment details. Then mark it below.";
+  if(status === "review") return "👀 This transaction looks borderline. Review it manually before fulfilling any order. Mark it below once you have verified it.";
+  return "";
+}
+
 function renderTxnRow(t) {
   const rc=t.score>=78?"var(--red)":t.score>=55?"var(--amber)":"var(--green)";
-  const isFlagged=t.status==="flagged"||t.status==="blocked";
+  const isFlagged=t.status==="flagged"||t.status==="blocked"||t.status==="review";
+  const hour = t.created_at ? new Date(t.created_at).getHours() : null;
+
   const feedbackHtml = t.is_fraud===true
     ? `<div style="font-size:10px;color:var(--red);font-family:'Space Mono',monospace;margin-top:4px">🚨 CONFIRMED FRAUD</div>`
     : t.is_fraud===false
@@ -562,7 +588,15 @@ function renderTxnRow(t) {
         <button onclick="event.stopPropagation();markFraud('${t.id}',false)" style="padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer!important;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);color:var(--green);font-family:'DM Sans',sans-serif;pointer-events:auto!important;z-index:10;position:relative">✅ Legit</button>
       </div>` : "";
 
-  return `<div id="row-${t.id}" style="display:grid;grid-template-columns:1.3fr 1.5fr 1fr 0.8fr 100px 130px;padding:10px 18px;border-bottom:1px solid var(--border);background:${isFlagged?"var(--red-glow)":"transparent"}">
+  const whyFlagged = isFlagged && t.is_fraud===undefined ? `
+    <div style="grid-column:span 6;padding:10px 18px 14px;border-bottom:1px solid var(--border);background:rgba(245,158,11,.04);border-left:3px solid var(--amber)">
+      <div style="font-size:11px;font-weight:600;color:var(--amber);margin-bottom:5px;font-family:'Space Mono',monospace">WHY THIS WAS FLAGGED</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:8px">${getSignalExplanation(t.signals, t.status, t.amount, t.vendor, hour)}</div>
+      <div style="font-size:12px;line-height:1.6;margin-bottom:8px;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">${getInstruction(t.status, t.vendor)}</div>
+      <div style="font-size:11px;color:var(--dim)">Signals detected: <span style="color:var(--muted)">${t.signals||"none"}</span></div>
+    </div>` : "";
+
+  return `<div id="row-${t.id}" style="display:grid;grid-template-columns:1.3fr 1.5fr 1fr 0.8fr 100px 130px;padding:10px 18px;border-bottom:${isFlagged?"none":"1px solid var(--border)"};background:${t.status==="flagged"||t.status==="blocked"?"var(--red-glow)":t.status==="review"?"var(--amber-glow)":"transparent"}">
     <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--teal)">${t.id.substr(0,13)}…</div>
     <div><div style="font-size:12px;font-weight:500">${t.vendor||"—"}</div><div style="font-size:11px;color:var(--muted)">${t.category||"—"}</div></div>
     <div style="font-size:11px;color:var(--muted);align-self:center">${fmtDate(t.created_at)}</div>
@@ -578,7 +612,7 @@ function renderTxnRow(t) {
       ${badge(t.status||"clear")}
       ${feedbackHtml}
     </div>
-  </div>`;
+  </div>${whyFlagged}`;
 }
 
 function renderDashboardTxns() {
