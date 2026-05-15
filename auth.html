@@ -523,7 +523,7 @@ async function handleSignUp(){
         processors:formData.processors.join(","),
         monthly_txns:formData.monthlyTxns,
       },
-      emailRedirectTo:window.location.origin+"/fraudshieldsmb/dashboard.html"
+      emailRedirectTo:"https://www.fraudshieldsmb.com/dashboard.html"
     }
   });
   btn.disabled=false;btn.textContent="Create My Account →";
@@ -552,7 +552,7 @@ async function handleMagic(){
   if(!email) return showMsg("signin-msg","Enter your email address first.");
   const btn=document.querySelector(".btn-magic");
   btn.disabled=true;btn.textContent="Sending…";
-  const{error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:window.location.origin+"/fraudshieldsmb/dashboard.html"}});
+  const{error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:"https://www.fraudshieldsmb.com/dashboard.html"}});
   btn.disabled=false;btn.textContent="✉ Send me a magic link";
   if(error) return showMsg("signin-msg",error.message);
   showConfirm(email,true);
