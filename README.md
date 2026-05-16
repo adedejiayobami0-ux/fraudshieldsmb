@@ -388,7 +388,28 @@ Source lives at `supabase/functions/score/index.ts`
 
 ---
 
-## Business Context
+## Market Strategy
+
+### Phase 1 — United States (Current Focus)
+Target: 33 million small businesses processing payments via Stripe, Square, PayPal, ACH, and Zelle.
+
+The US market is the starting point for three reasons. First, it is the largest English-speaking SMB market in the world. Second, Stripe and Square dominate US payments — making the integration story simple and consistent. Third, US fraud patterns are well-documented — card testing, ACH fraud, and chargeback abuse are understood and detectable with high confidence.
+
+All marketing, outreach, and product decisions are US-first during beta.
+
+### Phase 2 — English-Speaking Markets
+Once FraudShield reaches 50+ paying US customers and $5K+ MRR:
+- **Canada** — same language, similar payment rails, strong SMB market
+- **Australia** — English, similar regulatory environment
+- **United Kingdom** — English, strong SMB market, requires Bacs and Faster Payments support
+
+### Phase 3 — Global Expansion
+After SOC 2 certification and proven detection accuracy:
+- **Europe** — requires GDPR compliance and localization
+- **Latin America** — large underserved SMB market
+- **Southeast Asia** — high mobile payment volume, different fraud patterns
+
+Each market requires localized fraud models trained on regional transaction patterns. The US dataset becomes the foundation that all future models build on.
 
 **Market:** 33 million small businesses in the United States
 
