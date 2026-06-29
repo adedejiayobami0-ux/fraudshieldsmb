@@ -413,7 +413,7 @@ Keep responses concise and conversational. No markdown headers. Natural paragrap
   const res = await fetch('https://nivqhnqquwszwtsgupgx.supabase.co/functions/v1/fraud-ai', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON}` },
-    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system, messages: conversationHistory })
+    body: JSON.stringify({ system, messages: conversationHistory })
   });
   const data = await res.json();
   const reply = data.content?.[0]?.text || 'Sorry, I could not process that right now.';
