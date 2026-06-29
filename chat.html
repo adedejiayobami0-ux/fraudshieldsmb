@@ -410,7 +410,7 @@ Key fraud patterns to know: card testing (bots rapidly trying stolen cards in sm
 Keep responses concise and conversational. No markdown headers. Natural paragraphs only.`;
 
   conversationHistory.push({ role: 'user', content: userMessage });
-  const res = await fetch('https://nivqhnqquwszwtsgupgx.supabase.co/functions/v1/fraud-ai', {
+  const res = await fetch('https://nivqhnqquwszwtsgupgx.supabase.co/functions/v1/smooth-endpoint', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON}` },
     body: JSON.stringify({ system, messages: conversationHistory })
