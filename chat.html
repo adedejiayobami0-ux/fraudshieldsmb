@@ -443,7 +443,7 @@ async function sendMessage() {
     const reply = await callAI(msg);
     removeTyping();
     addMessage('ai', reply);
-  } catch(e) { removeTyping(); addMessage('ai', 'Connection error. Please try again.'); }
+  } catch(e) { removeTyping(); addMessage('ai', 'Error: ' + e.message); }
   isLoading = false; document.getElementById('send-btn').disabled = false;
   document.getElementById('chat-input').focus();
 }
