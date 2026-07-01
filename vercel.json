@@ -2,9 +2,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/dashboard", "destination": "/", "permanent": true },
-    { "source": "/dashboard.html", "destination": "/", "permanent": true },
-    { "source": "/index.html", "destination": "/", "permanent": true }
+    { "source": "/dashboard", "destination": "/", "permanent": true }
   ],
   "rewrites": [
     { "source": "/", "destination": "/dashboard.html" }
