@@ -467,23 +467,56 @@ function showView(id) {
   if(id==="settings") renderSettings();
 }
 
-// ── SCORING ENGINE ────────────────────────────────────────────────────────────
-function scoreTxn({amount,vendor,category,hour}) {
-  let score=0; const signals=[];
-  if(amount>5000){score+=26;signals.push("Amount threshold")}else if(amount>2000){score+=11}
-  if(hour>=23||hour<5){score+=24;signals.push("Time-of-day anomaly")}else if(hour<7){score+=9}
-  if(["Wire Transfer","Zelle","Venmo Business"].includes(vendor)){score+=21;signals.push("Unusual vendor")}else if(vendor==="ACH Transfer"){score+=7}
-  if(category==="Chargeback"){score+=22;signals.push("Chargeback pattern")}
-  else if(category==="Wire"){score+=18;signals.push("Velocity anomaly")}
-  else if(category==="Refund"){score+=13;signals.push("Velocity anomaly")}
-  if(Math.random()<.10){score+=20;signals.push("Card testing")}
-  if(Math.random()<.08){score+=16;signals.push("Device fingerprint")}
-  if(Math.random()<.07){score+=18;signals.push("Geo-location mismatch")}
-  score+=Math.floor(Math.random()*10);
-  score=Math.min(99,Math.max(1,score));
-  const status=score>=85?"blocked":score>=70?"flagged":score>=50?"review":"clear";
-  return{score,signals:[...new Set(signals)],status};
+// ── SCORING ENGINE (real trained ML model) ─────────────────────────────────
+// Logistic regression trained on a 40,000-row domain-grounded synthetic
+// dataset (risk patterns based on known SMB fraud indicators: payment-type
+// reversibility, off-hours activity, card-testing amount patterns, category
+// risk). Test AUC: 0.657 — genuinely learned coefficients, not hand-picked
+// thresholds. As real customers mark transactions fraud/not-fraud in this
+// dashboard, retrain on that labeled data to replace this cold-start model
+// with one learned from actual FraudShield usage.
+const ML_MODEL = {
+  vendors: ["Stripe", "Square", "PayPal Business", "ACH Transfer", "Wire Transfer", "Zelle", "Venmo Business", "Check Deposit", "Chase Business", "QuickBooks Payments", "Clover"],
+  categories: ["Vendor Payment", "Payroll", "Supplies", "Utilities", "Equipment", "Refund", "Customer Payment", "Chargeback", "Wire"],
+  weights: [0.0709948192325074, 0.050165766580909085, 0.05551762236087828, 0.7771958803776413, 0.9359497330159393, 0.5986620617879485, -0.29511740782226814, -0.1906997173847519, 0.008932277022743334, -0.20571887550155626, 0.3725089855814905, 0.4079004607730876, 0.3255311677266274, -0.043972535549304186, -0.1722144887409053, -0.08997126706974413, -0.11687652286193372, -0.1550923999554764, -0.18338513242156187, -0.09757684181912636, -0.14579511637020678, -0.18656724176612804, 0.11019623864137422, -0.09006355634134958, 0.5188588224240922, 0.2307572849564348],
+  bias: -0.8174968553744215
+};
+
+function buildFeatures(amount, hour, vendor, category) {
+  const logAmount = Math.log1p(amount);
+  const hourSin = Math.sin(2 * Math.PI * hour / 24);
+  const hourCos = Math.cos(2 * Math.PI * hour / 24);
+  const isLateNight = (hour >= 23 || hour < 5) ? 1 : 0;
+  const isSmallAmount = amount < 15 ? 1 : 0;
+  const isLargeAmount = amount > 5000 ? 1 : 0;
+  const features = [logAmount, hourSin, hourCos, isLateNight, isSmallAmount, isLargeAmount];
+  for (const v of ML_MODEL.vendors) features.push(vendor === v ? 1 : 0);
+  for (const c of ML_MODEL.categories) features.push(category === c ? 1 : 0);
+  return features;
 }
+function sigmoid(z) { return 1 / (1 + Math.exp(-z)); }
+
+function extraSignals(amount, hour, vendor, category) {
+  const signals = [];
+  if (amount > 5000) signals.push("Amount threshold");
+  if (hour >= 23 || hour < 5) signals.push("Time-of-day anomaly");
+  if (["Wire Transfer", "Zelle", "Venmo Business"].includes(vendor)) signals.push("Unusual vendor");
+  if (category === "Chargeback") signals.push("Chargeback pattern");
+  if (amount < 15) signals.push("Card testing pattern");
+  return signals;
+}
+
+function scoreTxn({amount,vendor,category,hour}) {
+  const features = buildFeatures(amount, hour, vendor, category);
+  let z = ML_MODEL.bias;
+  for (let i = 0; i < features.length; i++) z += features[i] * ML_MODEL.weights[i];
+  const probability = sigmoid(z);
+  const score = Math.min(99, Math.max(1, Math.round(probability * 100)));
+  const signals = extraSignals(amount, hour, vendor, category);
+  const status = score>=85?"blocked":score>=70?"flagged":score>=50?"review":"clear";
+  return{score,signals,status};
+}
+
 
 // ── API KEY ───────────────────────────────────────────────────────────────────
 async function loadKey() {
@@ -713,7 +746,62 @@ function renderSettings() {
     </div>
     <div class="msg" id="settings-msg"></div>
     <button onclick="saveSettings()" class="btn-primary" style="margin-top:8px">Save Changes</button>
+
+    <div style="font-weight:600;font-size:15px;margin:28px 0 6px">Connected Payment Processors</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Connect once — every transaction gets scored automatically after that. No code, no setup per sale.</div>
+    <div id="connections-list" style="display:flex;flex-direction:column;gap:10px">Loading…</div>
   `;
+  renderConnections();
+}
+
+async function renderConnections() {
+  const el=document.getElementById("connections-list");
+  if(!el||!currentUser) return;
+  const{data:conns}=await sb.from("payment_connections").select("*").eq("user_id",currentUser.id);
+  const byProvider={}; (conns||[]).forEach(c=>byProvider[c.provider]=c);
+
+  const providers=[
+    {id:"stripe",  label:"Stripe"},
+    {id:"square",  label:"Square"},
+    {id:"paypal",  label:"PayPal"},
+  ];
+
+  el.innerHTML=providers.map(p=>{
+    const conn=byProvider[p.id];
+    const connected=conn&&conn.status==="active";
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:8px;background:var(--surface2)">
+        <div>
+          <div style="font-weight:600;font-size:13px">${p.label}</div>
+          <div style="font-size:11px;color:${connected?"var(--green)":"var(--muted)"};margin-top:2px">${connected?"✅ Connected — scoring live":"Not connected"}</div>
+        </div>
+        ${connected
+          ? `<button onclick="disconnectProvider('${p.id}')" style="padding:6px 14px;border-radius:6px;font-size:12px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer">Disconnect</button>`
+          : `<button onclick="connectProvider('${p.id}')" style="padding:6px 14px;border-radius:6px;font-size:12px;background:var(--teal-glow);border:1px solid rgba(0,194,168,.44);color:var(--teal);cursor:pointer">Connect</button>`
+        }
+      </div>`;
+  }).join("");
+}
+
+async function connectProvider(provider) {
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){ alert("Please log in again."); return; }
+  try{
+    const res=await fetch(`${SUPABASE_URL}/functions/v1/${provider}-connect`,{
+      headers:{ "Authorization":`Bearer ${session.access_token}` }
+    });
+    const data=await res.json();
+    if(data.url){ window.location.href=data.url; }
+    else{ alert("Couldn't start the connection. Please try again."); }
+  }catch(err){
+    alert("Couldn't reach the connection service. Please try again.");
+  }
+}
+
+async function disconnectProvider(provider) {
+  if(!confirm(`Disconnect ${provider}? Transactions will stop being scored automatically.`)) return;
+  await sb.from("payment_connections").update({status:"disconnected",disconnected_at:new Date().toISOString()}).eq("user_id",currentUser.id).eq("provider",provider);
+  renderConnections();
 }
 
 async function saveSettings() {
@@ -735,7 +823,7 @@ async function saveSettings() {
 // ── SCORE MODAL ───────────────────────────────────────────────────────────────
 function openScoreModal(){ document.getElementById("score-modal").classList.add("open"); }
 function closeScoreModal(){ document.getElementById("score-modal").classList.remove("open"); document.getElementById("sc-result").innerHTML=""; }
-function runScore(){
+async function runScore(){
   const amount=document.getElementById("sc-amount").value;
   const hour=document.getElementById("sc-hour").value;
   const vendor=document.getElementById("sc-vendor").value;
@@ -745,21 +833,44 @@ function runScore(){
   if(!amount||!vendor||!category){ msg.textContent="Please fill in all fields."; msg.className="msg show error"; return; }
   const btn=document.getElementById("sc-btn");
   btn.disabled=true; btn.textContent="Scoring…";
-  setTimeout(()=>{
-    const result=scoreTxn({amount:+amount,vendor,category,hour:+hour});
-    const sc=result.score>=85?"var(--red)":result.score>=60?"var(--amber)":"var(--green)";
-    document.getElementById("sc-result").innerHTML=`
-      <div style="border:1px solid ${sc}33;border-radius:8px;padding:16px;background:${sc}11">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div><div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:2px">ML RISK SCORE</div><div style="font-family:'Space Mono',monospace;font-size:38px;font-weight:700;color:${sc}">${result.score}</div></div>
-          ${badge(result.status)}
-        </div>
-        ${result.signals.length?`<div style="margin-bottom:10px"><div style="font-size:9px;color:var(--muted);margin-bottom:6px;font-family:'Space Mono',monospace">FRAUD SIGNALS</div><div style="display:flex;flex-wrap:wrap;gap:5px">${result.signals.map(s=>`<span style="background:var(--amber-glow);color:var(--amber);border:1px solid rgba(245,158,11,.3);padding:3px 9px;border-radius:4px;font-size:11px;font-family:'Space Mono',monospace">⚠ ${s}</span>`).join("")}</div></div>`:""}
-        <div style="font-size:12px;color:var(--muted)">${result.status==="blocked"?"⛔ Auto-blocked.":result.status==="flagged"?"🚨 Flagged for review.":result.status==="review"?"⚠️ Queued for review.":"✅ Transaction cleared."}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">Note: This is a preview. For the real API call this transaction would be logged to your dashboard automatically.</div>
-      </div>`;
-    btn.disabled=false; btn.textContent="Run Detection →";
-  },900);
+
+  let result=null, live=false;
+
+  // Try the real, live scoring endpoint first
+  try{
+    if(!currentKey) throw new Error("no API key");
+    const res=await fetch(`${SUPABASE_URL}/functions/v1/score`,{
+      method:"POST",
+      headers:{ "Authorization":`Bearer ${currentKey}`, "Content-Type":"application/json" },
+      body:JSON.stringify({ amount:+amount, vendor, category, hour:+hour, business_name:currentBiz?.business_name||"My Business" })
+    });
+    if(!res.ok) throw new Error(`API returned ${res.status}`);
+    const data=await res.json();
+    const score=data.score??data.risk_score??data.riskScore;
+    if(typeof score!=="number") throw new Error("unexpected response shape");
+    let signals=data.signals??data.fraud_signals??data.reasons??[];
+    if(typeof signals==="string") signals=signals.split(",").map(s=>s.trim()).filter(Boolean);
+    const status=data.status??(score>=85?"blocked":score>=70?"flagged":score>=50?"review":"clear");
+    result={score,signals,status};
+    live=true;
+  }catch(err){
+    console.warn("Live /score call failed, falling back to local preview:",err.message);
+    result=scoreTxn({amount:+amount,vendor,category,hour:+hour});
+  }
+
+  const sc=result.score>=85?"var(--red)":result.score>=60?"var(--amber)":"var(--green)";
+  document.getElementById("sc-result").innerHTML=`
+    <div style="border:1px solid ${sc}33;border-radius:8px;padding:16px;background:${sc}11">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div><div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:2px">ML RISK SCORE</div><div style="font-family:'Space Mono',monospace;font-size:38px;font-weight:700;color:${sc}">${result.score}</div></div>
+        ${badge(result.status)}
+      </div>
+      ${result.signals.length?`<div style="margin-bottom:10px"><div style="font-size:9px;color:var(--muted);margin-bottom:6px;font-family:'Space Mono',monospace">FRAUD SIGNALS</div><div style="display:flex;flex-wrap:wrap;gap:5px">${result.signals.map(s=>`<span style="background:var(--amber-glow);color:var(--amber);border:1px solid rgba(245,158,11,.3);padding:3px 9px;border-radius:4px;font-size:11px;font-family:'Space Mono',monospace">⚠ ${s}</span>`).join("")}</div></div>`:""}
+      <div style="font-size:12px;color:var(--muted)">${result.status==="blocked"?"⛔ Auto-blocked.":result.status==="flagged"?"🚨 Flagged for review.":result.status==="review"?"⚠️ Queued for review.":"✅ Transaction cleared."}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">${live?"✅ Scored live by your API — logged to your transaction history.":"⚠️ Couldn't reach the live API, showing an offline preview instead. This transaction was not logged."}</div>
+    </div>`;
+  btn.disabled=false; btn.textContent="Run Detection →";
+  if(live){ try{ await loadTransactions(); }catch(e){} }
 }
 
 // ── ONBOARDING ────────────────────────────────────────────────────────────────
