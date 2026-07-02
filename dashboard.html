@@ -1204,8 +1204,12 @@ async function init(){
     // Refresh every 30 seconds
     refreshInterval=setInterval(loadTransactions, 30000);
 
-    // Auth listener
-    sb.auth.onAuthStateChange((_event,session)=>{ if(!session) window.location.href="auth.html"; });
+    // Auth listener — only act on an explicit sign-out, not the initial
+    // state read (which can briefly report no session even when one
+    // exists, causing a false redirect loop)
+    sb.auth.onAuthStateChange((event,session)=>{
+      if(event==="SIGNED_OUT") window.location.href="/auth";
+    });
 
   }catch(e){
     console.error("Init error:",e);
