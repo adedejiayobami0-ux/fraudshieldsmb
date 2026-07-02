@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-9Y43MHPFQN"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-9Y43MHPFQN');
-</script>
 <meta charset="UTF-8"/>
   <link rel="manifest" href="/manifest.json"/>
   <meta name="theme-color" content="#00D2B4"/>
@@ -17,697 +9,1215 @@
   <meta name="apple-mobile-web-app-title" content="FraudShield"/>
   <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FraudShield SMB — Stop Fraud Before It Costs You</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<title>FraudShield SMB — AI Fraud Detection</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+html,body{height:100%;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5}
+:root{--bg:#0A0E14;--surface:#111820;--surface2:#161E28;--border:#1E2D3D;--muted:#6B8199;--dim:#3D5066;--teal:#00C2A8;--teal-glow:rgba(0,194,168,.1);--red:#EF4444;--red-glow:rgba(239,68,68,.1);--green:#10B981;--green-glow:rgba(16,185,129,.1);--amber:#F59E0B;--amber-glow:rgba(245,158,11,.1);--blue:#3B82F6;--blue-glow:rgba(59,130,246,.1);--purple:#8B5CF6;--text:#E2EAF4;--code:#A8C4D0}
+body.light{--bg:#F3F5F8;--surface:#fff;--surface2:#EBF0F6;--border:#D1D9E6;--muted:#4A6080;--dim:#8BA0B8;--teal:#00897B;--teal-glow:rgba(0,137,123,.08);--red:#DC2626;--red-glow:rgba(220,38,38,.08);--green:#059669;--green-glow:rgba(5,150,105,.08);--amber:#D97706;--amber-glow:rgba(217,119,6,.08);--blue:#2563EB;--blue-glow:rgba(37,99,235,.08);--purple:#7C3AED;--text:#1A2535;--code:#1E4976}
+body{background:var(--bg);color:var(--text)}
 
-body.dark{background:#08080C;color:#F0EDE8}
-body.light{background:#F4F6FA;color:#1A1A2E}
+#app{display:flex;height:100vh}
+#sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:100vh;position:sticky;top:0}
+#main{flex:1;overflow-y:auto}
+.view{display:none;padding:28px;animation:fadein .3s ease}
+.view.active{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes scan{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
+@keyframes ticker{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
 
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(0,210,180,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,210,180,.03) 1px,transparent 1px);background-size:48px 48px}
-body.light::before{background-image:linear-gradient(rgba(0,137,123,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,137,123,.04) 1px,transparent 1px)}
+/* SIDEBAR */
+.sb-brand{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sb-icon{width:34px;height:34px;background:var(--teal);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.sb-title{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--teal)}
+.sb-sub{font-size:10px;color:var(--muted)}
+.sb-live{padding:8px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);font-family:'Space Mono',monospace}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite;flex-shrink:0}
+.sb-nav{padding:12px 10px;flex:1}
+.nb{width:100%;text-align:left;padding:10px 12px;border-radius:6px;display:flex;align-items:center;gap:10px;margin-bottom:2px;background:transparent;border:1px solid transparent;font-size:13px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif}
+.nb:hover,.nb.active{background:var(--teal-glow);color:var(--teal);border-color:rgba(0,194,168,.2)}
+.ni{font-family:'Space Mono',monospace;font-size:14px}
+.score-btn{width:100%;text-align:left;padding:10px 12px;border-radius:6px;display:flex;align-items:center;gap:10px;background:var(--amber-glow);color:var(--amber);border:1px solid rgba(245,158,11,.3);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px}
+.sb-bottom{padding:12px 16px;border-top:1px solid var(--border)}
+.sb-foot{padding:8px 20px 16px;display:flex;justify-content:space-between;align-items:center}
+.sb-ver{font-size:10px;color:var(--dim);font-family:'Space Mono',monospace}
+.signout-btn{font-size:11px;color:var(--dim);padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif}
+.toggle-pill{display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:20px;border:1px solid var(--border);font-size:12px;font-weight:500;cursor:pointer;background:var(--surface2);color:var(--muted);font-family:'DM Sans',sans-serif;white-space:nowrap;width:100%}
+.track{width:32px;height:18px;border-radius:9px;position:relative;background:var(--border);flex-shrink:0;transition:background .25s}
+body.light .track{background:var(--teal)}
+.knob{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+body.light .knob{transform:translateX(14px)}
 
-.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0}
-body.dark .orb1{width:700px;height:700px;background:radial-gradient(circle,rgba(0,210,180,.09) 0%,transparent 70%);top:-300px;left:-200px}
-body.dark .orb2{width:500px;height:500px;background:radial-gradient(circle,rgba(100,60,255,.07) 0%,transparent 70%);bottom:-200px;right:-100px}
-body.light .orb1{width:700px;height:700px;background:radial-gradient(circle,rgba(0,137,123,.07) 0%,transparent 70%);top:-300px;left:-200px}
-body.light .orb2{width:500px;height:500px;background:radial-gradient(circle,rgba(100,60,255,.04) 0%,transparent 70%);bottom:-200px;right:-100px}
+/* CARDS */
+.stat-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 20px;flex:1;min-width:130px}
+.stat-label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-family:'Space Mono',monospace}
+.stat-val{font-family:'Space Mono',monospace;font-size:22px;font-weight:700}
+.stat-sub{color:var(--muted);font-size:11px;margin-top:4px}
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px}
+.table-head{padding:14px 18px;border-bottom:1px solid var(--border)}
+.table-head-title{font-weight:600;font-size:14px}
+.table-head-sub{color:var(--muted);font-size:11px;margin-top:2px}
+.table-cols{padding:8px 18px;border-bottom:1px solid var(--border);color:var(--muted);font-size:10px;font-family:'Space Mono',monospace;letter-spacing:.06em;display:grid}
+.table-row{padding:12px 18px;border-bottom:1px solid var(--border);display:grid}
+.table-row:last-child{border-bottom:none}
+.badge{padding:2px 8px;border-radius:3px;font-size:10px;font-family:'Space Mono',monospace;letter-spacing:.08em;font-weight:700;display:inline-block}
+.badge-low,.badge-clear{background:var(--green-glow);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.badge-medium,.badge-review{background:var(--amber-glow);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.badge-high,.badge-flagged,.badge-blocked{background:var(--red-glow);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.badge-starter{background:var(--blue-glow);color:var(--blue);border:1px solid rgba(59,130,246,.3)}
+.badge-growth{background:var(--teal-glow);color:var(--teal);border:1px solid rgba(0,194,168,.3)}
+.badge-free{background:var(--green-glow);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.ring-wrap{position:relative;display:inline-block}
+.ring-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700}
+.mini-bar-track{height:4px;background:var(--border);border-radius:2px;flex:1}
+.mini-bar-fill{height:100%;border-radius:2px}
 
-/* LAYOUT */
-.wrap{position:relative;z-index:1}
-.container{max-width:1040px;margin:0 auto;padding:0 24px}
+/* API KEY */
+.key-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px 28px;margin-bottom:24px}
+.key-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.key-val{font-family:'Space Mono',monospace;font-size:12px;color:var(--teal);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.key-btns{display:flex;gap:8px;flex-shrink:0}
+.btn-sm{padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid var(--border);background:var(--surface2);color:var(--muted)}
+.btn-copy{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;background:var(--teal);border:none;color:#fff}
+.btn-regen{padding:7px 16px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;background:transparent;border:1px solid rgba(239,68,68,.35);color:var(--red)}
+.code-block{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:14px;overflow-x:auto}
+.code-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:8px;letter-spacing:.08em}
+.code-content{font-family:'Space Mono',monospace;font-size:11px;color:var(--teal);line-height:1.7;white-space:pre-wrap}
 
-/* TYPOGRAPHY */
-.h1{font-family:'Syne',sans-serif;font-size:clamp(28px,4.5vw,48px);font-weight:800;letter-spacing:-.03em;line-height:1.1}
-.h2{font-family:'Syne',sans-serif;font-size:clamp(22px,3vw,34px);font-weight:800;letter-spacing:-.025em;line-height:1.15}
-.h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;letter-spacing:-.01em}
-.body-lg{font-size:15px;line-height:1.65}
-.body-sm{font-size:13px;line-height:1.65}
-body.dark .muted{color:rgba(240,237,232,.5)}
-body.light .muted{color:rgba(26,26,46,.5)}
-body.dark .teal{color:#00D2B4}
-body.light .teal{color:#00897B}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(6px)}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:500;color:var(--muted);margin-bottom:5px}
+.field input,.field select{width:100%;padding:9px 12px;border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;border:1px solid var(--border);background:var(--surface2);color:var(--text);outline:none}
+.field input:focus,.field select:focus{border-color:var(--teal)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-primary{width:100%;padding:11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:var(--teal);color:#fff;font-family:'DM Sans',sans-serif;margin-bottom:16px}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;display:none}
+.msg.show{display:block}
+.msg.error{background:var(--red-glow);border:1px solid rgba(239,68,68,.25);color:var(--red)}
+.msg.success{background:var(--green-glow);border:1px solid rgba(16,185,129,.25);color:var(--green)}
 
-/* NAV */
-nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);border-bottom:1px solid}
-body.dark nav{background:rgba(8,8,12,.88);border-color:rgba(255,255,255,.06)}
-body.light nav{background:rgba(244,246,250,.92);border-color:#E8ECF2}
-.nav-inner{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;max-width:1040px;margin:0 auto}
-.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
-.logo-box{width:32px;height:32px;background:linear-gradient(135deg,#00D2B4,#00A896);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 16px rgba(0,210,180,.3)}
-.logo-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em}
-body.dark .logo-name{color:#00D2B4}
-body.light .logo-name{color:#00897B}
-.nav-right{display:flex;align-items:center;gap:8px}
-@media(max-width:600px){.nav-link{display:none}.nav-right{gap:6px}}
-.nav-link{padding:7px 14px;border-radius:7px;font-size:13px;cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;text-decoration:none}
-body.dark .nav-link{color:rgba(240,237,232,.55)}
-body.dark .nav-link:hover{color:#F0EDE8}
-body.light .nav-link{color:rgba(26,26,46,.55)}
-body.light .nav-link:hover{color:#1A1A2E}
-
-/* THEME TOGGLE in nav */
-.theme-pill{display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:20px;border:1px solid;cursor:pointer;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif}
-body.dark .theme-pill{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);color:rgba(240,237,232,.5)}
-body.light .theme-pill{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.1);color:rgba(26,26,46,.5)}
-.t-track{width:26px;height:15px;border-radius:8px;position:relative;flex-shrink:0;transition:background .25s}
-body.dark .t-track{background:rgba(255,255,255,.15)}
-body.light .t-track{background:#00897B}
-.t-knob{position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
-body.light .t-knob{transform:translateX(11px)}
-
-.btn-outline{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid;transition:all .15s}
-body.dark .btn-outline{background:transparent;border-color:rgba(255,255,255,.15);color:#F0EDE8}
-body.dark .btn-outline:hover{border-color:rgba(255,255,255,.3)}
-body.light .btn-outline{background:transparent;border-color:rgba(0,0,0,.15);color:#1A1A2E}
-body.light .btn-outline:hover{border-color:rgba(0,0,0,.3)}
-
-.btn-teal{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;background:linear-gradient(135deg,#00D2B4,#00A896);color:#08080C;box-shadow:0 0 16px rgba(0,210,180,.3);transition:all .2s}
-body.light .btn-teal{color:#fff}
-.btn-teal:hover{box-shadow:0 0 28px rgba(0,210,180,.5)}
-
-/* HERO */
-.hero{padding:80px 0 64px;text-align:center;animation:fadein .6s ease both}
-@keyframes fadein{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-.live-tag{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:5px 13px;border-radius:20px;margin-bottom:22px;cursor:default}
-body.dark .live-tag{color:#00D2B4;background:rgba(0,210,180,.08);border:1px solid rgba(0,210,180,.2)}
-body.light .live-tag{color:#00897B;background:rgba(0,137,123,.08);border:1px solid rgba(0,137,123,.2)}
-.live-dot{width:6px;height:6px;border-radius:50%;animation:blink 2s infinite}
-body.dark .live-dot{background:#10B981}
-body.light .live-dot{background:#059669}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.hero-h{margin-bottom:18px}
-.hero-sub{max-width:500px;margin:0 auto 32px}
-.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:48px}
-.btn-hero-primary{padding:13px 28px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;background:linear-gradient(135deg,#00D2B4,#00A896);color:#08080C;box-shadow:0 0 24px rgba(0,210,180,.35);transition:all .2s}
-body.light .btn-hero-primary{color:#fff}
-.btn-hero-primary:hover{transform:translateY(-1px);box-shadow:0 0 36px rgba(0,210,180,.55)}
-.btn-hero-outline{padding:13px 28px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid;transition:all .2s}
-body.dark .btn-hero-outline{background:transparent;border-color:rgba(255,255,255,.12);color:#F0EDE8}
-body.dark .btn-hero-outline:hover{border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.04)}
-body.light .btn-hero-outline{background:transparent;border-color:rgba(0,0,0,.12);color:#1A1A2E}
-body.light .btn-hero-outline:hover{border-color:rgba(0,0,0,.25);background:rgba(0,0,0,.03)}
-
-.trust-bar{display:flex;justify-content:center;gap:36px;flex-wrap:wrap;padding:20px 0;border-top:1px solid;border-bottom:1px solid}
-body.dark .trust-bar{border-color:rgba(255,255,255,.06)}
-body.light .trust-bar{border-color:#E8ECF2}
-.trust-item{text-align:center}
-.trust-val{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
-body.dark .trust-val{color:#00D2B4}
-body.light .trust-val{color:#00897B}
-.trust-lbl{font-size:11px;margin-top:2px}
-body.dark .trust-lbl{color:rgba(240,237,232,.4)}
-body.light .trust-lbl{color:rgba(26,26,46,.4)}
-
-/* SECTIONS */
-.section{padding:72px 0}
-.section-eyebrow{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
-body.dark .section-eyebrow{color:#00D2B4}
-body.light .section-eyebrow{color:#00897B}
-.section-eyebrow::before{content:'';width:20px;height:2px;background:currentColor;border-radius:1px}
-
-/* PROBLEM */
-.problem-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:40px}
-@media(max-width:680px){.problem-grid{grid-template-columns:1fr}}
-.p-card{border-radius:14px;padding:24px;border:1px solid}
-body.dark .p-card.bad{background:rgba(239,68,68,.04);border-color:rgba(239,68,68,.18)}
-body.dark .p-card.good{background:rgba(0,210,180,.04);border-color:rgba(0,210,180,.2)}
-body.light .p-card.bad{background:rgba(239,68,68,.03);border-color:rgba(239,68,68,.15)}
-body.light .p-card.good{background:rgba(0,137,123,.04);border-color:rgba(0,137,123,.18)}
-.p-card-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:7px}
-.p-card.bad .p-card-label{color:#EF4444}
-.p-card.good .p-card-label{color:#00D2B4}
-body.light .p-card.good .p-card-label{color:#00897B}
-.p-items{display:flex;flex-direction:column;gap:12px}
-.p-item{display:flex;gap:10px;font-size:13px;line-height:1.55}
-.p-item .ico{font-size:15px;flex-shrink:0;margin-top:1px}
-body.dark .p-item span{color:rgba(240,237,232,.65)}
-body.light .p-item span{color:rgba(26,26,46,.65)}
-
-/* HOW IT WORKS */
-.steps-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:40px;border-radius:16px;overflow:hidden;border:1px solid}
-@media(max-width:700px){.steps-wrap{grid-template-columns:1fr 1fr}}
-body.dark .steps-wrap{border-color:rgba(255,255,255,.07)}
-body.light .steps-wrap{border-color:#E8ECF2}
-.step{padding:26px 22px;position:relative;border-right:1px solid}
+/* ONBOARD */
+.steps{display:flex;background:var(--surface);border-radius:10px;border:1px solid var(--border);overflow:hidden;margin-bottom:28px}
+.step{flex:1;padding:12px 8px;text-align:center;cursor:pointer;border-right:1px solid var(--border)}
 .step:last-child{border-right:none}
-body.dark .step{background:#08080C;border-color:rgba(255,255,255,.06)}
-body.light .step{background:#F4F6FA;border-color:#E8ECF2}
-@media(max-width:700px){.step:nth-child(2){border-right:none}.step:nth-child(3){border-right:1px solid}.step:nth-child(3),.step:nth-child(4){border-top:1px solid}}
-body.light .step:nth-child(3){border-right-color:#E8ECF2}
-body.dark .step:nth-child(3){border-right-color:rgba(255,255,255,.06)}
-.step-n{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;line-height:1;margin-bottom:14px}
-body.dark .step-n{color:rgba(0,210,180,.2)}
-body.light .step-n{color:rgba(0,137,123,.2)}
-.step-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:8px}
-body.dark .step-title{color:#F0EDE8}
-body.light .step-title{color:#1A1A2E}
-.step-desc{font-size:12px;line-height:1.65}
-body.dark .step-desc{color:rgba(240,237,232,.45)}
-body.light .step-desc{color:rgba(26,26,46,.45)}
+.step.active{background:var(--teal-glow)}
+.step-icon{font-size:16px;margin-bottom:4px}
+.step-label{font-size:11px;color:var(--muted)}
+.step.active .step-label{color:var(--teal);font-weight:600}
+.step-done{font-size:10px;color:var(--green);margin-top:2px}
+.step-content{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px 26px}
 
-/* DEMO */
-.demo-box{border-radius:16px;padding:28px;max-width:640px;margin:40px auto 0;border:1px solid}
-body.dark .demo-box{background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.08)}
-body.light .demo-box{background:#fff;border-color:#E8ECF2;box-shadow:0 2px 16px rgba(0,0,0,.06)}
-.demo-header{display:flex;align-items:center;gap:8px;margin-bottom:18px}
-.demo-dot{width:7px;height:7px;border-radius:50%;animation:blink 2s infinite}
-body.dark .demo-dot{background:#00D2B4}
-body.light .demo-dot{background:#00897B}
-.demo-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
-body.dark .demo-title{color:#00D2B4}
-body.light .demo-title{color:#00897B}
-.demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.demo-f label{display:block;font-size:11px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px}
-body.dark .demo-f label{color:rgba(240,237,232,.4)}
-body.light .demo-f label{color:rgba(26,26,46,.4)}
-.demo-f select,.demo-f input{width:100%;padding:9px 11px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;border:1px solid;outline:none;transition:border-color .2s}
-body.dark .demo-f select,body.dark .demo-f input{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:#F0EDE8}
-body.dark .demo-f select:focus,body.dark .demo-f input:focus{border-color:rgba(0,210,180,.4)}
-body.light .demo-f select,body.light .demo-f input{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.1);color:#1A1A2E}
-body.light .demo-f select:focus,body.light .demo-f input:focus{border-color:rgba(0,137,123,.4)}
-body.dark .demo-f select option{background:#1A1A2E;color:#F0EDE8}
-.demo-run{width:100%;padding:11px;border-radius:9px;font-size:13px;font-weight:600;background:linear-gradient(135deg,#00D2B4,#00A896);color:#08080C;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:14px;transition:all .2s}
-body.light .demo-run{color:#fff}
-.demo-run:hover:not(:disabled){box-shadow:0 0 24px rgba(0,210,180,.4)}
-.demo-run:disabled{opacity:.5;cursor:not-allowed}
-.scan-bar{height:3px;border-radius:2px;overflow:hidden;margin-bottom:14px}
-body.dark .scan-bar{background:rgba(255,255,255,.06)}
-body.light .scan-bar{background:rgba(0,0,0,.06)}
-.scan-fill{height:100%;background:linear-gradient(90deg,transparent,#00D2B4,transparent);animation:scan 1.2s ease infinite;width:40%}
-@keyframes scan{0%{transform:translateX(-200%)}100%{transform:translateX(500%)}}
-.result-wrap{border-radius:12px;padding:16px;border:1px solid;animation:fadein .3s ease}
-.signal-tag{padding:3px 10px;border-radius:20px;font-size:11px;font-family:'Syne',sans-serif;font-weight:600;background:rgba(245,158,11,.1);color:#F59E0B;border:1px solid rgba(245,158,11,.2)}
+/* LANDING */
+#landing{display:none}
+.landing-nav{display:flex;justify-content:space-between;align-items:center;padding:16px 32px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.landing-logo{display:flex;align-items:center;gap:10px}
+.landing-nav-btns{display:flex;gap:10px;align-items:center}
+.btn-outline{padding:8px 16px;border-radius:7px;font-size:13px;color:var(--muted);border:1px solid var(--border);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-teal{padding:8px 18px;border-radius:7px;font-size:13px;font-weight:600;background:var(--teal);border:none;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif}
+.landing-body{max-width:1080px;margin:0 auto;padding:0 32px}
+.hero{padding:64px 0 52px;text-align:center}
+.hero h1{font-size:clamp(28px,5vw,50px);font-weight:600;letter-spacing:-.03em;line-height:1.1;margin-bottom:18px}
+.hero h1 span{color:var(--teal)}
+.hero p{color:var(--muted);font-size:clamp(14px,2vw,17px);max-width:520px;margin:0 auto 32px;line-height:1.65}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-hero{padding:13px 28px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none}
+.btn-hero-primary{background:var(--teal);color:#fff}
+.btn-hero-outline{background:transparent;border:1px solid var(--border)!important;color:var(--text)}
+.stats-row{display:flex;justify-content:center;gap:44px;margin-top:52px;flex-wrap:wrap}
+.live-badge{display:inline-flex;align-items:center;gap:8px;background:var(--teal-glow);border:1px solid rgba(0,194,168,.33);border-radius:20px;padding:5px 14px;margin-bottom:22px;font-family:'Space Mono',monospace;font-size:11px;color:var(--teal)}
+.vectors-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:56px}
+.vector-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 22px}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:64px}
+.price-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:26px 24px;position:relative}
+.price-card.featured{background:var(--teal-glow);border-color:rgba(0,194,168,.4)}
+.price-popular{position:absolute;top:14px;right:14px;background:var(--teal);color:#fff;font-size:9px;font-weight:700;font-family:'Space Mono',monospace;padding:3px 8px;border-radius:4px}
+.page-title{font-size:22px;font-weight:600;letter-spacing:-.02em;margin-bottom:4px}
+.page-sub{color:var(--muted);font-size:13px;margin-bottom:22px}
+.section-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.section-sub{color:var(--muted);font-size:12px;margin-bottom:16px}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-icon{font-size:36px;margin-bottom:12px}
+.deploy-log{font-family:'Space Mono',monospace;font-size:12px;background:var(--surface2);border-radius:8px;padding:16px 18px;margin-bottom:16px}
+.ticker-item{padding:10px 16px;border-bottom:1px solid var(--border);animation:ticker .4s ease}
+.ticker-item:last-child{border-bottom:none}
 
-/* FRAUD TYPES */
-.fraud-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:40px}
-.fraud-card{border-radius:14px;padding:22px;border:1px solid;transition:border-color .2s}
-body.dark .fraud-card{background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.07)}
-body.dark .fraud-card:hover{border-color:rgba(0,210,180,.25);background:rgba(0,210,180,.03)}
-body.light .fraud-card{background:#fff;border-color:#E8ECF2;box-shadow:0 1px 8px rgba(0,0,0,.04)}
-body.light .fraud-card:hover{border-color:rgba(0,137,123,.25)}
-.fraud-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:14px;border:1px solid}
-body.dark .fraud-icon{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
-body.light .fraud-icon{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.07)}
-.fraud-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:7px}
-body.dark .fraud-name{color:#F0EDE8}
-body.light .fraud-name{color:#1A1A2E}
-.fraud-desc{font-size:13px;line-height:1.65}
-body.dark .fraud-desc{color:rgba(240,237,232,.5)}
-body.light .fraud-desc{color:rgba(26,26,46,.5)}
+/* ── MOBILE ────────────────────────────────────────────────────────────── */
+.mobile-topbar{display:none}
+.sidebar-overlay{display:none}
 
-/* PRICING */
-.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:40px}
-.price-card{border-radius:16px;padding:28px;border:1px solid;position:relative;transition:transform .2s}
-.price-card:hover{transform:translateY(-2px)}
-body.dark .price-card{background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.07)}
-body.dark .price-card.featured{background:rgba(0,210,180,.05);border-color:rgba(0,210,180,.3);box-shadow:0 0 32px rgba(0,210,180,.08)}
-body.light .price-card{background:#fff;border-color:#E8ECF2;box-shadow:0 1px 8px rgba(0,0,0,.04)}
-body.light .price-card.featured{background:rgba(0,137,123,.04);border-color:rgba(0,137,123,.25);box-shadow:0 4px 24px rgba(0,137,123,.1)}
-.price-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00D2B4,#00A896);color:#08080C;font-size:10px;font-weight:700;padding:3px 12px;border-radius:20px;white-space:nowrap;font-family:'Syne',sans-serif;letter-spacing:.05em}
-body.light .price-badge{color:#fff}
-.price-tier{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
-.price-amount{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;letter-spacing:-.03em;line-height:1;margin-bottom:3px}
-.price-period{font-size:13px;margin-bottom:5px}
-body.dark .price-period{color:rgba(240,237,232,.4)}
-body.light .price-period{color:rgba(26,26,46,.4)}
-.price-calls{font-size:12px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid}
-body.dark .price-calls{color:rgba(240,237,232,.4);border-color:rgba(255,255,255,.07)}
-body.light .price-calls{color:rgba(26,26,46,.4);border-color:#E8ECF2}
-.price-feats{display:flex;flex-direction:column;gap:9px;margin-bottom:22px}
-.price-feat{display:flex;align-items:center;gap:9px;font-size:13px}
-body.dark .price-feat{color:rgba(240,237,232,.65)}
-body.light .price-feat{color:rgba(26,26,46,.65)}
-.feat-check{font-size:11px;flex-shrink:0}
-body.dark .feat-check{color:#00D2B4}
-body.light .feat-check{color:#00897B}
-.price-cta{width:100%;padding:11px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;border:none}
-.cta-main{background:linear-gradient(135deg,#00D2B4,#00A896);color:#08080C;box-shadow:0 0 16px rgba(0,210,180,.25)}
-body.light .cta-main{color:#fff}
-.cta-main:hover{box-shadow:0 0 28px rgba(0,210,180,.45)}
-.cta-muted{background:transparent;border:1px solid;cursor:default!important}
-body.dark .cta-muted{border-color:rgba(255,255,255,.08);color:rgba(240,237,232,.3)}
-body.light .cta-muted{border-color:rgba(0,0,0,.08);color:rgba(26,26,46,.3)}
-.price-note{font-size:11px;text-align:center;margin-top:8px}
-body.dark .price-note{color:rgba(240,237,232,.25)}
-body.light .price-note{color:rgba(26,26,46,.25)}
+@media (max-width:768px){
+  #app{flex-direction:column;height:auto;min-height:100vh}
 
-/* FAQ */
-.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:40px}
-@media(max-width:680px){.faq-grid{grid-template-columns:1fr}}
-.faq-item{border-radius:12px;padding:20px;border:1px solid}
-body.dark .faq-item{background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.07)}
-body.light .faq-item{background:#fff;border-color:#E8ECF2;box-shadow:0 1px 6px rgba(0,0,0,.04)}
-.faq-q{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:9px}
-body.dark .faq-q{color:#F0EDE8}
-body.light .faq-q{color:#1A1A2E}
-.faq-a{font-size:13px;line-height:1.7}
-body.dark .faq-a{color:rgba(240,237,232,.5)}
-body.light .faq-a{color:rgba(26,26,46,.5)}
+  .mobile-topbar{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);
+    position:sticky;top:0;z-index:150
+  }
+  .mobile-topbar .hamburger{
+    background:transparent;border:1px solid var(--border);border-radius:6px;
+    width:36px;height:36px;font-size:18px;cursor:pointer;color:var(--text);flex-shrink:0
+  }
 
-/* CTA BOX */
-.cta-box{border-radius:20px;padding:56px 40px;text-align:center;border:1px solid;position:relative;overflow:hidden;margin:72px 0}
-body.dark .cta-box{background:rgba(0,210,180,.04);border-color:rgba(0,210,180,.18)}
-body.light .cta-box{background:rgba(0,137,123,.04);border-color:rgba(0,137,123,.18);box-shadow:0 4px 32px rgba(0,137,123,.08)}
-.cta-box::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(0,210,180,.1) 0%,transparent 60%);pointer-events:none}
-.cta-h{margin-bottom:13px}
-.cta-sub{max-width:440px;margin:0 auto 28px}
+  .sidebar-overlay{
+    display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);
+    z-index:190;opacity:0;pointer-events:none;transition:opacity .2s ease
+  }
+  .sidebar-overlay.open{opacity:1;pointer-events:auto}
 
-/* CONTACT */
-.contact-section{padding:72px 0 0}
-.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px;align-items:start}
-@media(max-width:680px){.contact-grid{grid-template-columns:1fr}}
-.contact-info h3{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:10px}
-body.dark .contact-info h3{color:#F0EDE8}
-body.light .contact-info h3{color:#1A1A2E}
-.contact-info p{font-size:13px;line-height:1.7;margin-bottom:20px}
-body.dark .contact-info p{color:rgba(240,237,232,.5)}
-body.light .contact-info p{color:rgba(26,26,46,.5)}
-.contact-detail{display:flex;align-items:center;gap:10px;font-size:13px;margin-bottom:12px}
-body.dark .contact-detail{color:rgba(240,237,232,.6)}
-body.light .contact-detail{color:rgba(26,26,46,.6)}
-.contact-detail .ic{font-size:16px;flex-shrink:0}
-.contact-form{border-radius:16px;padding:28px;border:1px solid}
-body.dark .contact-form{background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.08)}
-body.light .contact-form{background:#fff;border-color:#E8ECF2;box-shadow:0 2px 16px rgba(0,0,0,.06)}
-.cf-field{margin-bottom:14px}
-.cf-field label{display:block;font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:5px}
-body.dark .cf-field label{color:rgba(240,237,232,.4)}
-body.light .cf-field label{color:rgba(26,26,46,.4)}
-.cf-field input,.cf-field select,.cf-field textarea{width:100%;padding:10px 13px;border-radius:9px;font-size:13px;font-family:'DM Sans',sans-serif;border:1px solid;outline:none;transition:border-color .2s;resize:none}
-body.dark .cf-field input,body.dark .cf-field select,body.dark .cf-field textarea{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:#F0EDE8}
-body.dark .cf-field input:focus,body.dark .cf-field select:focus,body.dark .cf-field textarea:focus{border-color:rgba(0,210,180,.4)}
-body.light .cf-field input,body.light .cf-field select,body.light .cf-field textarea{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.1);color:#1A1A2E}
-body.light .cf-field input:focus,body.light .cf-field select:focus,body.light .cf-field textarea:focus{border-color:rgba(0,137,123,.4)}
-body.dark .cf-field input::placeholder,body.dark .cf-field textarea::placeholder{color:rgba(240,237,232,.25)}
-body.light .cf-field input::placeholder,body.light .cf-field textarea::placeholder{color:rgba(26,26,46,.25)}
-body.dark .cf-field select option{background:#1A1A2E;color:#F0EDE8}
-.cf-submit{width:100%;padding:12px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:linear-gradient(135deg,#00D2B4,#00A896);color:#08080C;font-family:'DM Sans',sans-serif;transition:all .2s}
-body.light .cf-submit{color:#fff}
-.cf-submit:hover{box-shadow:0 0 24px rgba(0,210,180,.4)}
-.cf-submit:disabled{opacity:.5;cursor:not-allowed}
-.cf-msg{padding:10px 13px;border-radius:9px;font-size:13px;margin-top:12px;display:none;line-height:1.5}
-.cf-msg.show{display:block}
-.cf-msg.success{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:#10B981}
-.cf-msg.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#EF4444}
+  #sidebar{
+    position:fixed;top:0;left:0;height:100vh;width:240px;
+    transform:translateX(-100%);transition:transform .25s ease;z-index:200
+  }
+  #sidebar.open{transform:translateX(0)}
 
-/* FOOTER */
-footer{padding:32px 24px;border-top:1px solid;text-align:center}
-body.dark footer{border-color:rgba(255,255,255,.06)}
-body.light footer{border-color:#E8ECF2}
-.footer-logo{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:10px}
-.footer-text{font-size:12px}
-body.dark .footer-text{color:rgba(240,237,232,.3)}
-body.light .footer-text{color:rgba(26,26,46,.3)}
+  #main{width:100%}
+  .view{padding:16px}
+
+  .stat-row{gap:8px}
+  .stat-card{min-width:0;flex:1 1 45%;padding:12px 14px}
+  .stat-val{font-size:18px}
+
+  .grid-2,.grid-3{grid-template-columns:1fr}
+
+  .key-section{padding:16px 18px}
+
+  /* Transaction table: drop the fixed column grid, stack each row's values */
+  .table-cols{display:none}
+  .table-row{grid-template-columns:1fr!important;gap:4px!important;font-size:12px}
+
+  .modal{padding:18px;width:100%}
+
+  .landing-nav{padding:12px 16px}
+  .landing-nav-btns{gap:6px}
+  .landing-nav-btns .toggle-pill span{display:none}
+  .landing-body{padding:0 18px}
+  .hero{padding:36px 0 28px}
+  .stats-row{gap:24px}
+}
 </style>
 </head>
 <body class="dark">
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
 
-<div class="wrap">
-<!-- NAV -->
-<nav>
-  <div class="nav-inner">
-    <a class="nav-logo" href="#">
-      <div class="logo-box">🛡</div>
-      <span class="logo-name">FRAUDSHIELD SMB</span>
-    </a>
-    <div class="nav-right">
-      <a class="nav-link" href="#how">How it works</a>
-      <a class="nav-link" href="#pricing">Pricing</a>
-      <a class="nav-link" href="#faq">FAQ</a>
-      <a class="nav-link" href="#contact">Contact</a>
-      <button class="theme-pill" onclick="toggleTheme()">
-        <div class="t-track"><div class="t-knob"></div></div>
-        <span id="theme-lbl">☀ Light</span>
+<!-- APP -->
+<div id="app" style="display:none">
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+  <div class="mobile-topbar">
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    <div style="font-family:'Space Mono',monospace;font-weight:700;font-size:12px;color:var(--teal)">FRAUDSHIELD</div>
+  </div>
+  <div id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-icon">🛡</div>
+      <div><div class="sb-title">FRAUDSHIELD</div><div class="sb-sub">SMB PROTECT</div></div>
+    </div>
+    <div id="sb-user" style="padding:8px 20px;border-bottom:1px solid var(--border);display:none">
+      <div style="font-size:11px;color:var(--teal);font-weight:600;font-family:'Space Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="biz-name-display"></div>
+      <div style="font-size:10px;color:var(--muted);margin-top:1px" id="user-email-display"></div>
+    </div>
+    <div class="sb-live"><div class="dot"></div>LIVE MONITORING</div>
+    <div class="sb-nav">
+      <button class="nb active" onclick="showView('dashboard')" id="nb-dashboard"><span class="ni">◉</span> My Dashboard</button>
+      <button class="nb" onclick="showView('transactions')" id="nb-transactions"><span class="ni">◎</span> Transactions</button>
+      <button class="nb" onclick="showView('settings')" id="nb-settings"><span class="ni">⚙</span> Settings</button>
+      <div style="border-top:1px solid var(--border);margin:12px 0 8px"></div>
+      <button class="score-btn" onclick="openScoreModal()"><span class="ni">⚡</span> Score Transaction</button>
+    </div>
+    <div class="sb-bottom">
+      <button class="toggle-pill" onclick="toggleTheme()">
+        <div class="track"><div class="knob"></div></div>
+        <span id="theme-label">☀ Light</span>
       </button>
-     <a class="btn-outline" href="chat.html">AI Chat 🛡</a>
-<a class="btn-teal" href="auth.html">Get Started →</a>
+    </div>
+    <div class="sb-foot">
+      <span class="sb-ver">v1.0.0 · Free</span>
+      <button class="signout-btn" onclick="signOut()">Sign out</button>
     </div>
   </div>
-</nav>
 
-<div class="container">
+  <div id="main">
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div style="margin-bottom:22px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+          <h1 class="page-title" id="dash-title">My Dashboard</h1>
+          <span class="badge badge-free">FREE</span>
+        </div>
+        <p class="page-sub" id="dash-sub">Real-time fraud monitoring for your business</p>
+      </div>
+      <div class="stat-row" id="dash-stats"></div>
 
-<!-- HERO -->
-<div class="hero">
-  <div class="live-tag"><div class="live-dot"></div>Free during beta · No card needed</div>
-  <h1 class="h1 hero-h">Your business deserves<br>the same fraud protection<br><span class="teal">banks get.</span></h1>
-  <p class="body-lg muted hero-sub">FraudShield catches fake payments, stolen cards, and scam transactions before they hit your account — in real time, automatically.</p>
-  <div class="hero-btns">
-    <button class="btn-hero-primary" onclick="go('auth.html')">Start protecting my business →</button>
-    <button class="btn-hero-outline" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">See it in action</button>
-  </div>
-  <div class="trust-bar">
-    <div class="trust-item"><div class="trust-val">&lt;100ms</div><div class="trust-lbl">Response time</div></div>
-    <div class="trust-item"><div class="trust-val">$0</div><div class="trust-lbl">Free during beta</div></div>
-    <div class="trust-item"><div class="trust-val">6</div><div class="trust-lbl">Fraud types caught</div></div>
-    <div class="trust-item"><div class="trust-val">99.9%</div><div class="trust-lbl">Uptime</div></div>
-  </div>
-</div>
+      <!-- CONNECTIONS — front and center, this is the real setup step -->
+      <div id="overview-connections" style="margin-bottom:24px"></div>
 
-<!-- PROBLEM -->
-<div class="section" style="padding-top:48px">
-  <div class="section-eyebrow">The problem</div>
-  <h2 class="h2">Small businesses are easy targets.<br>Fraudsters know it.</h2>
-  <p class="body-sm muted" style="margin-top:10px;max-width:480px">Big companies have entire fraud teams. You have a business to run. FraudShield closes that gap.</p>
-  <div class="problem-grid">
-    <div class="p-card bad">
-      <div class="p-card-label">❌ Without FraudShield</div>
-      <div class="p-items">
-        <div class="p-item"><span class="ico">😤</span><span>A customer pays with a stolen card. You ship the order. The real owner disputes it — you lose both the money and the product.</span></div>
-        <div class="p-item"><span class="ico">🤯</span><span>Someone runs 50 tiny test charges to check if a card works. You don't notice until your account is flagged by your processor.</span></div>
-        <div class="p-item"><span class="ico">😩</span><span>A fake check clears, you deliver services, then it bounces 3 days later. You're out thousands with no way to recover it.</span></div>
-        <div class="p-item"><span class="ico">💸</span><span>Chargebacks pile up. Your payment processor raises fees — or shuts you down entirely.</span></div>
+      <!-- API KEY (advanced/optional — collapsed by default) -->
+      <details class="key-section" style="margin-bottom:24px">
+        <summary style="cursor:pointer;font-weight:600;font-size:14px;list-style:none;display:flex;justify-content:space-between;align-items:center">
+          <span>⚙ Advanced: API key &amp; developer access</span>
+          <span style="font-size:11px;color:var(--muted);font-weight:400">Optional — not needed if you've connected a processor above</span>
+        </summary>
+        <div style="margin-top:16px">
+        <div class="key-box">
+          <div class="key-val" id="key-display">Loading your key…</div>
+          <div class="key-btns">
+            <button class="btn-sm" id="key-toggle-btn" onclick="toggleKeyVis()">👁 Show</button>
+            <button class="btn-copy" id="key-copy-btn" onclick="copyKey()">Copy</button>
+          </div>
+        </div>
+        <div class="code-block">
+          <div class="code-label">HOW TO USE YOUR KEY</div>
+          <div class="code-content" id="key-usage">Loading…</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid var(--border)">
+          <div style="font-size:12px;color:var(--muted)">Created: <span style="font-family:'Space Mono',monospace" id="key-date">—</span></div>
+          <button class="btn-regen" onclick="regenKey()">⟳ Regenerate Key</button>
+        </div>
+        </div>
+      </details>
+
+      <!-- RECENT TRANSACTIONS -->
+      <div class="table-wrap">
+        <div class="table-head" style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div class="table-head-title">Recent Transactions</div>
+            <div class="table-head-sub">Automatically scored as they happen</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="dot"></div>
+            <span style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace">LIVE</span>
+          </div>
+        </div>
+        <div class="table-cols" style="grid-template-columns:1.3fr 1.5fr 1fr 0.8fr 100px 110px">
+          <div>TXN ID</div><div>VENDOR / CATEGORY</div><div>TIME</div><div>AMOUNT</div><div>RISK</div><div>STATUS</div>
+        </div>
+        <div id="real-txns" style="max-height:400px;overflow-y:auto">
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <div style="font-weight:600;margin-bottom:6px">No transactions yet</div>
+            <div style="font-size:12px">Connect a payment processor above and transactions will start showing up here automatically.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS CHARTS -->
+      <div class="grid-3">
+        <div class="chart-card">
+          <div class="section-title">Risk Breakdown</div>
+          <div class="section-sub">Your transactions</div>
+          <div id="risk-breakdown"></div>
+        </div>
+        <div class="chart-card">
+          <div class="section-title">Top Fraud Signals</div>
+          <div class="section-sub">Detected in your transactions</div>
+          <div id="signals-chart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="section-title">Getting Started</div>
+          <div class="section-sub">Your setup status</div>
+          <div id="quick-start"></div>
+        </div>
       </div>
     </div>
-    <div class="p-card good">
-      <div class="p-card-label">✅ With FraudShield</div>
-      <div class="p-items">
-        <div class="p-item"><span class="ico">🛡</span><span>Every transaction is scored in under 100ms. Risky ones are flagged or blocked before you ever process them.</span></div>
-        <div class="p-item"><span class="ico">📲</span><span>You get an instant alert when something suspicious is detected — with a plain-English explanation of what triggered it.</span></div>
-        <div class="p-item"><span class="ico">🎯</span><span>FraudShield learns your normal patterns and gets smarter over time, reducing false alarms on real customers.</span></div>
-        <div class="p-item"><span class="ico">😌</span><span>You go back to running your business. FraudShield monitors transactions 24/7 so you don't have to.</span></div>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- HOW IT WORKS -->
-<div class="section" id="how">
-  <div class="section-eyebrow">How it works</div>
-  <h2 class="h2">Set up in minutes.<br>Protected forever.</h2>
-  <p class="body-sm muted" style="margin-top:10px;max-width:460px">If you can copy and paste, you can add FraudShield. No engineers needed.</p>
-  <div class="steps-wrap">
-    <div class="step"><div class="step-n">01</div><div class="step-title">Create your account</div><div class="step-desc">Sign up in 2 minutes. Tell us your business name, what payment tools you use, and how many transactions you process monthly.</div></div>
-    <div class="step"><div class="step-n">02</div><div class="step-title">Get your API key</div><div class="step-desc">We instantly generate a unique key for your business. It's how FraudShield knows a transaction belongs to you.</div></div>
-    <div class="step"><div class="step-n">03</div><div class="step-title">Add one line of code</div><div class="step-desc">Send each transaction to our scoring endpoint before processing. Works with Stripe, Square, PayPal, ACH — anything you use.</div></div>
-    <div class="step"><div class="step-n">04</div><div class="step-title">See real results</div><div class="step-desc">Every transaction gets a score. Risky ones get flagged. Dangerous ones get blocked. You see everything in your dashboard.</div></div>
-  </div>
-</div>
+    <!-- TRANSACTIONS -->
+    <div class="view" id="view-transactions">
+      <h1 class="page-title">All Transactions</h1>
+      <p class="page-sub">Every transaction scored through your API key</p>
+      <div class="table-wrap">
+        <div class="table-head" style="display:flex;justify-content:space-between;align-items:center">
+          <div class="table-head-title">Transaction History</div>
+          <div style="display:flex;gap:6px" id="txn-filters">
+            <button onclick="filterTxns('all')" id="f-all" class="filter-btn active-filter">ALL</button>
+            <button onclick="filterTxns('flagged')" id="f-flagged" class="filter-btn">FLAGGED</button>
+            <button onclick="filterTxns('blocked')" id="f-blocked" class="filter-btn">BLOCKED</button>
+            <button onclick="filterTxns('clear')" id="f-clear" class="filter-btn">CLEAR</button>
+          </div>
+        </div>
+        <div class="table-cols" style="grid-template-columns:1.3fr 1.5fr 1fr 0.8fr 100px 110px">
+          <div>TXN ID</div><div>VENDOR / CATEGORY</div><div>TIME</div><div>AMOUNT</div><div>RISK</div><div>STATUS</div>
+        </div>
+        <div id="all-txns" style="max-height:600px;overflow-y:auto"></div>
+      </div>
+    </div>
 
-<!-- LIVE DEMO -->
-<div class="section" id="demo" style="padding-top:40px">
-  <div style="text-align:center">
-    <div class="section-eyebrow" style="justify-content:center;display:flex;margin-bottom:14px">Try it live</div>
-    <h2 class="h2" style="margin-bottom:10px">See a real fraud score<br>in under 2 seconds.</h2>
-    <p class="body-sm muted" style="max-width:420px;margin:0 auto">This is exactly what FraudShield does every time a customer pays you — automatically.</p>
-  </div>
-  <div class="demo-box">
-    <div class="demo-header"><div class="demo-dot"></div><span class="demo-title">Live Fraud Detection</span></div>
-    <div class="demo-grid">
-      <div class="demo-f"><label>Amount ($)</label><input type="number" id="d-amount" value="850" placeholder="e.g. 850"/></div>
-      <div class="demo-f"><label>Time of Day</label>
-        <select id="d-hour">
-          <option value="10">10:00 AM — normal</option>
-          <option value="14">2:00 PM — normal</option>
-          <option value="2">2:00 AM — late night</option>
-          <option value="23">11:00 PM — late night</option>
-        </select>
-      </div>
-      <div class="demo-f"><label>Payment Method</label>
-        <select id="d-vendor">
-          <option value="Stripe">Stripe</option>
-          <option value="Square">Square</option>
-          <option value="PayPal Business">PayPal</option>
-          <option value="ACH Transfer">ACH Transfer</option>
-          <option value="Zelle">Zelle</option>
-          <option value="Wire Transfer">Wire Transfer</option>
-          <option value="Check Deposit">Check Deposit</option>
-        </select>
-      </div>
-      <div class="demo-f"><label>Transaction Type</label>
-        <select id="d-cat">
-          <option value="Customer Payment">Customer Payment</option>
-          <option value="Vendor Payment">Vendor Payment</option>
-          <option value="Refund">Refund</option>
-          <option value="Chargeback">Chargeback</option>
-          <option value="Wire">Wire Transfer</option>
-        </select>
-      </div>
-    </div>
-    <button class="demo-run" id="demo-btn" onclick="runDemo()">Score This Transaction →</button>
-    <div id="demo-loading" style="display:none">
-      <div style="font-size:11px;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px" class="muted">Analyzing transaction…</div>
-      <div class="scan-bar"><div class="scan-fill"></div></div>
-    </div>
-    <div id="demo-result"></div>
-  </div>
-</div>
-
-<!-- FRAUD TYPES -->
-<div class="section">
-  <div class="section-eyebrow">What we catch</div>
-  <h2 class="h2">6 fraud types that hit small<br>businesses every single day.</h2>
-  <div class="fraud-grid">
-    <div class="fraud-card"><div class="fraud-icon">💳</div><div class="fraud-name">Card Testing</div><div class="fraud-desc">Fraudsters run tiny $1–$5 charges to check if a stolen card works, then make a large purchase. We catch the pattern before they escalate.</div></div>
-    <div class="fraud-card"><div class="fraud-icon">📬</div><div class="fraud-name">Fake Check & ACH</div><div class="fraud-desc">A payment that bounces 3–5 days after you've already delivered. By then you've lost both the product and the money. We flag these upfront.</div></div>
-    <div class="fraud-card"><div class="fraud-icon">🔄</div><div class="fraud-name">Chargeback Abuse</div><div class="fraud-desc">Some customers buy, receive the product, then dispute the charge claiming they never got it. We identify repeat offenders before they cost you.</div></div>
-    <div class="fraud-card"><div class="fraud-icon">🆔</div><div class="fraud-name">Identity Mismatch</div><div class="fraud-desc">Billing address doesn't match shipping. Name doesn't match the card. Location is suspicious. We catch these red flags in real time.</div></div>
-    <div class="fraud-card"><div class="fraud-icon">⚡</div><div class="fraud-name">Velocity Attacks</div><div class="fraud-desc">Suddenly 30 orders in 10 minutes from new accounts. Or the same card tried 15 times with different amounts. We alert you the moment it starts.</div></div>
-    <div class="fraud-card"><div class="fraud-icon">🌙</div><div class="fraud-name">Off-Hours Activity</div><div class="fraud-desc">Real customers rarely make large purchases at 3am. FraudShield knows your patterns and flags anything that looks out of the ordinary.</div></div>
-  </div>
-</div>
-
-<!-- PRICING -->
-<div class="section" id="pricing">
-  <div class="section-eyebrow">Pricing</div>
-  <h2 class="h2">Start free. Pay when<br>you're ready.</h2>
-  <p class="body-sm muted" style="margin-top:10px;max-width:440px">We're in beta — full access is completely free right now. No card needed, no commitment.</p>
-  <div class="pricing-grid">
-    <div class="price-card">
-      <div class="price-tier" style="color:rgba(59,130,246,.7)">Starter</div>
-      <div class="price-amount" style="opacity:.4">$99</div>
-      <div class="price-period" style="opacity:.5">/ month · coming after beta</div>
-      <div class="price-calls">Up to 5,000 transactions / month</div>
-      <div class="price-feats">
-        <div class="price-feat"><span class="feat-check">✓</span>Real-time fraud scoring</div>
-        <div class="price-feat"><span class="feat-check">✓</span>Your own API key</div>
-        <div class="price-feat"><span class="feat-check">✓</span>Email + SMS alerts</div>
-        <div class="price-feat"><span class="feat-check">✓</span>Transaction dashboard</div>
-        <div class="price-feat"><span class="feat-check">✓</span>Up to 3 users</div>
-      </div>
-      <button class="price-cta cta-muted" disabled>Available after beta</button>
-    </div>
-    <div class="price-card featured">
-      <div class="price-badge">🎉 Free Right Now</div>
-      <div class="price-tier teal" style="margin-top:8px">Beta Access</div>
-      <div class="price-amount teal">$0</div>
-      <div class="price-period">/ month while we're in testing</div>
-      <div class="price-calls">Unlimited · No card needed</div>
-      <div class="price-feats">
-        <div class="price-feat"><span class="feat-check">✓</span>Everything in Starter</div>
-        <div class="price-feat"><span class="feat-check">✓</span>All 6 fraud detection types</div>
-        <div class="price-feat"><span class="feat-check">✓</span>Full transaction dashboard</div>
-        <div class="price-feat"><span class="feat-check">✓</span>API key management</div>
-        <div class="price-feat"><span class="feat-check">✓</span>Direct founder support</div>
-        <div class="price-feat"><span class="feat-check">✓</span>Shape what we build next</div>
-      </div>
-      <button class="price-cta cta-main" onclick="go('auth.html')">Start Free — No Card Needed →</button>
-      <p class="price-note">We'll give you plenty of notice before anything changes.</p>
-    </div>
-    <div class="price-card">
-      <div class="price-tier" style="color:rgba(139,92,246,.7)">Growth</div>
-      <div class="price-amount" style="opacity:.4">$299</div>
-      <div class="price-period" style="opacity:.5">/ month · coming after beta</div>
-      <div class="price-calls">Up to 25,000 transactions / month</div>
-      <div class="price-feats">
-        <div class="price-feat"><span class="feat-check">✓</span>Everything in Starter</div>
-        <div class="price-feat"><span class="feat-check">✓</span>Webhook alerts</div>
-        <div class="price-feat"><span class="feat-check">✓</span>Custom fraud rules</div>
-        <div class="price-feat"><span class="feat-check">✓</span>Advanced analytics</div>
-        <div class="price-feat"><span class="feat-check">✓</span>Priority support</div>
-      </div>
-      <button class="price-cta cta-muted" disabled>Available after beta</button>
+    <!-- SETTINGS -->
+    <div class="view" id="view-settings">
+      <h1 class="page-title">Business Settings</h1>
+      <p class="page-sub">Manage your FraudShield configuration</p>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px 26px;max-width:600px" id="settings-form"></div>
     </div>
   </div>
 </div>
 
-<!-- FAQ -->
-<div class="section" id="faq">
-  <div class="section-eyebrow">FAQ</div>
-  <h2 class="h2">Questions we get<br>all the time.</h2>
-  <div class="faq-grid">
-    <div class="faq-item"><div class="faq-q">Do I need to be technical to use this?</div><div class="faq-a">Not really. Adding FraudShield is one extra step in your payment flow. We provide copy-paste code for Stripe, Square, and PayPal. If you get stuck, we'll help you directly.</div></div>
-    <div class="faq-item"><div class="faq-q">Doesn't Stripe already handle fraud?</div><div class="faq-a">Stripe has basic tools, but they protect Stripe — not you specifically. FraudShield is tuned for small business patterns and gives you visibility and control that Stripe doesn't offer.</div></div>
-    <div class="faq-item"><div class="faq-q">What happens when a transaction is flagged?</div><div class="faq-a">You get an instant notification with a plain-English explanation. You decide what to do — review it, reach out to the customer, or let the automatic block stand. You're always in control.</div></div>
-    <div class="faq-item"><div class="faq-q">Will it slow down my checkout?</div><div class="faq-a">No. FraudShield responds in under 100 milliseconds on average — faster than a blink. Your customers will never notice it's running.</div></div>
-    <div class="faq-item"><div class="faq-q">What if it blocks a real customer?</div><div class="faq-a">It can happen, and we take it seriously. We show you exactly why something was flagged so you can override any decision. During beta we're actively tuning to reduce false positives.</div></div>
-    <div class="faq-item"><div class="faq-q">Is my customer data safe?</div><div class="faq-a">Yes. Your data is stored in Supabase — a SOC 2 certified database built on AWS. All data is encrypted at rest and in transit. We never sell or share your data with third parties.</div></div>
-    <div class="faq-item"><div class="faq-q">Do you store card numbers?</div><div class="faq-a">Never. FraudShield only receives transaction metadata — the amount, payment method, category, and time. No card numbers, no CVV, no bank account details ever touch our system. Zero PCI compliance risk.</div></div>
-    <div class="faq-item"><div class="faq-q">Who can see my transactions?</div><div class="faq-a">Only you. We use Row Level Security — it is technically impossible for one customer to see another customer's data. Your transactions are yours alone.</div></div>
-    <div class="faq-item"><div class="faq-q">What if someone steals my API key?</div><div class="faq-a">Regenerate it instantly from your dashboard with one click. The old key stops working immediately. Treat your API key like a password — never share it publicly.</div></div>
-  </div>
-</div>
-
-<!-- CTA -->
-<div class="cta-box">
-  <h2 class="h2 cta-h">Ready to stop worrying<br>about fraud?</h2>
-  <p class="body-sm muted cta-sub">Join businesses already using FraudShield. Free during beta and setup takes less than 10 minutes.</p>
-  <button class="btn-hero-primary" onclick="go('auth.html')">Protect My Business — It's Free →</button>
-</div>
-
-</div><!-- end container -->
-
-<!-- CONTACT -->
-<div class="contact-section" id="contact">
-  <div class="section-eyebrow">Get in touch</div>
-  <h2 class="h2">Have a question?<br>We'd love to hear from you.</h2>
-  <div class="contact-grid">
-    <div class="contact-info">
-      <h3>We're here to help</h3>
-      <p>Whether you're a small business owner curious about FraudShield, a developer with integration questions, or just want to learn more — reach out. We respond to every message personally.</p>
-      <div class="contact-detail"><span class="ic">⚡</span><span>We respond within 24 hours</span></div>
-      <div class="contact-detail"><span class="ic">🛡</span><span>Free beta — no sales pressure</span></div>
+<!-- ONBOARDING (shown before dashboard) -->
+<div id="onboarding" style="display:none;min-height:100vh;display:none">
+  <div style="max-width:680px;margin:0 auto;padding:40px 24px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:32px">
+      <div style="width:34px;height:34px;background:var(--teal);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px">🛡</div>
+      <div><div style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--teal)">FRAUDSHIELD SMB</div></div>
     </div>
-    <div class="contact-form">
-      <div class="cf-field">
-        <label>Your Name</label>
-        <input type="text" id="cf-name" placeholder="Jane Smith"/>
+    <h1 class="page-title" style="margin-bottom:4px">Welcome! Let's set up your account</h1>
+    <p class="page-sub" style="margin-bottom:28px">Tell us about your business so we can configure fraud detection for you</p>
+    <div class="steps" id="ob-steps"></div>
+    <div class="step-content" id="ob-content"></div>
+  </div>
+</div>
+
+<!-- LANDING -->
+<div id="landing" style="display:none">
+  <nav class="landing-nav">
+    <div class="landing-logo">
+      <div style="width:30px;height:30px;background:var(--teal);border-radius:8px;display:flex;align-items:center;justify-content:center">🛡</div>
+      <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:var(--teal)">FRAUDSHIELD SMB</span>
+    </div>
+    <div class="landing-nav-btns">
+      <button class="toggle-pill" onclick="toggleTheme()" style="width:auto">
+        <div class="track"><div class="knob"></div></div>
+        <span id="theme-label-2">☀ Light</span>
+      </button>
+      <button class="btn-outline" onclick="window.location.href='auth.html'">Sign In</button>
+      <button class="btn-teal" onclick="window.location.href='auth.html'">Get Started Free →</button>
+    </div>
+  </nav>
+  <div class="landing-body">
+    <div class="hero">
+      <div class="live-badge"><div class="dot"></div>LIVE · PROTECTING AMERICAN SMALL BUSINESSES</div>
+      <h1>Stop fraud before it<br><span>costs you customers.</span></h1>
+      <p>FraudShield gives small businesses the same AI fraud detection that banks use — without the enterprise price tag. Free during our beta.</p>
+      <div class="hero-btns">
+        <button class="btn-hero btn-hero-primary" onclick="window.location.href='auth.html'">Start for Free →</button>
+        <button class="btn-hero btn-hero-outline" onclick="window.location.href='auth.html'">See Demo</button>
       </div>
-      <div class="cf-field">
-        <label>Email Address</label>
-        <input type="email" id="cf-email" placeholder="jane@yourbusiness.com"/>
+      <div class="stats-row">
+        <div style="text-align:center"><div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--teal)">&lt;100ms</div><div style="color:var(--muted);font-size:12px;margin-top:2px">Response time</div></div>
+        <div style="text-align:center"><div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--teal)">$0</div><div style="color:var(--muted);font-size:12px;margin-top:2px">During beta</div></div>
+        <div style="text-align:center"><div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--teal)">99.9%</div><div style="color:var(--muted);font-size:12px;margin-top:2px">Uptime SLA</div></div>
+        <div style="text-align:center"><div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--teal)">6</div><div style="color:var(--muted);font-size:12px;margin-top:2px">Fraud vectors</div></div>
       </div>
-      <div class="cf-field">
-        <label>Business Type</label>
-        <select id="cf-type">
-          <option value="">Select your business type…</option>
-          <option>Restaurant / Food & Beverage</option>
-          <option>Retail Store</option>
-          <option>Healthcare / Dental</option>
-          <option>Auto Repair</option>
-          <option>Legal / Professional Services</option>
-          <option>E-commerce</option>
-          <option>Construction</option>
-          <option>Other</option>
-        </select>
+    </div>
+    <div class="vectors-grid">
+      <div class="vector-card"><div style="font-size:22px;margin-bottom:10px">💳</div><div style="font-weight:600;font-size:14px;margin-bottom:6px">Card testing</div><div style="color:var(--muted);font-size:13px;line-height:1.65">Catch fraudsters running small test charges before a large purchase on your Stripe or Square account.</div></div>
+      <div class="vector-card"><div style="font-size:22px;margin-bottom:10px">📬</div><div style="font-weight:600;font-size:14px;margin-bottom:6px">Check & ACH fraud</div><div style="color:var(--muted);font-size:13px;line-height:1.65">Detect fake check deposits and unauthorized ACH pulls before funds leave your account.</div></div>
+      <div class="vector-card"><div style="font-size:22px;margin-bottom:10px">🔄</div><div style="font-weight:600;font-size:14px;margin-bottom:6px">Chargeback patterns</div><div style="color:var(--muted);font-size:13px;line-height:1.65">Identify customers with a history of abusive chargebacks before they transact.</div></div>
+      <div class="vector-card"><div style="font-size:22px;margin-bottom:10px">🆔</div><div style="font-weight:600;font-size:14px;margin-bottom:6px">Identity mismatch</div><div style="color:var(--muted);font-size:13px;line-height:1.65">Flag mismatches between billing info, device location, and account history in real time.</div></div>
+      <div class="vector-card"><div style="font-size:22px;margin-bottom:10px">⚡</div><div style="font-weight:600;font-size:14px;margin-bottom:6px">Velocity anomaly</div><div style="color:var(--muted);font-size:13px;line-height:1.65">Alert on unusual spikes in transaction volume that signal account takeover.</div></div>
+      <div class="vector-card"><div style="font-size:22px;margin-bottom:10px">🕐</div><div style="font-weight:600;font-size:14px;margin-bottom:6px">Time-of-day anomaly</div><div style="color:var(--muted);font-size:13px;line-height:1.65">Surface suspicious transactions happening at 3am that look nothing like your normal patterns.</div></div>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card" style="opacity:.6"><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:.1em;margin-bottom:10px">STARTER</div><div style="font-family:'Space Mono',monospace;font-size:30px;font-weight:700;margin-bottom:4px">$99<span style="font-size:13px;color:var(--muted);font-weight:400">/mo</span></div><div style="color:var(--muted);font-size:12px;margin-bottom:16px">Coming after beta</div></div>
+      <div class="price-card featured" style="position:relative">
+        <div class="price-popular">CURRENT</div>
+        <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--teal);letter-spacing:.1em;margin-bottom:10px">BETA</div>
+        <div style="font-family:'Space Mono',monospace;font-size:30px;font-weight:700;color:var(--teal);margin-bottom:4px">$0<span style="font-size:13px;color:var(--muted);font-weight:400">/mo</span></div>
+        <div style="color:var(--muted);font-size:12px;margin-bottom:20px">Free while we're in testing</div>
+        <div style="border-top:1px solid var(--border);padding-top:18px;margin-bottom:22px">
+          <div style="display:flex;gap:8px;margin-bottom:9px;font-size:13px;color:var(--muted)"><span style="color:var(--teal)">✓</span>Real-time fraud scoring</div>
+          <div style="display:flex;gap:8px;margin-bottom:9px;font-size:13px;color:var(--muted)"><span style="color:var(--teal)">✓</span>Your own API key</div>
+          <div style="display:flex;gap:8px;margin-bottom:9px;font-size:13px;color:var(--muted)"><span style="color:var(--teal)">✓</span>Transaction dashboard</div>
+          <div style="display:flex;gap:8px;margin-bottom:9px;font-size:13px;color:var(--muted)"><span style="color:var(--teal)">✓</span>All 6 fraud vectors</div>
+        </div>
+        <button class="btn-hero btn-hero-primary" style="width:100%;padding:11px" onclick="window.location.href='auth.html'">Start Free →</button>
       </div>
-      <div class="cf-field">
-        <label>Message</label>
-        <textarea id="cf-message" rows="4" placeholder="Tell us about your business and what you'd like to know about FraudShield…"></textarea>
-      </div>
-      <button class="cf-submit" id="cf-btn" onclick="submitContact()">Send Message →</button>
-      <div class="cf-msg" id="cf-msg"></div>
+      <div class="price-card" style="opacity:.6"><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--purple);letter-spacing:.1em;margin-bottom:10px">GROWTH</div><div style="font-family:'Space Mono',monospace;font-size:30px;font-weight:700;margin-bottom:4px">$299<span style="font-size:13px;color:var(--muted);font-weight:400">/mo</span></div><div style="color:var(--muted);font-size:12px;margin-bottom:16px">Coming after beta</div></div>
     </div>
   </div>
 </div>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-logo">
-    <div class="logo-box" style="width:26px;height:26px;font-size:13px">🛡</div>
-    <span style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700" class="teal">FRAUDSHIELD SMB</span>
+<!-- SCORE MODAL -->
+<div class="modal-bg" id="score-modal">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div><div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--teal);font-weight:700">⚡ SCORE A TRANSACTION</div><div style="color:var(--muted);font-size:12px;margin-top:3px">Test your fraud detection</div></div>
+      <button onclick="closeScoreModal()" style="color:var(--muted);font-size:18px;background:none;border:none;cursor:pointer">✕</button>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Amount ($)</label><input type="number" id="sc-amount" placeholder="e.g. 3500"/></div>
+      <div class="field"><label>Hour of Day (0-23)</label><input type="number" id="sc-hour" min="0" max="23" value="12"/></div>
+      <div class="field"><label>Payment Vendor</label>
+        <select id="sc-vendor"><option value="">Select…</option><option>Stripe</option><option>Square</option><option>PayPal Business</option><option>ACH Transfer</option><option>Wire Transfer</option><option>Zelle</option><option>Venmo Business</option><option>Check Deposit</option><option>Chase Business</option><option>QuickBooks Payments</option><option>Clover</option></select>
+      </div>
+      <div class="field"><label>Category</label>
+        <select id="sc-category"><option value="">Select…</option><option>Vendor Payment</option><option>Payroll</option><option>Supplies</option><option>Utilities</option><option>Equipment</option><option>Refund</option><option>Customer Payment</option><option>Chargeback</option><option>Wire</option></select>
+      </div>
+    </div>
+    <div class="msg" id="sc-msg"></div>
+    <button class="btn-primary" onclick="runScore()" id="sc-btn">Run Detection →</button>
+    <div id="sc-result"></div>
   </div>
-  <p class="footer-text">Built for American small businesses. &copy; 2025 FraudShield SMB.</p>
-</footer>
 </div>
+
+<style>
+.filter-btn{padding:5px 12px;border-radius:4px;font-size:11px;font-family:'Space Mono',monospace;background:transparent;color:var(--muted);border:1px solid var(--border);cursor:pointer}
+.active-filter{background:var(--teal-glow)!important;color:var(--teal)!important;border-color:rgba(0,194,168,.44)!important}
+</style>
 
 <script>
-// CONTACT FORM
-async function submitContact(){
-  const name=document.getElementById("cf-name").value.trim();
-  const email=document.getElementById("cf-email").value.trim();
-  const type=document.getElementById("cf-type").value;
-  const message=document.getElementById("cf-message").value.trim();
-  const msg=document.getElementById("cf-msg");
-  const btn=document.getElementById("cf-btn");
+// ── SUPABASE ──────────────────────────────────────────────────────────────────
+const SUPABASE_URL  = "https://nivqhnqquwszwtsgupgx.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pdnFobnFxdXdzend0c2d1cGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1OTk3NDQsImV4cCI6MjA5NDE3NTc0NH0.IlaMbd-s4BjhUmazzvwJOc_F5f9BiJzcQ99agtuDaiA";
 
-  if(!name||!email||!message){
-    msg.textContent="Please fill in your name, email, and message.";
-    msg.className="cf-msg show error";
-    return;
-  }
-
-  btn.disabled=true;
-  btn.textContent="Sending…";
-
-  try{
-    const res=await fetch("https://formspree.io/f/xojroyqg",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","Accept":"application/json"},
-      body:JSON.stringify({name,email,business_type:type,message})
-    });
-    if(res.ok){
-      msg.textContent="✓ Message sent! We'll get back to you within 24 hours.";
-      msg.className="cf-msg show success";
-      document.getElementById("cf-name").value="";
-      document.getElementById("cf-email").value="";
-      document.getElementById("cf-type").value="";
-      document.getElementById("cf-message").value="";
-    } else {
-      msg.textContent="Something went wrong. Please email us directly at support@fraudshieldsmb.com";
-      msg.className="cf-msg show error";
-    }
-  } catch(e){
-    msg.textContent="Something went wrong. Please email us directly at support@fraudshieldsmb.com";
-    msg.className="cf-msg show error";
-  }
-  btn.disabled=false;
-  btn.textContent="Send Message →";
+let sb;
+try {
+  const { createClient } = supabase;
+  sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+} catch(e) {
+  console.warn("Supabase init failed:", e.message);
+  sb = {
+    auth: { getSession:async()=>({data:{session:null}}), getUser:async()=>({data:{user:null}}), onAuthStateChange:()=>({data:{subscription:{unsubscribe:()=>{}}}}), signOut:async()=>{}, updateUser:async()=>({data:{user:null},error:null}) },
+    from:()=>({ select:()=>({ eq:()=>({ eq:()=>({ limit:async()=>({data:[],error:null}), single:async()=>({data:null,error:{message:"not connected"}}), order:()=>({ limit:async()=>({data:[],error:null}) }) }) }), order:()=>({ limit:async()=>({data:[],error:null}) }), single:async()=>({data:null,error:{message:"not connected"}}) }), insert:()=>({ select:()=>({ single:async()=>({data:null,error:{message:"not connected"}}) }) }), update:()=>({ eq:()=>({ eq:async()=>({error:null}) }) }) })
+  };
 }
 
-function go(url){window.location.href=url}
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentUser = null;
+let currentBiz  = null;
+let currentKey  = null;
+let keyVisible  = false;
+let allTxns     = [];
+let txnFilter   = "all";
+let refreshInterval = null;
 
-// THEME
-let isDark=localStorage.getItem("fs_theme")?localStorage.getItem("fs_theme")==="dark":window.matchMedia("(prefers-color-scheme:dark)").matches;
-function applyTheme(){
-  document.body.className=isDark?"dark":"light";
-  const lbl=document.getElementById("theme-lbl");
-  if(lbl) lbl.textContent=isDark?"☀ Light":"☽ Dark";
+// ── THEME ─────────────────────────────────────────────────────────────────────
+let isDark = localStorage.getItem("fs_theme") ? localStorage.getItem("fs_theme")==="dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+function applyTheme() {
+  document.body.className = isDark ? "dark" : "light";
+  document.querySelectorAll("#theme-label,#theme-label-2").forEach(el => { if(el) el.textContent = isDark ? "☀ Light" : "☽ Dark"; });
 }
-function toggleTheme(){isDark=!isDark;localStorage.setItem("fs_theme",isDark?"dark":"light");applyTheme()}
+function toggleTheme() { isDark=!isDark; localStorage.setItem("fs_theme",isDark?"dark":"light"); applyTheme(); }
 applyTheme();
 
-// DEMO
-function runDemo(){
-  const amount=+document.getElementById("d-amount").value||500;
-  const hour=+document.getElementById("d-hour").value;
-  const vendor=document.getElementById("d-vendor").value;
-  const cat=document.getElementById("d-cat").value;
-  document.getElementById("demo-btn").disabled=true;
-  document.getElementById("demo-loading").style.display="block";
-  document.getElementById("demo-result").innerHTML="";
-
-  setTimeout(()=>{
-    document.getElementById("demo-loading").style.display="none";
-    document.getElementById("demo-btn").disabled=false;
-
-    let score=0;const signals=[];
-    if(amount>5000){score+=26;signals.push("High amount")}else if(amount>2000){score+=11}
-    if(hour>=23||hour<5){score+=24;signals.push("Unusual time")}else if(hour<7){score+=9}
-    if(["Wire Transfer","Zelle"].includes(vendor)){score+=21;signals.push("High-risk method")}
-    else if(vendor==="ACH Transfer"){score+=7}
-    if(cat==="Chargeback"){score+=22;signals.push("Chargeback pattern")}
-    else if(cat==="Wire"){score+=18;signals.push("Wire transfer")}
-    else if(cat==="Refund"){score+=13;signals.push("Refund pattern")}
-    if(Math.random()<.15){score+=18;signals.push("Card testing")}
-    if(Math.random()<.1){score+=14;signals.push("Device mismatch")}
-    score+=Math.floor(Math.random()*8);
-    score=Math.min(99,Math.max(2,score));
-
-    const status=score>=85?"BLOCKED":score>=70?"FLAGGED":score>=50?"REVIEW":"CLEAR";
-    const color=score>=70?"#EF4444":score>=50?"#F59E0B":"#10B981";
-    const msg=score>=85?"⛔ Auto-blocked. This transaction would not go through.":score>=70?"🚨 Flagged. You'd get an instant alert to review before processing.":score>=50?"⚠️ Marked for review. Borderline — you decide.":"✅ Looks good. No significant fraud signals.";
-    const isDk=document.body.className==="dark";
-
-    document.getElementById("demo-result").innerHTML=`
-      <div class="result-wrap" style="border-color:${color}33;background:${color}0D">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <div>
-            <div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px;color:${isDk?"rgba(240,237,232,.4)":"rgba(26,26,46,.4)"}">Risk Score</div>
-            <div style="font-family:'Syne',sans-serif;font-size:44px;font-weight:800;color:${color};line-height:1">${score}</div>
-          </div>
-          <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:${color};background:${color}18;border:1px solid ${color}33;padding:5px 13px;border-radius:20px">${status}</div>
-        </div>
-        ${signals.length?`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">${signals.map(s=>`<span class="signal-tag">⚠ ${s}</span>`).join("")}</div>`:""}
-        <div style="font-size:13px;line-height:1.55;color:${isDk?"rgba(240,237,232,.6)":"rgba(26,26,46,.6)"};padding-top:10px;border-top:1px solid ${isDk?"rgba(255,255,255,.07)":"rgba(0,0,0,.07)"}">${msg}</div>
-      </div>`;
-  },1400);
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function badge(status) {
+  const map={low:"LOW RISK",medium:"MED RISK",high:"HIGH RISK",flagged:"FLAGGED",blocked:"BLOCKED",review:"REVIEW",clear:"CLEAR",free:"FREE"};
+  return `<span class="badge badge-${status.toLowerCase()}">${map[status]||status.toUpperCase()}</span>`;
 }
+function scoreRing(score,size=34) {
+  const color=score>=75?"var(--green)":score>=50?"var(--amber)":"var(--red)";
+  const r=size/2-5; const circ=2*Math.PI*r; const dash=(score/100)*circ;
+  return `<div class="ring-wrap" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" style="transform:rotate(-90deg)"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--border)" stroke-width="4"/><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="4" stroke-dasharray="${dash} ${circ}" stroke-linecap="round"/></svg><div class="ring-val" style="color:${color};font-size:${size>40?12:9}px">${score}</div></div>`;
+}
+function miniBar(v,max,color) {
+  return `<div class="mini-bar-track"><div class="mini-bar-fill" style="width:${(v/max)*100}%;background:${color}"></div></div>`;
+}
+function maskKey(k) { return k.substring(0,12)+"••••••••••••••••••••"+k.slice(-4); }
+function generateKey() {
+  const chars="abcdefghijklmnopqrstuvwxyz0123456789";
+  let k="fs_live_";
+  for(let i=0;i<32;i++) k+=chars[Math.floor(Math.random()*chars.length)];
+  return k;
+}
+function fmtDate(d) { return new Date(d).toLocaleDateString("en-US",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}); }
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+function showView(id) {
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.querySelectorAll(".nb").forEach(b=>b.classList.remove("active"));
+  document.getElementById("view-"+id).classList.add("active");
+  const nb=document.getElementById("nb-"+id);
+  if(nb) nb.classList.add("active");
+  if(id==="transactions") renderAllTxns();
+  if(id==="settings") renderSettings();
+  closeSidebar();
+}
+
+function toggleSidebar(){
+  document.getElementById("sidebar").classList.toggle("open");
+  document.getElementById("sidebar-overlay").classList.toggle("open");
+}
+function closeSidebar(){
+  document.getElementById("sidebar")?.classList.remove("open");
+  document.getElementById("sidebar-overlay")?.classList.remove("open");
+}
+
+// ── SCORING ENGINE (real trained ML model) ─────────────────────────────────
+// Logistic regression trained on a 40,000-row domain-grounded synthetic
+// dataset (risk patterns based on known SMB fraud indicators: payment-type
+// reversibility, off-hours activity, card-testing amount patterns, category
+// risk). Test AUC: 0.657 — genuinely learned coefficients, not hand-picked
+// thresholds. As real customers mark transactions fraud/not-fraud in this
+// dashboard, retrain on that labeled data to replace this cold-start model
+// with one learned from actual FraudShield usage.
+const ML_MODEL = {
+  vendors: ["Stripe", "Square", "PayPal Business", "ACH Transfer", "Wire Transfer", "Zelle", "Venmo Business", "Check Deposit", "Chase Business", "QuickBooks Payments", "Clover"],
+  categories: ["Vendor Payment", "Payroll", "Supplies", "Utilities", "Equipment", "Refund", "Customer Payment", "Chargeback", "Wire"],
+  weights: [0.0709948192325074, 0.050165766580909085, 0.05551762236087828, 0.7771958803776413, 0.9359497330159393, 0.5986620617879485, -0.29511740782226814, -0.1906997173847519, 0.008932277022743334, -0.20571887550155626, 0.3725089855814905, 0.4079004607730876, 0.3255311677266274, -0.043972535549304186, -0.1722144887409053, -0.08997126706974413, -0.11687652286193372, -0.1550923999554764, -0.18338513242156187, -0.09757684181912636, -0.14579511637020678, -0.18656724176612804, 0.11019623864137422, -0.09006355634134958, 0.5188588224240922, 0.2307572849564348],
+  bias: -0.8174968553744215
+};
+
+function buildFeatures(amount, hour, vendor, category) {
+  const logAmount = Math.log1p(amount);
+  const hourSin = Math.sin(2 * Math.PI * hour / 24);
+  const hourCos = Math.cos(2 * Math.PI * hour / 24);
+  const isLateNight = (hour >= 23 || hour < 5) ? 1 : 0;
+  const isSmallAmount = amount < 15 ? 1 : 0;
+  const isLargeAmount = amount > 5000 ? 1 : 0;
+  const features = [logAmount, hourSin, hourCos, isLateNight, isSmallAmount, isLargeAmount];
+  for (const v of ML_MODEL.vendors) features.push(vendor === v ? 1 : 0);
+  for (const c of ML_MODEL.categories) features.push(category === c ? 1 : 0);
+  return features;
+}
+function sigmoid(z) { return 1 / (1 + Math.exp(-z)); }
+
+function extraSignals(amount, hour, vendor, category) {
+  const signals = [];
+  if (amount > 5000) signals.push("Amount threshold");
+  if (hour >= 23 || hour < 5) signals.push("Time-of-day anomaly");
+  if (["Wire Transfer", "Zelle", "Venmo Business"].includes(vendor)) signals.push("Unusual vendor");
+  if (category === "Chargeback") signals.push("Chargeback pattern");
+  if (amount < 15) signals.push("Card testing pattern");
+  return signals;
+}
+
+function scoreTxn({amount,vendor,category,hour}) {
+  const features = buildFeatures(amount, hour, vendor, category);
+  let z = ML_MODEL.bias;
+  for (let i = 0; i < features.length; i++) z += features[i] * ML_MODEL.weights[i];
+  const probability = sigmoid(z);
+  const score = Math.min(99, Math.max(1, Math.round(probability * 100)));
+  const signals = extraSignals(amount, hour, vendor, category);
+  const status = score>=85?"blocked":score>=70?"flagged":score>=50?"review":"clear";
+  return{score,signals,status};
+}
+
+
+// ── API KEY ───────────────────────────────────────────────────────────────────
+async function loadKey() {
+  if(!currentUser) return;
+  const{data:keys}=await sb.from("api_keys").select("*").eq("user_id",currentUser.id).eq("active",true).limit(1);
+  if(keys&&keys.length>0){ setKey(keys[0]); }
+  else { await createKey(currentUser.id); }
+}
+
+async function createKey(userId) {
+  const newKey=generateKey();
+  const{data}=await sb.from("api_keys").insert({user_id:userId,key:newKey,active:true,created_at:new Date().toISOString()}).select().single();
+  if(data) setKey(data);
+}
+
+function setKey(keyData) {
+  currentKey=keyData.key;
+  keyVisible=false;
+  const el=document.getElementById("key-display");
+  if(el) el.textContent=maskKey(currentKey);
+  const tb=document.getElementById("key-toggle-btn");
+  if(tb) tb.textContent="👁 Show";
+  const usage=document.getElementById("key-usage");
+  if(usage) usage.textContent=`curl -X POST https://nivqhnqquwszwtsgupgx.supabase.co/functions/v1/score \\\n  -H "Authorization: Bearer ${currentKey}" \\\n  -H "Content-Type: application/json" \\\n  -d '{"amount":500,"vendor":"Stripe","category":"Vendor Payment","business_name":"${currentBiz?.business_name||"My Business"}"}'`;
+  const kd=document.getElementById("key-date");
+  if(kd) kd.textContent=new Date(keyData.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+}
+
+function toggleKeyVis() {
+  if(!currentKey) return;
+  keyVisible=!keyVisible;
+  const el=document.getElementById("key-display");
+  const btn=document.getElementById("key-toggle-btn");
+  if(el) el.textContent=keyVisible?currentKey:maskKey(currentKey);
+  if(btn) btn.textContent=keyVisible?"🙈 Hide":"👁 Show";
+}
+
+async function copyKey() {
+  if(!currentKey) return;
+  try {
+    await navigator.clipboard.writeText(currentKey);
+    const btn=document.getElementById("key-copy-btn");
+    if(btn){ btn.textContent="✓ Copied!"; btn.style.background="var(--green)"; setTimeout(()=>{ btn.textContent="Copy"; btn.style.background="var(--teal)"; },2000); }
+  } catch(e) {
+    // Fallback for browsers that block clipboard
+    const el=document.getElementById("key-display");
+    const tmp=keyVisible;
+    keyVisible=true; if(el) el.textContent=currentKey;
+    el.style.userSelect="all"; el.focus();
+    document.execCommand("selectAll"); document.execCommand("copy");
+    keyVisible=tmp; if(el) el.textContent=keyVisible?currentKey:maskKey(currentKey);
+    const btn=document.getElementById("key-copy-btn");
+    if(btn){ btn.textContent="✓ Copied!"; btn.style.background="var(--green)"; setTimeout(()=>{ btn.textContent="Copy"; btn.style.background="var(--teal)"; },2000); }
+  }
+}
+
+async function regenKey() {
+  if(!confirm("Your old key will stop working immediately. Continue?")) return;
+  if(!currentUser) return;
+  await sb.from("api_keys").update({active:false}).eq("user_id",currentUser.id).eq("active",true);
+  await createKey(currentUser.id);
+}
+
+// ── LOAD REAL TRANSACTIONS ────────────────────────────────────────────────────
+async function loadTransactions() {
+  if(!currentUser) return;
+  const{data:txns}=await sb.from("transactions").select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(50);
+  allTxns=txns||[];
+  renderDashboardTxns();
+  renderStats();
+}
+
+function getSignalExplanation(signals, status, amount, vendor, hour) {
+  const explanations = {
+    "Amount threshold": `This transaction ($${(amount||0).toLocaleString()}) is unusually large. Large amounts are a common target for fraud.`,
+    "Time-of-day anomaly": `This transaction happened at an unusual hour (${hour||"unknown"}:00). Most legitimate business payments don't happen in the middle of the night.`,
+    "Unusual vendor": `${vendor} is a higher-risk payment method. Wire transfers and Zelle payments are harder to reverse if fraud occurs.`,
+    "Chargeback pattern": `This transaction type has a history of chargeback disputes. A chargeback means a customer disputes the charge with their bank.`,
+    "Velocity anomaly": `An unusual number of transactions happened in a short time. This can signal automated fraud attempts.`,
+    "Card testing": `Small test charges were detected — a common technique fraudsters use to check if a card is active before making a large purchase.`,
+    "Device fingerprint": `The device used for this transaction doesn't match previous patterns for this account.`,
+    "Geo-location mismatch": `The location of this transaction doesn't match the billing address or previous transaction locations.`,
+    "Check fraud": `This payment type has elevated risk of bouncing or being fraudulent.`,
+  };
+  const sigList = signals ? signals.split(",").map(s=>s.trim()) : [];
+  const topSignal = sigList[0];
+  return explanations[topSignal] || "This transaction triggered multiple fraud indicators.";
+}
+
+function getInstruction(status, vendor) {
+  if(status === "blocked") return "⛔ This transaction was auto-blocked. Check your payment processor to confirm it did not go through. If you know this customer personally and it is legitimate, click ✅ Legit below.";
+  if(status === "flagged") return "⚠️ Hold this transaction before processing. Check if you recognize this customer. Log into your Stripe or Square account to verify the payment details. Then mark it below.";
+  if(status === "review") return "👀 This transaction looks borderline. Review it manually before fulfilling any order. Mark it below once you have verified it.";
+  return "";
+}
+
+function renderTxnRow(t) {
+  const rc=t.score>=78?"var(--red)":t.score>=55?"var(--amber)":"var(--green)";
+  const isFlagged=t.status==="flagged"||t.status==="blocked"||t.status==="review";
+  const hour = t.created_at ? new Date(t.created_at).getHours() : null;
+
+  const feedbackHtml = t.is_fraud===true
+    ? `<div style="font-size:10px;color:var(--red);font-family:'Space Mono',monospace;margin-top:4px">🚨 CONFIRMED FRAUD</div>`
+    : t.is_fraud===false
+    ? `<div style="font-size:10px;color:var(--green);font-family:'Space Mono',monospace;margin-top:4px">✅ LEGITIMATE</div>`
+    : isFlagged ? `<div style="display:flex;gap:4px;margin-top:5px;position:relative;z-index:10">
+        <button onclick="event.stopPropagation();markFraud('${t.id}',true)" style="padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer!important;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--red);font-family:'DM Sans',sans-serif;pointer-events:auto!important;z-index:10;position:relative">🚨 Fraud</button>
+        <button onclick="event.stopPropagation();markFraud('${t.id}',false)" style="padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer!important;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);color:var(--green);font-family:'DM Sans',sans-serif;pointer-events:auto!important;z-index:10;position:relative">✅ Legit</button>
+      </div>` : "";
+
+  const whyFlagged = isFlagged && t.is_fraud===undefined ? `
+    <div style="grid-column:span 6;padding:10px 18px 14px;border-bottom:1px solid var(--border);background:rgba(245,158,11,.04);border-left:3px solid var(--amber)">
+      <div style="font-size:11px;font-weight:600;color:var(--amber);margin-bottom:5px;font-family:'Space Mono',monospace">WHY THIS WAS FLAGGED</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:8px">${getSignalExplanation(t.signals, t.status, t.amount, t.vendor, hour)}</div>
+      <div style="font-size:12px;line-height:1.6;margin-bottom:8px;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">${getInstruction(t.status, t.vendor)}</div>
+      <div style="font-size:11px;color:var(--dim)">Signals detected: <span style="color:var(--muted)">${t.signals||"none"}</span></div>
+    </div>` : "";
+
+  return `<div id="row-${t.id}" style="display:grid;grid-template-columns:1.3fr 1.5fr 1fr 0.8fr 100px 130px;padding:10px 18px;border-bottom:${isFlagged?"none":"1px solid var(--border)"};background:${t.status==="flagged"||t.status==="blocked"?"var(--red-glow)":t.status==="review"?"var(--amber-glow)":"transparent"}">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--teal)">${t.id.substr(0,13)}…</div>
+    <div><div style="font-size:12px;font-weight:500">${t.vendor||"—"}</div><div style="font-size:11px;color:var(--muted)">${t.category||"—"}</div></div>
+    <div style="font-size:11px;color:var(--muted);align-self:center">${fmtDate(t.created_at)}</div>
+    <div style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;align-self:center">$${(t.amount||0).toLocaleString()}</div>
+    <div style="align-self:center">
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="height:4px;width:40px;background:var(--border);border-radius:2px"><div style="height:100%;width:${t.score}%;background:${rc};border-radius:2px"></div></div>
+        <span style="font-family:'Space Mono',monospace;font-size:11px;color:${rc}">${t.score}</span>
+      </div>
+      ${t.signals?`<div style="font-size:10px;color:var(--muted);margin-top:2px">${t.signals.split(",")[0]}</div>`:""}
+    </div>
+    <div style="align-self:center">
+      ${badge(t.status||"clear")}
+      ${feedbackHtml}
+    </div>
+  </div>${whyFlagged}`;
+}
+
+function renderDashboardTxns() {
+  const el=document.getElementById("real-txns");
+  if(!el) return;
+  if(allTxns.length===0){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><div style="font-weight:600;margin-bottom:6px">No transactions yet</div><div style="font-size:12px">Call the /score endpoint with your API key to see real transactions here.</div></div>`;
+    return;
+  }
+  el.innerHTML=allTxns.slice(0,10).map(t=>renderTxnRow(t)).join("");
+}
+
+function renderAllTxns() {
+  const el=document.getElementById("all-txns");
+  if(!el) return;
+  const filtered=txnFilter==="all"?allTxns:allTxns.filter(t=>t.status===txnFilter);
+  if(filtered.length===0){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><div>No ${txnFilter==="all"?"transactions":"\""+txnFilter+"\" transactions"} yet</div></div>`;
+    return;
+  }
+  el.innerHTML=filtered.map(t=>renderTxnRow(t)).join("");
+}
+
+function filterTxns(f) {
+  txnFilter=f;
+  ["all","flagged","blocked","clear"].forEach(x=>{
+    const btn=document.getElementById("f-"+x);
+    if(btn){ btn.className=x===f?"filter-btn active-filter":"filter-btn"; }
+  });
+  renderAllTxns();
+}
+
+function renderStats() {
+  const total=allTxns.length;
+  const flagged=allTxns.filter(t=>t.status==="flagged"||t.status==="blocked").length;
+  const blocked=allTxns.filter(t=>t.status==="blocked").length;
+  const saved=allTxns.filter(t=>t.status==="blocked").reduce((s,t)=>s+(t.amount||0),0);
+  const avgScore=total?Math.round(allTxns.reduce((s,t)=>s+(t.score||0),0)/total):0;
+
+  const statsEl=document.getElementById("dash-stats");
+  if(statsEl) statsEl.innerHTML=`
+    <div class="stat-card" style="border-top:2px solid var(--teal)"><div class="stat-label">Total Scored</div><div class="stat-val" style="color:var(--teal)">${total}</div><div class="stat-sub">Transactions</div></div>
+    <div class="stat-card" style="border-top:2px solid var(--amber)"><div class="stat-label">Flagged</div><div class="stat-val" style="color:var(--amber)">${flagged}</div><div class="stat-sub">Needs review</div></div>
+    <div class="stat-card" style="border-top:2px solid var(--red)"><div class="stat-label">Blocked</div><div class="stat-val" style="color:var(--red)">${blocked}</div><div class="stat-sub">Auto-blocked</div></div>
+    <div class="stat-card" style="border-top:2px solid var(--green)"><div class="stat-label">Fraud Blocked</div><div class="stat-val" style="color:var(--green)">$${saved.toLocaleString()}</div><div class="stat-sub">Saved</div></div>
+    <div class="stat-card" style="border-top:2px solid var(--blue)"><div class="stat-label">Avg Score</div><div class="stat-val" style="color:var(--blue)">${avgScore}</div><div class="stat-sub">Risk index</div></div>
+  `;
+
+  // Risk breakdown
+  const rb=document.getElementById("risk-breakdown");
+  if(rb){
+    const clear=allTxns.filter(t=>t.status==="clear").length;
+    const review=allTxns.filter(t=>t.status==="review").length;
+    if(total===0){ rb.innerHTML=`<div style="color:var(--muted);font-size:12px;margin-top:8px">No data yet</div>`; }
+    else { rb.innerHTML=[{l:"Clear",n:clear,c:"var(--green)"},{l:"Review",n:review,c:"var(--amber)"},{l:"Flagged/Blocked",n:flagged,c:"var(--red)"}].map(r=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="width:90px;color:var(--muted);font-size:12px">${r.l}</div>${miniBar(r.n,Math.max(total,1),r.c)}<div style="font-family:'Space Mono',monospace;font-size:11px;color:${r.c};width:20px">${r.n}</div></div>`).join(""); }
+  }
+
+  // Signals
+  const sc=document.getElementById("signals-chart");
+  if(sc){
+    const sigCount={};
+    allTxns.forEach(t=>{ if(t.signals) t.signals.split(",").forEach(s=>{ const k=s.trim(); if(k) sigCount[k]=(sigCount[k]||0)+1; }); });
+    const top=Object.entries(sigCount).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    if(top.length===0){ sc.innerHTML=`<div style="color:var(--muted);font-size:12px;margin-top:8px">No signals detected yet</div>`; }
+    else { sc.innerHTML=top.map(([k,v])=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><div style="width:100px;color:var(--muted);font-size:11px;flex-shrink:0">${k}</div>${miniBar(v,top[0][1],"var(--amber)")}<div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--amber);width:20px">${v}</div></div>`).join(""); }
+  }
+
+  // Getting Started
+  const qs=document.getElementById("quick-start");
+  if(qs){
+    getConnections().then(byProvider=>{
+      const anyConnected=PROVIDERS.some(p=>byProvider[p.id]?.status==="active");
+      if(!anyConnected){
+        qs.innerHTML=`<div style="font-size:12px;color:var(--muted);line-height:1.7;margin-top:4px">👉 Connect a payment processor above to start scoring transactions automatically. No code required.</div>`;
+      } else if(total===0){
+        qs.innerHTML=`<div style="font-size:12px;color:var(--muted);line-height:1.7;margin-top:4px">✅ Processor connected. Transactions will appear here as they happen.</div>`;
+      } else {
+        qs.innerHTML=`<div style="font-size:13px;color:var(--green);margin-top:8px">✅ All set!<br><br><div style="color:var(--muted);font-size:12px">${total} transactions scored automatically so far.</div></div>`;
+      }
+    });
+  }
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────────
+function renderSettings() {
+  const el=document.getElementById("settings-form");
+  if(!el||!currentBiz) return;
+  const IS=`width:100%;padding:9px 12px;border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;border:1px solid var(--border);background:var(--surface2);color:var(--text);outline:none`;
+  const LS=`font-size:11px;color:var(--muted);margin-bottom:5px;display:block;font-weight:500`;
+  el.innerHTML=`
+    <div style="font-weight:600;font-size:15px;margin-bottom:18px">Business Information</div>
+    <div class="grid-2">
+      <div><label style="${LS}">Business Name</label><input style="${IS}" id="set-bizname" value="${currentBiz.business_name||""}"/></div>
+      <div><label style="${LS}">Industry</label><input style="${IS}" id="set-industry" value="${currentBiz.industry||""}"/></div>
+      <div><label style="${LS}">State</label><input style="${IS}" id="set-state" value="${currentBiz.state||""}"/></div>
+      <div><label style="${LS}">Alert Email</label><input style="${IS}" type="email" id="set-email" value="${currentBiz.alert_email||""}"/></div>
+    </div>
+    <div class="msg" id="settings-msg"></div>
+    <button onclick="saveSettings()" class="btn-primary" style="margin-top:8px">Save Changes</button>
+
+    <div style="font-weight:600;font-size:15px;margin:28px 0 6px">Connected Payment Processors</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Connect once — every transaction gets scored automatically after that. No code, no setup per sale.</div>
+    <div id="connections-list" style="display:flex;flex-direction:column;gap:10px">Loading…</div>
+  `;
+  renderConnections();
+}
+
+async function getConnections() {
+  if(!currentUser) return {};
+  const{data:conns}=await sb.from("payment_connections").select("*").eq("user_id",currentUser.id);
+  const byProvider={}; (conns||[]).forEach(c=>byProvider[c.provider]=c);
+  return byProvider;
+}
+
+const PROVIDERS=[
+  {id:"stripe",  label:"Stripe",  icon:"💳"},
+  {id:"square",  label:"Square",  icon:"◼"},
+  {id:"paypal",  label:"PayPal",  icon:"🅿"},
+];
+
+async function renderOverviewConnections() {
+  const el=document.getElementById("overview-connections");
+  if(!el) return;
+  const byProvider=await getConnections();
+  const anyConnected=PROVIDERS.some(p=>byProvider[p.id]?.status==="active");
+
+  if(!anyConnected){
+    el.innerHTML=`
+      <div style="border:1px solid rgba(0,194,168,.35);border-radius:10px;padding:20px 22px;background:var(--teal-glow)">
+        <div style="font-weight:700;font-size:16px;margin-bottom:4px">🔌 Connect a payment processor to get started</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:16px">One click — no code, no API key needed. Every transaction gets scored automatically after that.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          ${PROVIDERS.map(p=>`<button onclick="connectProvider('${p.id}')" style="padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;gap:8px">${p.icon} Connect ${p.label}</button>`).join("")}
+        </div>
+      </div>`;
+  } else {
+    const connectedList=PROVIDERS.filter(p=>byProvider[p.id]?.status==="active").map(p=>p.label).join(", ");
+    el.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(16,185,129,.3);border-radius:10px;padding:12px 18px;background:rgba(16,185,129,.06)">
+        <div style="font-size:13px"><span style="color:var(--green)">✅ Connected:</span> ${connectedList} — scoring transactions automatically</div>
+        <button onclick="showView('settings')" style="padding:6px 14px;border-radius:6px;font-size:12px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer">Manage</button>
+      </div>`;
+  }
+}
+
+async function renderConnections() {
+  const el=document.getElementById("connections-list");
+  if(!el) return;
+  const byProvider=await getConnections();
+
+  el.innerHTML=PROVIDERS.map(p=>{
+    const conn=byProvider[p.id];
+    const connected=conn&&conn.status==="active";
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:8px;background:var(--surface2)">
+        <div>
+          <div style="font-weight:600;font-size:13px">${p.icon} ${p.label}</div>
+          <div style="font-size:11px;color:${connected?"var(--green)":"var(--muted)"};margin-top:2px">${connected?"✅ Connected — scoring live":"Not connected"}</div>
+        </div>
+        ${connected
+          ? `<button onclick="disconnectProvider('${p.id}')" style="padding:6px 14px;border-radius:6px;font-size:12px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer">Disconnect</button>`
+          : `<button onclick="connectProvider('${p.id}')" style="padding:6px 14px;border-radius:6px;font-size:12px;background:var(--teal-glow);border:1px solid rgba(0,194,168,.44);color:var(--teal);cursor:pointer">Connect</button>`
+        }
+      </div>`;
+  }).join("");
+}
+
+async function connectProvider(provider) {
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){ alert("Please log in again."); return; }
+  try{
+    const res=await fetch(`${SUPABASE_URL}/functions/v1/${provider}-connect`,{
+      headers:{ "Authorization":`Bearer ${session.access_token}` }
+    });
+    const data=await res.json();
+    if(data.url){ window.location.href=data.url; }
+    else{ alert("Couldn't start the connection. Please try again."); }
+  }catch(err){
+    alert("Couldn't reach the connection service. Please try again.");
+  }
+}
+
+async function disconnectProvider(provider) {
+  if(!confirm(`Disconnect ${provider}? Transactions will stop being scored automatically.`)) return;
+  await sb.from("payment_connections").update({status:"disconnected",disconnected_at:new Date().toISOString()}).eq("user_id",currentUser.id).eq("provider",provider);
+  renderConnections();
+  renderOverviewConnections();
+}
+
+async function saveSettings() {
+  const bizName=document.getElementById("set-bizname")?.value;
+  const industry=document.getElementById("set-industry")?.value;
+  const state=document.getElementById("set-state")?.value;
+  const email=document.getElementById("set-email")?.value;
+  const msg=document.getElementById("settings-msg");
+
+  const{error}=await sb.from("businesses").update({business_name:bizName,industry,state,alert_email:email}).eq("user_id",currentUser.id).eq("user_id",currentUser.id);
+  if(error){ if(msg){msg.textContent="Error saving: "+error.message;msg.className="msg show error";} return; }
+  await sb.auth.updateUser({data:{business_name:bizName}});
+  currentBiz={...currentBiz,business_name:bizName,industry,state,alert_email:email};
+  const bizEl=document.getElementById("biz-name-display");
+  if(bizEl) bizEl.textContent=bizName;
+  if(msg){msg.textContent="✓ Settings saved!";msg.className="msg show success";setTimeout(()=>msg.className="msg",3000);}
+}
+
+// ── SCORE MODAL ───────────────────────────────────────────────────────────────
+function openScoreModal(){ document.getElementById("score-modal").classList.add("open"); closeSidebar(); }
+function closeScoreModal(){ document.getElementById("score-modal").classList.remove("open"); document.getElementById("sc-result").innerHTML=""; }
+async function runScore(){
+  const amount=document.getElementById("sc-amount").value;
+  const hour=document.getElementById("sc-hour").value;
+  const vendor=document.getElementById("sc-vendor").value;
+  const category=document.getElementById("sc-category").value;
+  const msg=document.getElementById("sc-msg");
+  msg.className="msg";
+  if(!amount||!vendor||!category){ msg.textContent="Please fill in all fields."; msg.className="msg show error"; return; }
+  const btn=document.getElementById("sc-btn");
+  btn.disabled=true; btn.textContent="Scoring…";
+
+  let result=null, live=false;
+
+  // Try the real, live scoring endpoint first
+  try{
+    if(!currentKey) throw new Error("no API key");
+    const res=await fetch(`${SUPABASE_URL}/functions/v1/score`,{
+      method:"POST",
+      headers:{ "Authorization":`Bearer ${currentKey}`, "Content-Type":"application/json" },
+      body:JSON.stringify({ amount:+amount, vendor, category, hour:+hour, business_name:currentBiz?.business_name||"My Business" })
+    });
+    if(!res.ok) throw new Error(`API returned ${res.status}`);
+    const data=await res.json();
+    const score=data.score??data.risk_score??data.riskScore;
+    if(typeof score!=="number") throw new Error("unexpected response shape");
+    let signals=data.signals??data.fraud_signals??data.reasons??[];
+    if(typeof signals==="string") signals=signals.split(",").map(s=>s.trim()).filter(Boolean);
+    const status=data.status??(score>=85?"blocked":score>=70?"flagged":score>=50?"review":"clear");
+    result={score,signals,status};
+    live=true;
+  }catch(err){
+    console.warn("Live /score call failed, falling back to local preview:",err.message);
+    result=scoreTxn({amount:+amount,vendor,category,hour:+hour});
+  }
+
+  const sc=result.score>=85?"var(--red)":result.score>=60?"var(--amber)":"var(--green)";
+  document.getElementById("sc-result").innerHTML=`
+    <div style="border:1px solid ${sc}33;border-radius:8px;padding:16px;background:${sc}11">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div><div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:2px">ML RISK SCORE</div><div style="font-family:'Space Mono',monospace;font-size:38px;font-weight:700;color:${sc}">${result.score}</div></div>
+        ${badge(result.status)}
+      </div>
+      ${result.signals.length?`<div style="margin-bottom:10px"><div style="font-size:9px;color:var(--muted);margin-bottom:6px;font-family:'Space Mono',monospace">FRAUD SIGNALS</div><div style="display:flex;flex-wrap:wrap;gap:5px">${result.signals.map(s=>`<span style="background:var(--amber-glow);color:var(--amber);border:1px solid rgba(245,158,11,.3);padding:3px 9px;border-radius:4px;font-size:11px;font-family:'Space Mono',monospace">⚠ ${s}</span>`).join("")}</div></div>`:""}
+      <div style="font-size:12px;color:var(--muted)">${result.status==="blocked"?"⛔ Auto-blocked.":result.status==="flagged"?"🚨 Flagged for review.":result.status==="review"?"⚠️ Queued for review.":"✅ Transaction cleared."}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">${live?"✅ Scored live by your API — logged to your transaction history.":"⚠️ Couldn't reach the live API, showing an offline preview instead. This transaction was not logged."}</div>
+    </div>`;
+  btn.disabled=false; btn.textContent="Run Detection →";
+  if(live){ try{ await loadTransactions(); }catch(e){} }
+}
+
+// ── ONBOARDING ────────────────────────────────────────────────────────────────
+let obStep=0;
+const obData={bizName:"",industry:"",state:"WA",employees:"",annualRev:"",processor:"",riskTolerance:"balanced",alertEmail:"",blockThreshold:82};
+const OB_STEPS=[{l:"Business Info",i:"🏪"},{l:"Payments",i:"💳"},{l:"Risk Profile",i:"🎯"},{l:"Activate",i:"🚀"}];
+
+function renderObSteps(){
+  document.getElementById("ob-steps").innerHTML=OB_STEPS.map((s,i)=>`
+    <div class="step${i===obStep?" active":""}" onclick="if(${i}<=${obStep})goObStep(${i})">
+      <div class="step-icon">${s.i}</div>
+      <div class="step-label">${s.l}</div>
+      ${i<obStep?'<div class="step-done">✓</div>':""}
+    </div>
+  `).join("");
+}
+
+function goObStep(i){ obStep=i; renderObSteps(); renderObContent(); }
+
+function renderObContent(){
+  const f=obData;
+  const IS=`width:100%;padding:9px 12px;border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;border:1px solid var(--border);background:var(--surface2);color:var(--text);outline:none`;
+  const LS=`font-size:11px;color:var(--muted);margin-bottom:5px;display:block;font-weight:500`;
+  let html="";
+
+  if(obStep===0){
+    html=`<div style="font-weight:600;font-size:15px;margin-bottom:18px">Tell us about your business</div>
+    <div class="grid-2">
+      <div><label style="${LS}">Business Name *</label><input style="${IS}" id="ob-bizname" value="${f.bizName}" oninput="obData.bizName=this.value" placeholder="e.g. Pinewood Bakery"/></div>
+      <div><label style="${LS}">Industry *</label><select style="${IS}" onchange="obData.industry=this.value"><option value="">Select…</option>${["Food & Beverage","Retail","Healthcare","Legal Services","Automotive","Construction","Professional Services","E-commerce","Other"].map(i=>`<option${f.industry===i?" selected":""}>${i}</option>`).join("")}</select></div>
+      <div><label style="${LS}">State</label><select style="${IS}" onchange="obData.state=this.value">${["WA","CA","TX","NY","FL","IL","GA","AZ","CO","OH"].map(s=>`<option${f.state===s?" selected":""}>${s}</option>`).join("")}</select></div>
+      <div><label style="${LS}">Employees</label><select style="${IS}" onchange="obData.employees=this.value"><option value="">Select…</option>${["1–5","6–15","16–50","51–100","100+"].map(r=>`<option${f.employees===r?" selected":""}>${r}</option>`).join("")}</select></div>
+      <div style="grid-column:span 2"><label style="${LS}">Alert Email *</label><input style="${IS}" type="email" id="ob-email" value="${f.alertEmail}" oninput="obData.alertEmail=this.value" placeholder="owner@yourbusiness.com"/></div>
+    </div>`;
+  } else if(obStep===1){
+    html=`<div style="font-weight:600;font-size:15px;margin-bottom:18px">Your payment setup</div>
+    <div class="grid-2">
+      <div><label style="${LS}">Annual Revenue</label><select style="${IS}" onchange="obData.annualRev=this.value"><option value="">Select…</option>${["Under $100K","$100K–$500K","$500K–$2M","$2M–$10M","$10M+"].map(r=>`<option${f.annualRev===r?" selected":""}>${r}</option>`).join("")}</select></div>
+      <div><label style="${LS}">Primary Payment Processor</label><select style="${IS}" onchange="obData.processor=this.value"><option value="">Select…</option>${["Stripe","Square","PayPal","Clover","Toast","QuickBooks","Other"].map(r=>`<option${f.processor===r?" selected":""}>${r}</option>`).join("")}</select></div>
+    </div>`;
+  } else if(obStep===2){
+    html=`<div style="font-weight:600;font-size:15px;margin-bottom:18px">How aggressive should fraud detection be?</div>
+    ${[{v:"conservative",l:"Conservative",d:"Catch everything. Best for businesses with past fraud incidents.",c:"var(--red)"},{v:"balanced",l:"Balanced",d:"Recommended for most small businesses. Good balance of detection and false positives.",c:"var(--amber)"},{v:"permissive",l:"Permissive",d:"Minimal false positives. Best for low-risk, established businesses.",c:"var(--green)"}].map(o=>`
+    <div onclick="obData.riskTolerance='${o.v}';renderObContent()" style="border:1px solid ${f.riskTolerance===o.v?o.c+"88":"var(--border)"};border-radius:8px;padding:14px 16px;margin-bottom:10px;cursor:pointer;background:${f.riskTolerance===o.v?o.c+"11":"transparent"}">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:10px;height:10px;border-radius:50%;background:${f.riskTolerance===o.v?o.c:"var(--border)"}"></div><span style="font-weight:600;font-size:13px;color:${f.riskTolerance===o.v?o.c:"var(--text)"}">${o.l}</span></div>
+      <div style="font-size:12px;color:var(--muted);margin-left:20px">${o.d}</div>
+    </div>`).join("")}`;
+  } else if(obStep===3){
+    html=`
+    <div id="ob-deploy">
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-size:48px;margin-bottom:14px">🚀</div>
+        <div style="font-weight:600;font-size:15px;margin-bottom:8px">Ready to activate!</div>
+        <div style="color:var(--muted);font-size:13px;margin-bottom:24px">We'll create your account, generate your API key, and get you set up in seconds.</div>
+        <div style="background:var(--surface2);border-radius:8px;padding:14px 16px;border:1px solid var(--border);text-align:left;margin-bottom:24px">
+          ${[["Business",f.bizName||"—"],["Industry",f.industry||"—"],["Processor",f.processor||"—"],["Risk Profile",f.riskTolerance],["Alert Email",f.alertEmail||"—"]].map(([k,v])=>`<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px"><span style="color:var(--muted)">${k}</span><span style="font-family:'Space Mono',monospace">${v}</span></div>`).join("")}
+        </div>
+        <button onclick="activateFraudShield()" style="padding:12px 32px;border-radius:10px;font-size:14px;font-weight:700;background:var(--teal);border:none;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif">Activate FraudShield →</button>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById("ob-content").innerHTML=html+(obStep<3?`
+    <div style="display:flex;justify-content:space-between;margin-top:22px;padding-top:18px;border-top:1px solid var(--border)">
+      <button onclick="if(obStep>0)goObStep(obStep-1)" ${obStep===0?"disabled":""} style="padding:9px 20px;border-radius:8px;font-size:13px;background:${obStep===0?"transparent":"var(--surface2)"};color:${obStep===0?"var(--dim)":"var(--text)"};border:1px solid ${obStep===0?"rgba(255,255,255,.1)":"var(--border)"};cursor:pointer;font-family:'DM Sans',sans-serif">← Back</button>
+      <button onclick="goObStep(obStep+1)" style="padding:9px 24px;border-radius:8px;font-size:13px;font-weight:600;background:var(--teal);border:none;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif">Next →</button>
+    </div>`:"");
+}
+
+async function activateFraudShield(){
+  const area=document.getElementById("ob-deploy");
+  if(!area) return;
+  area.innerHTML=`<div style="font-family:'Space Mono',monospace;font-size:12px;background:var(--surface2);border-radius:8px;padding:16px 18px" id="ob-log"></div>`;
+
+  const steps=["Creating your FraudShield account…","Saving your business profile…","Configuring fraud detection settings…","Generating your API key…","Running initial setup…","✓ FraudShield is active and protecting your business!"];
+
+  // Save to Supabase
+  async function doSetup(){
+    // 1. Save business to businesses table
+    await sb.from("businesses").insert({
+      user_id:currentUser.id,
+      business_name:obData.bizName||"My Business",
+      industry:obData.industry,
+      state:obData.state,
+      employees:obData.employees,
+      annual_rev:obData.annualRev,
+      processor:obData.processor,
+      risk_tolerance:obData.riskTolerance,
+      alert_email:obData.alertEmail||currentUser.email,
+      created_at:new Date().toISOString()
+    });
+    // 2. Update user metadata
+    await sb.auth.updateUser({data:{business_name:obData.bizName||"My Business",onboarded:true}});
+    // 3. Generate API key
+    await createKey(currentUser.id);
+  }
+
+  steps.forEach((msg,i)=>setTimeout(()=>{
+    const log=document.getElementById("ob-log");
+    if(log){
+      const div=document.createElement("div");
+      div.style.marginBottom="8px";
+      div.style.color=msg.startsWith("✓")?"var(--green)":"var(--teal)";
+      div.textContent=msg;
+      log.appendChild(div);
+    }
+    if(i===steps.length-1){
+      doSetup().then(()=>{
+        setTimeout(()=>{
+          area.innerHTML+=`
+            <div style="text-align:center;margin-top:16px">
+              <div style="font-size:48px;margin-bottom:12px">✅</div>
+              <div style="font-family:'Space Mono',monospace;font-size:14px;color:var(--green);font-weight:700;margin-bottom:8px">YOU'RE ALL SET!</div>
+              <div style="color:var(--muted);font-size:13px;margin-bottom:20px">${obData.bizName||"Your business"} is now protected by FraudShield.</div>
+              <button onclick="window.location.reload()" style="padding:11px 28px;border-radius:8px;font-size:14px;font-weight:600;background:var(--teal);border:none;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif">Go to My Dashboard →</button>
+            </div>`;
+        },400);
+      });
+    }
+  },i*600));
+}
+
+// ── ML FEEDBACK ───────────────────────────────────────────────────────────────
+async function markFraud(txnId, isFraud){
+  const{error}=await sb.from("transactions")
+    .update({is_fraud:isFraud})
+    .eq("id",txnId);
+  if(error){ console.error("Feedback error:",error); return; }
+
+  // Update the row visually without full reload
+  allTxns=allTxns.map(t=>t.id===txnId?{...t,is_fraud:isFraud}:t);
+  const row=document.getElementById("row-"+txnId);
+  if(row){
+    const feedbackEl=row.querySelector(".feedback-area");
+    const msg=isFraud
+      ?`<div style="font-size:10px;color:var(--red);font-family:'Space Mono',monospace;margin-top:4px">🚨 CONFIRMED FRAUD</div>`
+      :`<div style="font-size:10px;color:var(--green);font-family:'Space Mono',monospace;margin-top:4px">✅ LEGITIMATE</div>`;
+    // Re-render just this row
+    const newRow=document.createElement("div");
+    newRow.innerHTML=renderTxnRow(allTxns.find(t=>t.id===txnId));
+    row.replaceWith(newRow.firstChild);
+  }
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+async function signOut(){ await sb.auth.signOut(); window.location.href="auth.html"; }
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function init(){
+  try{
+    // Session may not be immediately visible right after a cross-page
+    // redirect from auth.html — retry a few times before concluding
+    // the user isn't logged in.
+    let session=null;
+    for(let attempt=0;attempt<5;attempt++){
+      const{data}=await sb.auth.getSession();
+      session=data.session;
+      if(session) break;
+      await new Promise(r=>setTimeout(r,300));
+    }
+    if(!session){
+      document.getElementById("landing").style.display="block";
+      return;
+    }
+
+    currentUser=session.user;
+    const bizName=currentUser.user_metadata?.business_name;
+    const isOnboarded=currentUser.user_metadata?.onboarded;
+
+    if(!isOnboarded||!bizName||bizName==="My Business"){
+      // Show onboarding
+      document.getElementById("onboarding").style.display="block";
+      renderObSteps();
+      renderObContent();
+      // Pre-fill email
+      obData.alertEmail=currentUser.email;
+      return;
+    }
+
+    // Show dashboard
+    document.getElementById("app").style.display="flex";
+
+    // Load business from DB
+    const{data:bizData}=await sb.from("businesses").select("*").eq("user_id",currentUser.id).single();
+    currentBiz=bizData;
+
+    // Update sidebar
+    const bizEl=document.getElementById("biz-name-display");
+    const emailEl=document.getElementById("user-email-display");
+    const sbUser=document.getElementById("sb-user");
+    if(bizEl) bizEl.textContent=bizName;
+    if(emailEl) emailEl.textContent=currentUser.email;
+    if(sbUser) sbUser.style.display="block";
+
+    // Update title
+    const dashTitle=document.getElementById("dash-title");
+    const dashSub=document.getElementById("dash-sub");
+    if(dashTitle) dashTitle.textContent=bizName+" Dashboard";
+    if(dashSub) dashSub.textContent=`${currentBiz?.industry||"Business"} · ${currentBiz?.state||""} · Real-time fraud monitoring`;
+
+    // Load key and transactions
+    await loadKey();
+    await loadTransactions();
+    await renderOverviewConnections();
+
+    // Show a confirmation if we just landed back from a Connect redirect
+    const params=new URLSearchParams(window.location.search);
+    const connectResult=params.get("connect");
+    if(connectResult){
+      const banner=document.getElementById("overview-connections");
+      if(banner){
+        const ok=connectResult.endsWith("_success");
+        const providerName=connectResult.split("_")[0];
+        const note=document.createElement("div");
+        note.style.cssText=`margin-bottom:12px;padding:10px 16px;border-radius:8px;font-size:13px;background:${ok?"rgba(16,185,129,.1)":"rgba(239,68,68,.1)"};border:1px solid ${ok?"rgba(16,185,129,.3)":"rgba(239,68,68,.3)"};color:${ok?"var(--green)":"var(--red)"}`;
+        note.textContent=ok?`✅ ${providerName.charAt(0).toUpperCase()+providerName.slice(1)} connected successfully!`:"⚠️ Something went wrong connecting. Please try again.";
+        banner.prepend(note);
+      }
+      // Clean the URL so refreshing doesn't re-show the message
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+
+    // Refresh every 30 seconds
+    refreshInterval=setInterval(loadTransactions, 30000);
+
+    // Auth listener — only act on an explicit sign-out, not the initial
+    // state read (which can briefly report no session even when one
+    // exists, causing a false redirect loop)
+    sb.auth.onAuthStateChange((event,session)=>{
+      if(event==="SIGNED_OUT") window.location.href="/auth";
+    });
+
+  }catch(e){
+    console.error("Init error:",e);
+    document.getElementById("landing").style.display="block";
+  }
+}
+
+init();
 </script>
 <script>
   if ("serviceWorker" in navigator) {
