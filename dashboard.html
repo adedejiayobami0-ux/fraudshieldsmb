@@ -1128,6 +1128,30 @@ async function signOut(){ await sb.auth.signOut(); window.location.href="auth.ht
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 async function init(){
+  // ── TEMPORARY DEBUG BANNER — remove once the login bug is confirmed fixed ──
+  const debugBox=document.createElement("div");
+  debugBox.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99999;background:#000;color:#0f0;font-family:monospace;font-size:12px;padding:10px;white-space:pre-wrap;max-height:40vh;overflow-y:auto";
+  debugBox.textContent="DEBUG: starting init()...";
+  document.body.prepend(debugBox);
+  const log=(msg)=>{ debugBox.textContent+="\n"+msg; console.log("[DEBUG]",msg); };
+
+  try{
+    log("Supabase client type: "+(sb && sb.auth && sb.auth.signOut && sb.auth.signOut.toString().includes("native code")===false ? "checking..." : "checking..."));
+    log("window.supabase loaded: "+(typeof supabase!=="undefined"));
+    const{data:{session},error:sessionErr}=await sb.auth.getSession();
+    log("getSession() result: session="+(session?"FOUND (user: "+session.user.email+")":"NULL")+(sessionErr?" ERROR: "+sessionErr.message:""));
+
+    if(!session){
+      log("No session found — showing landing page.");
+      document.getElementById("landing").style.display="block";
+      return;
+    }
+    log("Session found! Proceeding to dashboard...");
+  }catch(debugErr){
+    log("EXCEPTION during session check: "+debugErr.message);
+  }
+  // ── END TEMPORARY DEBUG BANNER ──
+
   try{
     const{data:{session}}=await sb.auth.getSession();
     if(!session){
