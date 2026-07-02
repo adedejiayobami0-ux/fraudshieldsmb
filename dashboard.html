@@ -384,8 +384,8 @@ body.light .knob{transform:translateX(14px)}
         <div class="track"><div class="knob"></div></div>
         <span id="theme-label-2">☀ Light</span>
       </button>
-      <button class="btn-outline" onclick="window.location.href='auth.html'">Sign In</button>
-      <button class="btn-teal" onclick="window.location.href='auth.html'">Get Started Free →</button>
+      <button class="btn-outline" onclick="window.location.href='/auth'">Sign In</button>
+      <button class="btn-teal" onclick="window.location.href='/auth'">Get Started Free →</button>
     </div>
   </nav>
   <div class="landing-body">
@@ -394,8 +394,8 @@ body.light .knob{transform:translateX(14px)}
       <h1>Stop fraud before it<br><span>costs you customers.</span></h1>
       <p>FraudShield gives small businesses the same AI fraud detection that banks use — without the enterprise price tag. Free during our beta.</p>
       <div class="hero-btns">
-        <button class="btn-hero btn-hero-primary" onclick="window.location.href='auth.html'">Start for Free →</button>
-        <button class="btn-hero btn-hero-outline" onclick="window.location.href='auth.html'">See Demo</button>
+        <button class="btn-hero btn-hero-primary" onclick="window.location.href='/auth'">Start for Free →</button>
+        <button class="btn-hero btn-hero-outline" onclick="window.location.href='/auth'">See Demo</button>
       </div>
       <div class="stats-row">
         <div style="text-align:center"><div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--teal)">&lt;100ms</div><div style="color:var(--muted);font-size:12px;margin-top:2px">Response time</div></div>
@@ -425,7 +425,7 @@ body.light .knob{transform:translateX(14px)}
           <div style="display:flex;gap:8px;margin-bottom:9px;font-size:13px;color:var(--muted)"><span style="color:var(--teal)">✓</span>Transaction dashboard</div>
           <div style="display:flex;gap:8px;margin-bottom:9px;font-size:13px;color:var(--muted)"><span style="color:var(--teal)">✓</span>All 6 fraud vectors</div>
         </div>
-        <button class="btn-hero btn-hero-primary" style="width:100%;padding:11px" onclick="window.location.href='auth.html'">Start Free →</button>
+        <button class="btn-hero btn-hero-primary" style="width:100%;padding:11px" onclick="window.location.href='/auth'">Start Free →</button>
       </div>
       <div class="price-card" style="opacity:.6"><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--purple);letter-spacing:.1em;margin-bottom:10px">GROWTH</div><div style="font-family:'Space Mono',monospace;font-size:30px;font-weight:700;margin-bottom:4px">$299<span style="font-size:13px;color:var(--muted);font-weight:400">/mo</span></div><div style="color:var(--muted);font-size:12px;margin-bottom:16px">Coming after beta</div></div>
     </div>
@@ -487,12 +487,12 @@ let txnFilter   = "all";
 let refreshInterval = null;
 
 // ── THEME ─────────────────────────────────────────────────────────────────────
-let isDark = localStorage.getItem("fs_theme") ? localStorage.getItem("fs_theme")==="dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+let isDark = localStorage.getItem("fs_dash_theme") ? localStorage.getItem("fs_dash_theme")==="dark" : true;
 function applyTheme() {
   document.body.className = isDark ? "dark" : "light";
   document.querySelectorAll("#theme-label,#theme-label-2").forEach(el => { if(el) el.textContent = isDark ? "☀ Light" : "☽ Dark"; });
 }
-function toggleTheme() { isDark=!isDark; localStorage.setItem("fs_theme",isDark?"dark":"light"); applyTheme(); }
+function toggleTheme() { isDark=!isDark; localStorage.setItem("fs_dash_theme",isDark?"dark":"light"); applyTheme(); }
 applyTheme();
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -1124,7 +1124,7 @@ async function markFraud(txnId, isFraud){
 }
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
-async function signOut(){ await sb.auth.signOut(); window.location.href="auth.html"; }
+async function signOut(){ await sb.auth.signOut(); window.location.href="/auth"; }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 async function init(){
@@ -1140,9 +1140,23 @@ async function init(){
       await new Promise(r=>setTimeout(r,300));
     }
     if(!session){
-      document.getElementById("landing").style.display="block";
+      // Loop guard: if we've already bounced recently, stop redirecting
+      // silently and show a manual way forward instead.
+      const lastBounce=parseInt(sessionStorage.getItem("fs_last_bounce")||"0",10);
+      const now=Date.now();
+      if(now-lastBounce<4000){
+        document.body.innerHTML=`<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;font-family:sans-serif;padding:24px;text-align:center">
+          <div style="font-size:16px;font-weight:600">Having trouble loading your session</div>
+          <div style="font-size:14px;color:#888;max-width:360px">This can happen if your session expired. Please sign in again.</div>
+          <a href="/auth" style="padding:12px 24px;border-radius:8px;background:#EEB93E;color:#0B0E11;text-decoration:none;font-weight:600">Go to Sign In</a>
+        </div>`;
+        return;
+      }
+      sessionStorage.setItem("fs_last_bounce", String(now));
+      window.location.href="/";
       return;
     }
+    sessionStorage.removeItem("fs_last_bounce");
 
     currentUser=session.user;
     const bizName=currentUser.user_metadata?.business_name;
@@ -1213,7 +1227,7 @@ async function init(){
 
   }catch(e){
     console.error("Init error:",e);
-    document.getElementById("landing").style.display="block";
+    window.location.href="/";
   }
 }
 
