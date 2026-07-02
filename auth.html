@@ -270,7 +270,7 @@ body.light .confirm-p{color:rgba(26,26,46,.5)}
 body.light .spinner{border-color:rgba(255,255,255,.3);border-top-color:#fff}
 </style>
 </head>
-<body class="dark">
+<body class="light">
 <div class="orb orb1"></div>
 <div class="orb orb2"></div>
 
@@ -383,7 +383,7 @@ try{const{createClient}=supabase;sb=createClient(SUPABASE_URL,SUPABASE_ANON)}
 catch(e){sb={auth:{getSession:async()=>({data:{session:null}}),signUp:async()=>({error:{message:"Supabase credentials not configured."}}),signInWithPassword:async()=>({error:{message:"Supabase credentials not configured."}}),signInWithOtp:async()=>({error:{message:"Supabase credentials not configured."}})}}}
 
 // ── THEME ─────────────────────────────────────────────────────────────────────
-let isDark=localStorage.getItem("fs_theme")?localStorage.getItem("fs_theme")==="dark":window.matchMedia("(prefers-color-scheme:dark)").matches;
+let isDark=localStorage.getItem("fs_theme")==="dark";
 function applyTheme(){
   document.body.className=isDark?"dark":"light";
   const lbl=document.getElementById("theme-lbl");
@@ -574,7 +574,7 @@ async function handleSignIn(){
     if(data.session) break;
     await new Promise(r=>setTimeout(r,200));
   }
-  window.location.href="/";
+  window.location.href="/dashboard";
 }
 
 // ── MAGIC LINK ────────────────────────────────────────────────────────────────
@@ -608,7 +608,7 @@ function resetToAuth(){
 // ── INIT ──────────────────────────────────────────────────────────────────────
 switchTab("up");
 (async()=>{
-  try{const{data:{session}}=await sb.auth.getSession();if(session)window.location.href="/"}
+  try{const{data:{session}}=await sb.auth.getSession();if(session)window.location.href="/dashboard"}
   catch(e){console.warn(e)}
 })();
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&currentTab==="in")handleSignIn()});
