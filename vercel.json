@@ -1,4 +1,13 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/dashboard", "destination": "/", "permanent": true },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "fraudshieldsmb.com" }],
+      "destination": "https://www.fraudshieldsmb.com/:path*",
+      "permanent": true
+    }
+  ]
 }
