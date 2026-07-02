@@ -3,8 +3,5 @@
   "trailingSlash": false,
   "redirects": [
     { "source": "/dashboard", "destination": "/", "permanent": true }
-  ],
-  "rewrites": [
-    { "source": "/", "destination": "/dashboard.html" }
   ]
 }
