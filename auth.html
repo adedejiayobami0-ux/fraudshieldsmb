@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+  <link rel="icon" href="/icon-192.png" type="image/png"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>FraudShield SMB — Create Your Account</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
@@ -314,7 +315,7 @@ body.light .spinner{border-color:rgba(255,255,255,.3);border-top-color:#fff}
   <!-- RIGHT -->
   <div class="right-side">
     <div class="right-top">
-      <a class="back-link" href="landing.html">← Back to home</a>
+      <a class="back-link" href="/">← Back to home</a>
       <button class="theme-pill" onclick="toggleTheme()">
         <div class="t-track"><div class="t-knob"></div></div>
         <span id="theme-lbl">☀ Light</span>
@@ -523,7 +524,7 @@ function nextStep(){
 async function handleGoogle(){
   const{error}=await sb.auth.signInWithOAuth({
     provider:'google',
-    options:{redirectTo:'https://www.fraudshieldsmb.com/dashboard.html'}
+    options:{redirectTo:'https://www.fraudshieldsmb.com/dashboard'}
   });
   if(error) showMsg("signup-msg",error.message);
 }
