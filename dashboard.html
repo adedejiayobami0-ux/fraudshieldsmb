@@ -1128,24 +1128,17 @@ async function signOut(){ await sb.auth.signOut(); window.location.href="auth.ht
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 async function init(){
-  // ── TEMPORARY DEBUG POPUP — remove once the login bug is confirmed fixed ──
   try{
-    const supabaseLoaded=typeof supabase!=="undefined";
-    const{data:{session},error:sessionErr}=await sb.auth.getSession();
-    alert(
-      "FRAUDSHIELD DEBUG\n\n"+
-      "Supabase library loaded: "+supabaseLoaded+"\n"+
-      "Session found: "+(session?"YES ("+session.user.email+")":"NO")+"\n"+
-      (sessionErr?"Session error: "+sessionErr.message+"\n":"")+
-      "\nTake a screenshot of this popup and send it, then tap OK."
-    );
-  }catch(debugErr){
-    alert("FRAUDSHIELD DEBUG — EXCEPTION:\n\n"+debugErr.message+"\n\nTake a screenshot and send it, then tap OK.");
-  }
-  // ── END TEMPORARY DEBUG POPUP ──
-
-  try{
-    const{data:{session}}=await sb.auth.getSession();
+    // Session may not be immediately visible right after a cross-page
+    // redirect from auth.html — retry a few times before concluding
+    // the user isn't logged in.
+    let session=null;
+    for(let attempt=0;attempt<5;attempt++){
+      const{data}=await sb.auth.getSession();
+      session=data.session;
+      if(session) break;
+      await new Promise(r=>setTimeout(r,300));
+    }
     if(!session){
       document.getElementById("landing").style.display="block";
       return;
