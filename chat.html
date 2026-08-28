@@ -2,485 +2,507 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-  <link rel="icon" href="/icon-192.png" type="image/png"/>
-  <link rel="manifest" href="/manifest.json"/>
-  <meta name="theme-color" content="#EEB93E"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="FraudShield"/>
-  <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FraudShield SMB — AI Fraud Chat</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<meta name="theme-color" content="#0B0E11"/>
+<title>FraudShield Workspace</title>
+<meta name="description" content="FraudShield Workspace — AI business protection and operations for small businesses."/>
+<link rel="icon" href="/icon-192.png" type="image/png"/>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="apple-touch-icon" href="/icons/icon-192.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
+:root{
+  --bg:#0B0E11;--surface:#101419;--surface2:#151A20;--surface3:#1A2027;
+  --ink:#EDEFF2;--muted:#8B92A0;--faint:#626A76;--border:rgba(237,239,242,.09);
+  --gold:#EEB93E;--gold2:#B8860E;--green:#3DD68C;--red:#FF6B6B;--blue:#79AFFF;
+}
+body.light{
+  --bg:#F6F7F9;--surface:#FFFFFF;--surface2:#F0F2F5;--surface3:#E9ECF0;
+  --ink:#0B0E11;--muted:#5B6270;--faint:#8B92A0;--border:rgba(11,14,17,.10);
+  --gold:#B8860E;--gold2:#8B6508;--green:#1C8A5C;--red:#D64545;--blue:#356FD6;
+}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body.dark{background:#0B0E11;color:#EDEFF2}
-body.light{background:#F7F8FA;color:#0B0E11}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(238,185,62,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(238,185,62,.03) 1px,transparent 1px);background-size:48px 48px}
-body.light::before{background-image:linear-gradient(rgba(184,134,14,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(184,134,14,.04) 1px,transparent 1px)}
-.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0}
-body.dark .orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(238,185,62,.07) 0%,transparent 70%);top:-200px;left:-200px}
-body.dark .orb2{width:400px;height:400px;background:radial-gradient(circle,rgba(139,101,8,.05) 0%,transparent 70%);bottom:-100px;right:-100px}
-body.light .orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(184,134,14,.05) 0%,transparent 70%);top:-200px;left:-200px}
-body.light .orb2{width:400px;height:400px;background:radial-gradient(circle,rgba(139,101,8,.03) 0%,transparent 70%);bottom:-100px;right:-100px}
-
-/* LAYOUT */
-.app{position:relative;z-index:1;height:100vh;display:flex}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
+button,textarea,input{font:inherit}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+.app{height:100vh;display:grid;grid-template-columns:245px 1fr 280px}
 
 /* SIDEBAR */
-.sidebar{width:260px;flex-shrink:0;border-right:1px solid;display:flex;flex-direction:column;overflow:hidden}
-body.dark .sidebar{border-color:rgba(255,255,255,.06);background:rgba(255,255,255,.015)}
-body.light .sidebar{border-color:#E8ECF2;background:#fff}
-
-.sidebar-top{padding:14px 14px 10px;flex-shrink:0}
-.brand{display:flex;align-items:center;gap:8px;text-decoration:none;margin-bottom:14px}
-.logo-box{width:28px;height:28px;background:linear-gradient(135deg,#EEB93E,#B8860E);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 0 12px rgba(238,185,62,.28);flex-shrink:0}
-.logo-name{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.04em}
-body.dark .logo-name{color:#EEB93E}
-body.light .logo-name{color:#B8860E}
-
-.btn-new{width:100%;padding:9px 12px;border-radius:8px;font-size:12px;font-weight:600;font-family:'Inter',sans-serif;border:1px solid;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .15s}
-body.dark .btn-new{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);color:rgba(240,237,232,.7)}
-body.light .btn-new{background:#F8FAFC;border-color:#E2E8F0;color:rgba(26,26,46,.65)}
-.btn-new:hover{border-color:rgba(238,185,62,.35)}
-
-.sidebar-section{padding:10px 14px 4px;font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
-body.dark .sidebar-section{color:rgba(240,237,232,.22)}
-body.light .sidebar-section{color:rgba(26,26,46,.28)}
-
-.history-list{flex:1;overflow-y:auto;padding:4px 8px}
-.history-list::-webkit-scrollbar{width:3px}
-body.dark .history-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.07);border-radius:2px}
-
-.history-item{padding:9px 10px;border-radius:8px;cursor:pointer;margin-bottom:2px;transition:background .12s}
-body.dark .history-item:hover{background:rgba(255,255,255,.05)}
-body.light .history-item:hover{background:rgba(0,0,0,.04)}
-.history-item.active{background:rgba(238,185,62,.08) !important;border-left:2px solid #EEB93E;padding-left:8px}
-.history-title{font-family:'Inter',sans-serif;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.dark .history-title{color:rgba(240,237,232,.7)}
-body.light .history-title{color:rgba(26,26,46,.7)}
-.history-time{font-family:'Inter',sans-serif;font-size:10px;margin-top:2px}
-body.dark .history-time{color:rgba(240,237,232,.25)}
-body.light .history-time{color:rgba(26,26,46,.28)}
-
-/* Guest prompt in sidebar */
-.sidebar-guest{padding:10px 12px;margin:8px;border-radius:10px;border:1px solid}
-body.dark .sidebar-guest{background:rgba(238,185,62,.04);border-color:rgba(238,185,62,.12)}
-body.light .sidebar-guest{background:rgba(184,134,14,.03);border-color:rgba(184,134,14,.12)}
-.sidebar-guest p{font-family:'Inter',sans-serif;font-size:11px;line-height:1.55;margin-bottom:8px}
-body.dark .sidebar-guest p{color:rgba(240,237,232,.4)}
-body.light .sidebar-guest p{color:rgba(26,26,46,.45)}
-.btn-guest-signin{width:100%;padding:8px;border-radius:7px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;border:none;background:linear-gradient(135deg,#EEB93E,#B8860E);color:#0B0E11;cursor:pointer}
-body.light .btn-guest-signin{color:#fff}
-
-/* Sidebar bottom: user */
-.sidebar-bottom{padding:10px 12px;border-top:1px solid;flex-shrink:0}
-body.dark .sidebar-bottom{border-color:rgba(255,255,255,.06)}
-body.light .sidebar-bottom{border-color:#E8ECF2}
+.sidebar{border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0;background:var(--surface)}
+.brand{display:flex;align-items:center;gap:9px;padding:17px 15px 13px}
+.mark{width:29px;height:29px;border-radius:7px;background:var(--gold);color:#0B0E11;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-size:11px;font-weight:700}
+.brand-name{font-family:'Space Grotesk';font-size:13px;font-weight:700}
+.beta{font-family:'JetBrains Mono';font-size:8px;color:var(--gold);border:1px solid rgba(238,185,62,.25);border-radius:10px;padding:2px 5px;margin-left:auto}
+.new-chat{margin:0 12px 12px;padding:10px 11px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--ink);font-size:12px;font-weight:600;text-align:left}
+.new-chat:hover{border-color:rgba(238,185,62,.35)}
+.side-label{font-family:'JetBrains Mono';font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);padding:9px 14px 5px}
+.agent-list{padding:0 8px}
+.agent{width:100%;display:flex;align-items:center;gap:9px;padding:9px;border:none;border-radius:8px;background:transparent;color:var(--muted);text-align:left;font-size:12px;margin-bottom:2px}
+.agent:hover,.agent.active{background:var(--surface2);color:var(--ink)}
+.agent.active{box-shadow:inset 2px 0 0 var(--gold)}
+.agent-icon{width:24px;height:24px;border-radius:6px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:12px}
+.agent-code{font-family:'JetBrains Mono';font-size:11px;font-weight:700;color:var(--gold)}
+.history{flex:1;overflow:auto;padding:3px 8px 10px}
+.hist{padding:8px 9px;border-radius:7px;margin-bottom:2px;cursor:pointer}
+.hist:hover{background:var(--surface2)}
+.hist-title{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
+.hist-time{font-size:9px;color:var(--faint);margin-top:2px}
+.side-bottom{border-top:1px solid var(--border);padding:10px 12px}
 .user-row{display:flex;align-items:center;gap:8px}
-.user-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#EEB93E,#8B6508);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
-.user-info{flex:1;min-width:0}
-.user-email{font-family:'Inter',sans-serif;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.dark .user-email{color:rgba(240,237,232,.6)}
-body.light .user-email{color:rgba(26,26,46,.6)}
-.btn-signout{font-size:10px;font-family:'Inter',sans-serif;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;white-space:nowrap}
-body.dark .btn-signout{color:rgba(240,237,232,.25)}
-body.light .btn-signout{color:rgba(26,26,46,.28)}
+.avatar{width:27px;height:27px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:#0B0E11;font-size:10px;font-weight:700}
+.user-info{min-width:0;flex:1}
+.user-email{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-action{font-size:9px;color:var(--faint);background:none;border:0;text-decoration:underline}
 
-/* MAIN CHAT */
-.chat-main{flex:1;display:flex;flex-direction:column;min-width:0}
+/* MAIN */
+.main{min-width:0;display:flex;flex-direction:column;background:var(--bg)}
+.topbar{height:58px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px;flex-shrink:0}
+.top-left{display:flex;align-items:center;gap:9px}
+.top-icon{width:29px;height:29px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center}
+.top-name{font-family:'Space Grotesk';font-size:13px;font-weight:700}
+.top-sub{font-size:10px;color:var(--muted)}
+.top-actions{display:flex;gap:7px;align-items:center}
+.small-btn{border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:10px;padding:7px 9px;border-radius:7px}
+.small-btn:hover{color:var(--ink)}
+.signin{background:var(--gold);color:#0B0E11;border-color:var(--gold);font-weight:700}
 
-/* Top bar */
-.topbar{padding:12px 20px;border-bottom:1px solid;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-body.dark .topbar{border-color:rgba(255,255,255,.06)}
-body.light .topbar{border-color:#E8ECF2}
-.topbar-left{display:flex;align-items:center;gap:8px}
-.ai-avatar{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#EEB93E,#B8860E);display:flex;align-items:center;justify-content:center;font-size:12px}
-.topbar-name{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700}
-body.dark .topbar-name{color:#EDEFF2}
-body.light .topbar-name{color:#0B0E11}
-.topbar-sub{font-family:'Inter',sans-serif;font-size:11px}
-body.dark .topbar-sub{color:rgba(240,237,232,.35)}
-body.light .topbar-sub{color:rgba(26,26,46,.38)}
-.topbar-right{display:flex;align-items:center;gap:8px}
-.theme-pill{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:20px;border:1px solid;cursor:pointer;font-size:11px;font-weight:500;font-family:'Inter',sans-serif;background:none}
-body.dark .theme-pill{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);color:rgba(240,237,232,.45)}
-body.light .theme-pill{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.1);color:rgba(26,26,46,.45)}
-.t-track{width:22px;height:13px;border-radius:7px;position:relative;flex-shrink:0;transition:background .25s}
-body.dark .t-track{background:rgba(255,255,255,.15)}
-body.light .t-track{background:#B8860E}
-.t-knob{position:absolute;top:2px;left:2px;width:9px;height:9px;border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 1px 2px rgba(0,0,0,.3)}
-body.light .t-knob{transform:translateX(9px)}
-.btn-nav-signin{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;font-family:'Inter',sans-serif;border:none;background:linear-gradient(135deg,#EEB93E,#B8860E);color:#0B0E11;cursor:pointer;box-shadow:0 0 12px rgba(238,185,62,.22)}
-body.light .btn-nav-signin{color:#fff}
+.chat-area{flex:1;overflow:auto;padding:28px 22px}
+.chat-inner{max-width:780px;margin:0 auto}
+.welcome{padding:7vh 0 20px;text-align:center}
+.welcome-mark{width:50px;height:50px;border-radius:13px;background:var(--gold);color:#0B0E11;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.welcome h1{font-family:'Space Grotesk';font-size:26px;letter-spacing:-.02em;margin-bottom:8px}
+.welcome p{color:var(--muted);font-size:13px;max-width:520px;margin:0 auto 25px;line-height:1.6}
+.starters{display:grid;grid-template-columns:1fr 1fr;gap:9px;max-width:640px;margin:0 auto}
+.starter{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:13px;text-align:left;color:var(--ink)}
+.starter:hover{border-color:rgba(238,185,62,.35)}
+.starter-agent{font-family:'JetBrains Mono';font-size:10px;color:var(--gold);font-weight:700;margin-bottom:5px}
+.starter-text{font-size:11px;color:var(--muted);line-height:1.5}
 
-/* Messages */
-.messages{flex:1;overflow-y:auto;padding:28px 20px;display:flex;flex-direction:column;gap:16px;max-width:800px;width:100%;margin:0 auto;align-self:center}
-.messages::-webkit-scrollbar{width:3px}
-body.dark .messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.07);border-radius:2px}
-
-/* Welcome screen */
-.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;max-width:560px;margin:0 auto;width:100%}
-.welcome-icon{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#EEB93E,#B8860E);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 20px;box-shadow:0 0 28px rgba(238,185,62,.3)}
-.welcome h2{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
-body.dark .welcome h2{color:#EDEFF2}
-body.light .welcome h2{color:#0B0E11}
-.welcome p{font-family:'Inter',sans-serif;font-size:13px;line-height:1.65;margin-bottom:28px}
-body.dark .welcome p{color:rgba(240,237,232,.45)}
-body.light .welcome p{color:rgba(26,26,46,.48)}
-.starter-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
-.starter-card{padding:12px 14px;border-radius:10px;border:1px solid;cursor:pointer;text-align:left;transition:all .15s;background:none}
-body.dark .starter-card{border-color:rgba(255,255,255,.07);background:rgba(255,255,255,.025)}
-body.light .starter-card{border-color:#E8ECF2;background:#fff}
-.starter-card:hover{border-color:rgba(238,185,62,.35);background:rgba(238,185,62,.04)}
-.starter-card p{font-family:'Inter',sans-serif;font-size:12px;line-height:1.5}
-body.dark .starter-card p{color:rgba(240,237,232,.6)}
-body.light .starter-card p{color:rgba(26,26,46,.6)}
-
-.msg{display:flex;gap:9px;max-width:640px;width:100%;animation:msgIn .2s ease both}
-@keyframes msgIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.messages{display:none;flex-direction:column;gap:16px}
+.msg{display:flex;gap:9px;max-width:690px;animation:fade .2s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 .msg.user{align-self:flex-end;flex-direction:row-reverse}
-.msg.ai{align-self:flex-start}
-.msg-avatar{width:26px;height:26px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;margin-top:2px}
-.msg.ai .msg-avatar{background:linear-gradient(135deg,#EEB93E,#B8860E)}
-body.dark .msg.user .msg-avatar{background:rgba(255,255,255,.08)}
-body.light .msg.user .msg-avatar{background:rgba(0,0,0,.07)}
-.msg-bubble{padding:11px 14px;border-radius:13px;font-family:'Inter',sans-serif;font-size:13px;line-height:1.65}
-body.dark .msg.ai .msg-bubble{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);color:#EDEFF2}
-body.light .msg.ai .msg-bubble{background:#fff;border:1px solid #E8ECF2;color:#0B0E11;box-shadow:0 1px 4px rgba(0,0,0,.04)}
-body.dark .msg.user .msg-bubble{background:rgba(238,185,62,.1);border:1px solid rgba(238,185,62,.18);color:#EDEFF2}
-body.light .msg.user .msg-bubble{background:rgba(238,185,62,.08);border:1px solid rgba(238,185,62,.16);color:#0B0E11}
+.msg-avatar{width:26px;height:26px;border-radius:7px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.msg.ai .msg-avatar{background:var(--gold);color:#0B0E11}
+.bubble{padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:var(--surface);font-size:12px;line-height:1.65;white-space:pre-wrap}
+.msg.user .bubble{background:rgba(238,185,62,.08);border-color:rgba(238,185,62,.18)}
+.agent-pill{display:inline-block;font-family:'JetBrains Mono';font-size:9px;font-weight:700;color:var(--gold);margin-bottom:6px}
+.typing{display:flex;gap:4px;padding:3px}
+.typing i{width:5px;height:5px;border-radius:50%;background:var(--faint);animation:bounce .9s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:none}30%{transform:translateY(-4px)}}
 
-.typing{display:flex;gap:4px;align-items:center;padding:11px 14px}
-.typing span{width:5px;height:5px;border-radius:50%;animation:bounce .9s infinite}
-body.dark .typing span{background:rgba(240,237,232,.28)}
-body.light .typing span{background:rgba(26,26,46,.22)}
-.typing span:nth-child(2){animation-delay:.15s}
-.typing span:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+/* COMPOSER */
+.composer-wrap{padding:12px 18px 16px;flex-shrink:0;background:linear-gradient(180deg,transparent,var(--bg) 20%)}
+.composer{max-width:780px;margin:0 auto;border:1px solid var(--border);border-radius:13px;background:var(--surface);overflow:hidden}
+.attachments{display:none;padding:9px 10px 0;gap:7px;flex-wrap:wrap}
+.file-chip{display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:7px;padding:6px 8px;font-size:10px;color:var(--muted);background:var(--surface2)}
+.file-chip button{border:0;background:none;color:var(--faint);font-size:11px}
+.compose-main{display:flex;align-items:flex-end;gap:7px;padding:10px}
+.chat-input{flex:1;resize:none;min-height:39px;max-height:140px;border:0;outline:0;background:transparent;color:var(--ink);font-size:12px;line-height:1.5;padding:9px 4px}
+.chat-input::placeholder{color:var(--faint)}
+.icon-btn{width:36px;height:36px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--muted);display:flex;align-items:center;justify-content:center}
+.send{background:var(--gold);border-color:var(--gold);color:#0B0E11}
+.compose-bottom{border-top:1px solid var(--border);padding:7px 10px;display:flex;align-items:center;justify-content:space-between}
+.active-agent{font-family:'JetBrains Mono';font-size:9px;color:var(--gold);font-weight:700}
+.hint{font-size:9px;color:var(--faint)}
+.file-input{display:none}
 
-/* Input */
-.input-wrap{padding:14px 20px;border-top:1px solid;flex-shrink:0}
-body.dark .input-wrap{border-color:rgba(255,255,255,.06)}
-body.light .input-wrap{border-color:#E8ECF2}
-.input-inner{max-width:800px;margin:0 auto}
-.input-row{display:flex;gap:8px;align-items:flex-end;border-radius:12px;border:1px solid;padding:8px 8px 8px 14px;transition:border-color .2s}
-body.dark .input-row{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1)}
-body.light .input-row{background:#fff;border-color:#E2E8F0;box-shadow:0 1px 4px rgba(0,0,0,.04)}
-body.dark .input-row:focus-within{border-color:rgba(238,185,62,.35)}
-body.light .input-row:focus-within{border-color:rgba(184,134,14,.35)}
-.chat-input{flex:1;background:none;border:none;outline:none;font-size:13px;font-family:'Inter',sans-serif;resize:none;min-height:22px;max-height:110px;line-height:1.5;padding:0}
-body.dark .chat-input{color:#EDEFF2}
-body.dark .chat-input::placeholder{color:rgba(240,237,232,.28)}
-body.light .chat-input{color:#0B0E11}
-body.light .chat-input::placeholder{color:rgba(26,26,46,.3)}
-.send-btn{width:36px;height:36px;border-radius:8px;border:none;background:linear-gradient(135deg,#EEB93E,#B8860E);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(238,185,62,.25);transition:all .2s;flex-shrink:0}
-.send-btn:hover{box-shadow:0 0 20px rgba(238,185,62,.45)}
-.send-btn:disabled{opacity:.3;cursor:not-allowed}
-.input-hint{font-family:'Inter',sans-serif;font-size:10px;text-align:center;margin-top:8px}
-body.dark .input-hint{color:rgba(240,237,232,.18)}
-body.light .input-hint{color:rgba(26,26,46,.22)}
-.input-hint a{text-decoration:underline;cursor:pointer}
-body.dark .input-hint a{color:rgba(238,185,62,.5)}
-body.light .input-hint a{color:#B8860E}
+/* RIGHT PANEL */
+.context{border-left:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;min-height:0}
+.context-head{height:58px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;font-family:'Space Grotesk';font-size:12px;font-weight:700}
+.context-scroll{overflow:auto;padding:14px}
+.context-section{margin-bottom:20px}
+.context-label{font-family:'JetBrains Mono';font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);margin-bottom:8px}
+.context-card{border:1px solid var(--border);border-radius:9px;padding:10px;background:var(--surface2);margin-bottom:7px}
+.context-title{font-size:11px;font-weight:600;margin-bottom:4px}
+.context-copy{font-size:10px;color:var(--muted);line-height:1.5}
+.integration{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px}
+.int-icon{width:24px;height:24px;border-radius:6px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:11px}
+.int-name{font-size:10px;flex:1}
+.status{font-family:'JetBrains Mono';font-size:8px;color:var(--faint)}
+.status.soon{color:var(--gold)}
+.disclaimer{font-size:9px;color:var(--faint);line-height:1.5;border-top:1px solid var(--border);padding-top:12px}
 
-@media(max-width:640px){
+.mobile-context{display:none}
+
+@media(max-width:1050px){
+  .app{grid-template-columns:220px 1fr}
+  .context{display:none}
+}
+@media(max-width:720px){
+  .app{grid-template-columns:1fr}
   .sidebar{display:none}
-  .msg{max-width:96%}
-  .starter-grid{grid-template-columns:1fr}
+  .starters{grid-template-columns:1fr}
+  .chat-area{padding:20px 14px}
+  .composer-wrap{padding:10px 10px 12px}
+  .topbar{padding:0 12px}
+  .mobile-context{display:inline-flex}
 }
 </style>
 </head>
-<body class="dark">
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
 
+<body>
 <div class="app">
-  <!-- SIDEBAR: chat history -->
-  <div class="sidebar">
-    <div class="sidebar-top">
-      <a class="brand" href="https://www.fraudshieldsmb.com">
-        <div class="logo-box">🛡</div>
-        <span class="logo-name">FRAUDSHIELD SMB</span>
-      </a>
-      <button class="btn-new" onclick="newChat()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        New chat
+
+  <aside class="sidebar">
+    <a class="brand" href="/">
+      <div class="mark">FS</div>
+      <div class="brand-name">FraudShield</div>
+      <div class="beta">BETA</div>
+    </a>
+
+    <button class="new-chat" onclick="newChat()">＋ New conversation</button>
+
+    <div class="side-label">Specialists</div>
+    <div class="agent-list">
+      <button class="agent active" data-agent="fraud" onclick="selectAgent('fraud')">
+        <div class="agent-icon">🛡</div><div><div class="agent-code">@fraud</div><div>Risk & verification</div></div>
+      </button>
+      <button class="agent" data-agent="accounting" onclick="selectAgent('accounting')">
+        <div class="agent-icon">🧾</div><div><div class="agent-code">@accounting</div><div>Finance & categorization</div></div>
       </button>
     </div>
 
-    <!-- History (signed in) -->
-    <div id="history-section" style="display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0">
-      <div class="sidebar-section">Recent</div>
-      <div class="history-list" id="history-list"></div>
-    </div>
+    <div class="side-label">Recent</div>
+    <div class="history" id="history"></div>
 
-    <!-- Guest prompt -->
-    <div id="guest-section" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:8px">
-      <div class="sidebar-guest">
-        <p>Sign in to save your chat history and connect real payment data.</p>
-        <button class="btn-guest-signin" onclick="signInGoogle()">Sign in with Google</button>
+    <div class="side-bottom">
+      <div id="guestBox">
+        <button class="new-chat" style="margin:0;width:100%;text-align:center" onclick="signInGoogle()">Sign in to save history</button>
+      </div>
+      <div class="user-row" id="userRow" style="display:none">
+        <div class="avatar" id="userInitial">U</div>
+        <div class="user-info"><div class="user-email" id="userEmail"></div><button class="user-action" onclick="signOut()">Sign out</button></div>
       </div>
     </div>
+  </aside>
 
-    <!-- User info (signed in) -->
-    <div class="sidebar-bottom" id="user-row" style="display:none">
-      <div class="user-row">
-        <div class="user-avatar" id="user-initial">?</div>
-        <div class="user-info">
-          <div class="user-email" id="user-email">—</div>
-          <button class="btn-signout" onclick="signOut()">Sign out</button>
+  <section class="main">
+    <header class="topbar">
+      <div class="top-left">
+        <div class="top-icon" id="topIcon">🛡</div>
+        <div><div class="top-name" id="topName">@fraud</div><div class="top-sub" id="topSub">Risk checks, vendor verification & fraud questions</div></div>
+      </div>
+      <div class="top-actions">
+        <button class="small-btn" onclick="toggleTheme()" id="themeBtn">☀ Light</button>
+        <button class="small-btn mobile-context" onclick="alert('Integrations panel is available on desktop.')" >Integrations</button>
+        <button class="small-btn signin" id="signinTop" onclick="signInGoogle()">Sign in</button>
+      </div>
+    </header>
+
+    <div class="chat-area" id="chatArea">
+      <div class="chat-inner">
+        <div class="welcome" id="welcome">
+          <div class="welcome-mark">FS</div>
+          <h1>What should we check?</h1>
+          <p>Use <span style="color:var(--gold);font-family:'JetBrains Mono'">@fraud</span> for risk and verification, or <span style="color:var(--gold);font-family:'JetBrains Mono'">@accounting</span> for finance and categorization help.</p>
+
+          <div class="starters">
+            <button class="starter" onclick="startPrompt('fraud','@fraud Check this invoice for anything suspicious.')">
+              <div class="starter-agent">@fraud</div><div class="starter-text">Check an invoice before I pay it</div>
+            </button>
+            <button class="starter" onclick="startPrompt('fraud','@fraud What should I verify when a vendor changes bank details?')">
+              <div class="starter-agent">@fraud</div><div class="starter-text">A vendor changed payment details</div>
+            </button>
+            <button class="starter" onclick="startPrompt('accounting','@accounting Help me categorize this business expense.')">
+              <div class="starter-agent">@accounting</div><div class="starter-text">Categorize an expense</div>
+            </button>
+            <button class="starter" onclick="startPrompt('accounting','@accounting What information do you need to summarize my vendor spend?')">
+              <div class="starter-agent">@accounting</div><div class="starter-text">Understand vendor spending</div>
+            </button>
+          </div>
         </div>
-        <button class="theme-pill" onclick="toggleTheme()">
-          <div class="t-track"><div class="t-knob"></div></div>
-          <span id="theme-lbl-sb">☀</span>
-        </button>
+        <div class="messages" id="messages"></div>
       </div>
     </div>
-  </div>
 
-  <!-- MAIN -->
-  <div class="chat-main">
-    <!-- Topbar -->
-    <div class="topbar">
-      <div class="topbar-left">
-        <div class="ai-avatar">🛡</div>
-        <div>
-          <div class="topbar-name">FraudShield AI</div>
-          <div class="topbar-sub" id="topbar-sub">Ask me anything about fraud</div>
+    <div class="composer-wrap">
+      <div class="composer">
+        <div class="attachments" id="attachments"></div>
+        <div class="compose-main">
+          <input class="file-input" id="fileInput" type="file" accept=".txt,.csv,.json,.pdf,.png,.jpg,.jpeg" multiple onchange="handleFiles(event)"/>
+          <button class="icon-btn" title="Attach a file" onclick="document.getElementById('fileInput').click()">＋</button>
+          <textarea id="chatInput" class="chat-input" rows="1" placeholder="@fraud Check this invoice..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+          <button class="icon-btn send" id="sendBtn" onclick="sendMessage()">➤</button>
         </div>
-      </div>
-      <div class="topbar-right">
-        <button class="theme-pill" id="theme-pill-top" onclick="toggleTheme()">
-          <div class="t-track"><div class="t-knob"></div></div>
-          <span id="theme-lbl">☀ Light</span>
-        </button>
-        <button class="btn-nav-signin" id="nav-signin-btn" onclick="signInGoogle()">Sign in</button>
-      </div>
-    </div>
-
-    <!-- Welcome / Messages -->
-    <div id="welcome" class="welcome">
-      <div class="welcome-icon">🛡</div>
-      <h2>FraudShield AI</h2>
-      <p>Ask me anything about fraud patterns, suspicious transactions, chargebacks, card testing, ACH fraud — across Stripe, Square, PayPal, Zelle, and more.</p>
-      <div class="starter-grid">
-        <button class="starter-card" onclick="startChat(this)"><p>Is my business at risk of card testing attacks?</p></button>
-        <button class="starter-card" onclick="startChat(this)"><p>What does ACH fraud look like for a small business?</p></button>
-        <button class="starter-card" onclick="startChat(this)"><p>How do I know if a chargeback is friendly fraud?</p></button>
-        <button class="starter-card" onclick="startChat(this)"><p>What red flags should I watch on PayPal orders?</p></button>
-      </div>
-    </div>
-
-    <div id="messages" class="messages" style="display:none"></div>
-
-    <!-- Input -->
-    <div class="input-wrap">
-      <div class="input-inner">
-        <div class="input-row">
-          <textarea class="chat-input" id="chat-input" placeholder="Ask about fraud, transactions, or risk patterns..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-          <button class="send-btn" id="send-btn" onclick="sendMessage()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="#0B0E11" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-        <div class="input-hint" id="input-hint">
-          Chatting without an account · <a onclick="signInGoogle()">Sign in to save history & connect payments</a>
+        <div class="compose-bottom">
+          <div class="active-agent" id="activeAgent">@fraud active</div>
+          <div class="hint">Enter to send · Shift+Enter for new line</div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
+
+  <aside class="context">
+    <div class="context-head">Business context</div>
+    <div class="context-scroll">
+      <div class="context-section">
+        <div class="context-label">Current specialist</div>
+        <div class="context-card">
+          <div class="context-title" id="contextAgentTitle">@fraud</div>
+          <div class="context-copy" id="contextAgentCopy">Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.</div>
+        </div>
+      </div>
+
+      <div class="context-section">
+        <div class="context-label">Integrations</div>
+        <div class="integration"><div class="int-icon">✉</div><div class="int-name">Gmail</div><div class="status soon">NEXT</div></div>
+        <div class="integration"><div class="int-icon">Q</div><div class="int-name">QuickBooks</div><div class="status soon">NEXT</div></div>
+        <div class="integration"><div class="int-icon">S</div><div class="int-name">Stripe</div><div class="status">PLANNED</div></div>
+        <div class="integration"><div class="int-icon">◫</div><div class="int-name">Browser extension</div><div class="status">PLANNED</div></div>
+      </div>
+
+      <div class="context-section">
+        <div class="context-label">Attached context</div>
+        <div class="context-card">
+          <div class="context-title" id="fileCount">No files attached</div>
+          <div class="context-copy">Text, CSV, and JSON files can be read in this beta. PDF/image parsing is the next backend step.</div>
+        </div>
+      </div>
+
+      <div class="disclaimer">FraudShield provides decision support, not guarantees. Verify high-risk payment changes independently. Accounting responses are informational and are not tax or professional accounting advice.</div>
+    </div>
+  </aside>
+
 </div>
 
 <script>
-// ── Supabase ──
-const SUPABASE_URL  = 'https://nivqhnqquwszwtsgupgx.supabase.co';
+const SUPABASE_URL = 'https://nivqhnqquwszwtsgupgx.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pdnFobnFxdXdzend0c2d1cGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1OTk3NDQsImV4cCI6MjA5NDE3NTc0NH0.IlaMbd-s4BjhUmazzvwJOc_F5f9BiJzcQ99agtuDaiA';
-let sb;
-try { const {createClient} = supabase; sb = createClient(SUPABASE_URL, SUPABASE_ANON); } catch(e) {}
+let sb = null;
+try { sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON); } catch(e){}
 
-async function signInGoogle() {
-  if (!sb) return;
-  await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: 'https://www.fraudshieldsmb.com/chat.html' } });
-}
-async function signOut() {
-  if (sb) await sb.auth.signOut();
-  location.reload();
-}
-async function checkAuth() {
-  if (!sb) return;
-  const { data } = await sb.auth.getSession();
-  if (data?.session?.user) setLoggedIn(data.session.user);
-}
-function setLoggedIn(user) {
-  document.getElementById('nav-signin-btn').style.display = 'none';
-  document.getElementById('input-hint').style.display = 'none';
-  document.getElementById('topbar-sub').textContent = 'Live monitoring · All payment channels';
-  document.getElementById('guest-section').style.display = 'none';
-  document.getElementById('user-row').style.display = 'block';
-  document.getElementById('history-section').style.display = 'flex';
-  const email = user.email || '';
-  document.getElementById('user-email').textContent = email;
-  document.getElementById('user-initial').textContent = email.charAt(0).toUpperCase();
-  loadHistory();
-}
-
-// ── Chat history (localStorage for now, Supabase later) ──
-let chatHistory = JSON.parse(localStorage.getItem('fs_chat_history') || '[]');
-let currentChatId = null;
+let activeAgent = 'fraud';
+let attachedFiles = [];
 let conversationHistory = [];
 let isLoading = false;
+let currentChatId = null;
+let chatHistory = JSON.parse(localStorage.getItem('fs_workspace_history') || '[]');
 
-function saveHistory() {
-  localStorage.setItem('fs_chat_history', JSON.stringify(chatHistory));
-}
+const agentConfig = {
+  fraud: {
+    icon:'🛡',
+    name:'@fraud',
+    sub:'Risk checks, vendor verification & fraud questions',
+    copy:'Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.',
+    placeholder:'@fraud Check this invoice before I pay it...',
+    system:`You are @fraud inside FraudShield SMB, an AI business risk and fraud-prevention assistant for small businesses.
 
-function loadHistory() {
-  renderHistory();
-}
+Your job is to help a business owner assess suspicious invoices, vendor communications, payment-change requests, transactions, refunds, account activity, and potential fraud. You are not a payment processor and you do not claim to block or guarantee fraud prevention.
 
-function renderHistory() {
-  const list = document.getElementById('history-list');
-  if (!chatHistory.length) {
-    list.innerHTML = `<div style="padding:10px;font-family:'Inter',sans-serif;font-size:11px;opacity:.3;text-align:center">No chats yet</div>`;
-    return;
+Use only the information the user provides in the conversation and attached text context. Clearly distinguish facts from concerns or possibilities. Never invent historical vendor records, bank changes, prior invoices, transactions, or connected-system data that was not provided.
+
+For a risk review, structure the response compactly:
+Risk level: LOW, REVIEW, or HIGH
+What I noticed: concise signals
+Why it matters: plain-English explanation
+Recommended next step: practical verification action
+
+For high-risk payment or bank-detail changes, recommend independent verification using a previously known contact method. Do not tell the user a transaction is definitely fraudulent unless the provided evidence establishes that.
+
+Be concise, conversational, and practical.`
+  },
+  accounting: {
+    icon:'🧾',
+    name:'@accounting',
+    sub:'Finance questions, categorization & business summaries',
+    copy:'Helps explain expenses, categorize transactions, summarize supplied financial data, and answer operational finance questions.',
+    placeholder:'@accounting Help me understand this expense...',
+    system:`You are @accounting inside FraudShield SMB, an AI financial-operations assistant for small businesses.
+
+Help users understand business expenses, transaction categories, vendor spend, supplied financial data, cash-flow concepts, bookkeeping workflows, and accounting-related operational questions.
+
+Use only data provided by the user or supplied as attached text context. Never pretend you can see QuickBooks, Stripe, bank, invoice, or vendor history unless that information is actually present in the conversation.
+
+When categorizing an expense, give the likely category, why, and what additional information could change the answer. When summarizing data, state the numbers supplied and avoid fabricating totals.
+
+You provide informational assistance, not tax, audit, or professional accounting advice. Flag situations that should be confirmed with a qualified accountant.
+
+Be concise, practical, and use plain English.`
   }
-  list.innerHTML = chatHistory.slice().reverse().map(chat => `
-    <div class="history-item ${chat.id === currentChatId ? 'active' : ''}" onclick="loadChat('${chat.id}')">
-      <div class="history-title">${chat.title}</div>
-      <div class="history-time">${chat.time}</div>
-    </div>
-  `).join('');
+};
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 }
 
-function loadChat(id) {
-  const chat = chatHistory.find(c => c.id === id);
-  if (!chat) return;
-  currentChatId = id;
-  conversationHistory = chat.messages || [];
+function selectAgent(agent){
+  activeAgent = agentConfig[agent] ? agent : 'fraud';
+  document.querySelectorAll('.agent').forEach(x=>x.classList.toggle('active',x.dataset.agent===activeAgent));
+  const c = agentConfig[activeAgent];
+  document.getElementById('topIcon').textContent=c.icon;
+  document.getElementById('topName').textContent=c.name;
+  document.getElementById('topSub').textContent=c.sub;
+  document.getElementById('activeAgent').textContent=c.name+' active';
+  document.getElementById('chatInput').placeholder=c.placeholder;
+  document.getElementById('contextAgentTitle').textContent=c.name;
+  document.getElementById('contextAgentCopy').textContent=c.copy;
+}
+
+async function signInGoogle(){
+  if(!sb) return alert('Sign-in is temporarily unavailable.');
+  await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://www.fraudshieldsmb.com/chat.html'}});
+}
+async function signOut(){ if(sb) await sb.auth.signOut(); location.reload(); }
+async function checkAuth(){
+  if(!sb) return;
+  const {data} = await sb.auth.getSession();
+  const user=data?.session?.user;
+  if(user){
+    document.getElementById('guestBox').style.display='none';
+    document.getElementById('userRow').style.display='flex';
+    document.getElementById('signinTop').style.display='none';
+    const email=user.email||'';
+    document.getElementById('userEmail').textContent=email;
+    document.getElementById('userInitial').textContent=(email[0]||'U').toUpperCase();
+  }
+}
+
+function saveHistory(){localStorage.setItem('fs_workspace_history',JSON.stringify(chatHistory));}
+function renderHistory(){
+  const el=document.getElementById('history');
+  if(!chatHistory.length){el.innerHTML='<div style="font-size:10px;color:var(--faint);padding:9px;text-align:center">No conversations yet</div>';return;}
+  el.innerHTML=[...chatHistory].reverse().slice(0,20).map(c=>`
+    <div class="hist" onclick="loadChat('${c.id}')">
+      <div class="hist-title">${escapeHtml(c.title)}</div>
+      <div class="hist-time">${escapeHtml(c.time||'')}</div>
+    </div>`).join('');
+}
+function loadChat(id){
+  const c=chatHistory.find(x=>x.id===id); if(!c)return;
+  currentChatId=id; conversationHistory=JSON.parse(JSON.stringify(c.messages||[]));
+  if(c.agent) selectAgent(c.agent);
+  showMessages(); document.getElementById('messages').innerHTML='';
+  conversationHistory.forEach(m=>renderMessage(m.role==='assistant'?'ai':'user',m.content,m.agent||c.agent));
+}
+function newChat(){
+  currentChatId=null;conversationHistory=[];attachedFiles=[];renderAttachments();
+  document.getElementById('messages').innerHTML='';
+  document.getElementById('messages').style.display='none';
+  document.getElementById('welcome').style.display='block';
+  document.getElementById('chatInput').focus();
+}
+function showMessages(){
+  document.getElementById('welcome').style.display='none';
+  document.getElementById('messages').style.display='flex';
+}
+function renderMessage(role,content,agent){
   showMessages();
-  const messagesEl = document.getElementById('messages');
-  messagesEl.innerHTML = '';
-  conversationHistory.forEach(m => renderMessage(m.role === 'user' ? 'user' : 'ai', m.content));
-  renderHistory();
+  const wrap=document.createElement('div');
+  wrap.className='msg '+role;
+  const pill=role==='ai'?`<div class="agent-pill">${escapeHtml(agentConfig[agent||activeAgent]?.name||'FraudShield')}</div>`:'';
+  wrap.innerHTML=`<div class="msg-avatar">${role==='ai'?(agentConfig[agent||activeAgent]?.icon||'FS'):'U'}</div><div class="bubble">${pill}${escapeHtml(content)}</div>`;
+  document.getElementById('messages').appendChild(wrap);
+  document.getElementById('chatArea').scrollTop=document.getElementById('chatArea').scrollHeight;
 }
-
-function newChat() {
-  currentChatId = null;
-  conversationHistory = [];
-  document.getElementById('welcome').style.display = 'flex';
-  document.getElementById('messages').style.display = 'none';
-  document.getElementById('messages').innerHTML = '';
-  renderHistory();
-}
-
-function showMessages() {
-  document.getElementById('welcome').style.display = 'none';
-  document.getElementById('messages').style.display = 'flex';
-}
-
-function renderMessage(role, content) {
-  const messagesEl = document.getElementById('messages');
-  const div = document.createElement('div');
-  div.className = `msg ${role}`;
-  div.innerHTML = `<div class="msg-avatar">${role === 'ai' ? '🛡' : '👤'}</div><div class="msg-bubble">${content.replace(/\n/g, '<br/>')}</div>`;
-  messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-}
-
-function addMessage(role, content) {
+function showTyping(){
   showMessages();
-  renderMessage(role, content);
+  const d=document.createElement('div');d.className='msg ai';d.id='typing';
+  d.innerHTML=`<div class="msg-avatar">${agentConfig[activeAgent].icon}</div><div class="bubble"><div class="typing"><i></i><i></i><i></i></div></div>`;
+  document.getElementById('messages').appendChild(d);
+}
+function removeTyping(){document.getElementById('typing')?.remove();}
+
+async function handleFiles(e){
+  const files=[...e.target.files];
+  for(const file of files){
+    const ext=(file.name.split('.').pop()||'').toLowerCase();
+    const item={name:file.name,type:file.type||ext,size:file.size,text:'',readable:false};
+    if(['txt','csv','json'].includes(ext) && file.size<750000){
+      try{item.text=await file.text();item.readable=true;}catch(err){}
+    }
+    attachedFiles.push(item);
+  }
+  e.target.value='';
+  renderAttachments();
+}
+function removeFile(i){attachedFiles.splice(i,1);renderAttachments();}
+function renderAttachments(){
+  const box=document.getElementById('attachments');
+  const count=document.getElementById('fileCount');
+  count.textContent=attachedFiles.length?`${attachedFiles.length} file${attachedFiles.length>1?'s':''} attached`:'No files attached';
+  if(!attachedFiles.length){box.style.display='none';box.innerHTML='';return;}
+  box.style.display='flex';
+  box.innerHTML=attachedFiles.map((f,i)=>`<div class="file-chip">📎 ${escapeHtml(f.name)} ${f.readable?'':'· preview only'} <button onclick="removeFile(${i})">×</button></div>`).join('');
 }
 
-function showTyping() {
-  showMessages();
-  const messagesEl = document.getElementById('messages');
-  const div = document.createElement('div');
-  div.className = 'msg ai'; div.id = 'typing-indicator';
-  div.innerHTML = `<div class="msg-avatar">🛡</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
-  messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
+function buildFileContext(){
+  const readable=attachedFiles.filter(f=>f.readable&&f.text);
+  const unreadable=attachedFiles.filter(f=>!f.readable);
+  let out='';
+  if(readable.length){
+    out+='\n\nATTACHED TEXT CONTEXT:\n'+readable.map(f=>`--- ${f.name} ---\n${f.text.slice(0,20000)}`).join('\n\n');
+  }
+  if(unreadable.length){
+    out+=`\n\nThe user attached ${unreadable.map(f=>f.name).join(', ')}, but the current beta cannot parse PDF/image contents yet. Do not pretend you can see their contents. Ask the user to paste the relevant text or wait for document parsing.`;
+  }
+  return out;
 }
-function removeTyping() { const t = document.getElementById('typing-indicator'); if(t) t.remove(); }
 
-async function callAI(userMessage) {
-  const system = `You are FraudShield AI, a fraud detection assistant for American small businesses. You help business owners understand and prevent fraud across all payment methods — Stripe, Square, PayPal, ACH, Zelle, and any others.
+async function callAI(message){
+  const agent=activeAgent;
+  const userContent=message+buildFileContext();
+  conversationHistory.push({role:'user',content:message,agent});
+  const apiMessages=conversationHistory.map(m=>({role:m.role,content:m.content}));
+  apiMessages[apiMessages.length-1]={role:'user',content:userContent};
 
-Explain everything in plain English. Be direct, specific, and practical. No jargon.
-
-Key fraud patterns to know: card testing (bots rapidly trying stolen cards in small amounts), ACH fraud (fake bank account details or new accounts with large transfers), chargeback fraud (customers falsely disputing charges), identity mismatch (name/address/IP inconsistencies), friendly fraud (real customers claiming non-delivery).
-
-Keep responses concise and conversational. No markdown headers. Natural paragraphs only.`;
-
-  conversationHistory.push({ role: 'user', content: userMessage });
-  const res = await fetch('https://nivqhnqquwszwtsgupgx.supabase.co/functions/v1/smooth-endpoint', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON}` },
-    body: JSON.stringify({ system, messages: conversationHistory })
+  const res=await fetch(`${SUPABASE_URL}/functions/v1/smooth-endpoint`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_ANON}`},
+    body:JSON.stringify({system:agentConfig[agent].system,messages:apiMessages})
   });
-  const data = await res.json();
-  const reply = data.content?.[0]?.text || 'Sorry, I could not process that right now.';
-  conversationHistory.push({ role: 'assistant', content: reply });
+  if(!res.ok) throw new Error(`Request failed (${res.status})`);
+  const data=await res.json();
+  const reply=data.content?.[0]?.text||data.text||'I could not process that request right now.';
+  conversationHistory.push({role:'assistant',content:reply,agent});
 
-  // Save to history
-  if (!currentChatId) {
-    currentChatId = 'chat_' + Date.now();
-    chatHistory.push({ id: currentChatId, title: userMessage.slice(0, 48) + (userMessage.length > 48 ? '…' : ''), time: 'Just now', messages: conversationHistory });
-  } else {
-    const idx = chatHistory.findIndex(c => c.id === currentChatId);
-    if (idx > -1) chatHistory[idx].messages = conversationHistory;
+  if(!currentChatId){
+    currentChatId='chat_'+Date.now();
+    chatHistory.push({id:currentChatId,title:message.slice(0,55)+(message.length>55?'…':''),time:'Just now',agent,messages:conversationHistory});
+  }else{
+    const idx=chatHistory.findIndex(x=>x.id===currentChatId);
+    if(idx>-1){chatHistory[idx].messages=conversationHistory;chatHistory[idx].agent=agent;}
   }
-  saveHistory();
-  renderHistory();
-  return reply;
+  saveHistory();renderHistory();
+  return {reply,agent};
 }
 
-async function sendMessage() {
-  const input = document.getElementById('chat-input');
-  const msg = input.value.trim();
-  if (!msg || isLoading) return;
-  input.value = ''; input.style.height = 'auto';
-  isLoading = true; document.getElementById('send-btn').disabled = true;
-  addMessage('user', msg); showTyping();
-  try {
-    const reply = await callAI(msg);
-    removeTyping();
-    addMessage('ai', reply);
-  } catch(e) { removeTyping(); addMessage('ai', 'Error: ' + e.message); }
-  isLoading = false; document.getElementById('send-btn').disabled = false;
-  document.getElementById('chat-input').focus();
-}
+async function sendMessage(){
+  const input=document.getElementById('chatInput');
+  let msg=input.value.trim();
+  if(!msg||isLoading)return;
 
-function startChat(btn) {
-  document.getElementById('chat-input').value = btn.querySelector('p').textContent;
-  sendMessage();
-}
+  if(msg.toLowerCase().startsWith('@accounting')) selectAgent('accounting');
+  else if(msg.toLowerCase().startsWith('@fraud')) selectAgent('fraud');
 
-function handleKey(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} }
-function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,110)+'px'; }
-
-// ── Theme ──
-let isDark = localStorage.getItem('fs_theme') ? localStorage.getItem('fs_theme')==='dark' : window.matchMedia('(prefers-color-scheme:dark)').matches;
-applyTheme();
-function applyTheme(){
-  document.body.className = isDark ? 'dark' : 'light';
-  ['theme-lbl','theme-lbl-sb'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = isDark ? '☀ Light' : '☾ Dark'; });
-}
-function toggleTheme(){ isDark=!isDark; localStorage.setItem('fs_theme',isDark?'dark':'light'); applyTheme(); }
-
-// ── Init ──
-checkAuth();
-</script>
-<script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js");
-    });
+  input.value='';autoResize(input);
+  isLoading=true;document.getElementById('sendBtn').disabled=true;
+  renderMessage('user',msg);showTyping();
+  try{
+    const {reply,agent}=await callAI(msg);
+    removeTyping();renderMessage('ai',reply,agent);
+  }catch(e){
+    removeTyping();renderMessage('ai','I hit a connection error: '+e.message+'. Please try again.',activeAgent);
   }
+  isLoading=false;document.getElementById('sendBtn').disabled=false;input.focus();
+}
+function startPrompt(agent,text){selectAgent(agent);document.getElementById('chatInput').value=text;sendMessage();}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,140)+'px';}
+
+let dark=localStorage.getItem('fs_theme')!=='light';
+function applyTheme(){document.body.classList.toggle('light',!dark);document.getElementById('themeBtn').textContent=dark?'☀ Light':'☾ Dark';}
+function toggleTheme(){dark=!dark;localStorage.setItem('fs_theme',dark?'dark':'light');applyTheme();}
+
+applyTheme();selectAgent('fraud');renderHistory();checkAuth();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}
 </script>
 </body>
 </html>
