@@ -22,6 +22,31 @@ body.light{--bg:#F6F7F9;--surface:#FFFFFF;--surface2:#F0F2F5;--surface3:#E9ECF0;
 .chat-area{flex:1;overflow:auto;padding:28px 22px}.chat-inner{max-width:780px;margin:0 auto}.welcome{padding:7vh 0 20px;text-align:center}.welcome-mark{width:50px;height:50px;border-radius:13px;background:var(--gold);color:#0B0E11;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:22px}.welcome h1{font-family:'Space Grotesk';font-size:26px;letter-spacing:-.02em;margin-bottom:8px}.welcome p{color:var(--muted);font-size:13px;max-width:520px;margin:0 auto 25px;line-height:1.6}.starters{display:grid;grid-template-columns:1fr 1fr;gap:9px;max-width:640px;margin:0 auto}.starter{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:13px;text-align:left;color:var(--ink)}.starter:hover{border-color:rgba(238,185,62,.35)}.starter-agent{font-family:'JetBrains Mono';font-size:10px;color:var(--gold);font-weight:700;margin-bottom:5px}.starter-text{font-size:11px;color:var(--muted);line-height:1.5}.messages{display:none;flex-direction:column;gap:16px}.msg{display:flex;gap:9px;max-width:690px;animation:fade .2s ease}@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}.msg.user{align-self:flex-end;flex-direction:row-reverse}.msg-avatar{width:26px;height:26px;border-radius:7px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}.msg.ai .msg-avatar{background:var(--gold);color:#0B0E11}.bubble{padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:var(--surface);font-size:12px;line-height:1.65;white-space:pre-wrap}.msg.user .bubble{background:rgba(238,185,62,.08);border-color:rgba(238,185,62,.18)}.agent-pill{display:inline-block;font-family:'JetBrains Mono';font-size:9px;font-weight:700;color:var(--gold);margin-bottom:6px}.typing{display:flex;gap:4px;padding:3px}.typing i{width:5px;height:5px;border-radius:50%;background:var(--faint);animation:bounce .9s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}@keyframes bounce{0%,60%,100%{transform:none}30%{transform:translateY(-4px)}}
 .composer-wrap{padding:12px 18px 16px;flex-shrink:0;background:linear-gradient(180deg,transparent,var(--bg) 20%)}.composer{max-width:780px;margin:0 auto;border:1px solid var(--border);border-radius:13px;background:var(--surface);overflow:hidden}.attachments{display:none;padding:9px 10px 0;gap:7px;flex-wrap:wrap}.file-chip{display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:7px;padding:6px 8px;font-size:10px;color:var(--muted);background:var(--surface2)}.file-chip button{border:0;background:none;color:var(--faint);font-size:11px}.compose-main{display:flex;align-items:flex-end;gap:7px;padding:10px}.chat-input{flex:1;resize:none;min-height:39px;max-height:140px;border:0;outline:0;background:transparent;color:var(--ink);font-size:12px;line-height:1.5;padding:9px 4px}.chat-input::placeholder{color:var(--faint)}.icon-btn{width:36px;height:36px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--muted);display:flex;align-items:center;justify-content:center}.send{background:var(--gold);border-color:var(--gold);color:#0B0E11}.compose-bottom{border-top:1px solid var(--border);padding:7px 10px;display:flex;align-items:center;justify-content:space-between}.active-agent{font-family:'JetBrains Mono';font-size:9px;color:var(--gold);font-weight:700}.hint{font-size:9px;color:var(--faint)}.file-input{display:none}
 .context{border-left:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;min-height:0}.context-head{height:58px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;font-family:'Space Grotesk';font-size:12px;font-weight:700}.context-scroll{overflow:auto;padding:14px}.context-section{margin-bottom:20px}.context-label{font-family:'JetBrains Mono';font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);margin-bottom:8px}.context-card{border:1px solid var(--border);border-radius:9px;padding:10px;background:var(--surface2);margin-bottom:7px}.context-title{font-size:11px;font-weight:600;margin-bottom:4px}.context-copy{font-size:10px;color:var(--muted);line-height:1.5}.integration{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px}.int-icon{width:24px;height:24px;border-radius:6px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:11px}.int-name{font-size:10px;flex:1}.status{font-family:'JetBrains Mono';font-size:8px;color:var(--faint)}.status.soon{color:var(--gold)}.disclaimer{font-size:9px;color:var(--faint);line-height:1.5;border-top:1px solid var(--border);padding-top:12px}.mobile-context{display:none}
+
+/* ONBOARDING TOUR */
+.tour-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:9998;display:none
+}
+.tour-overlay.show{display:block}
+.tour-card{
+  position:fixed;z-index:9999;width:min(360px,calc(100vw - 32px));
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:18px;box-shadow:0 24px 70px rgba(0,0,0,.45);display:none
+}
+.tour-card.show{display:block}
+.tour-kicker{font-family:'JetBrains Mono';font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:7px}
+.tour-title{font-family:'Space Grotesk';font-size:18px;font-weight:700;margin-bottom:7px}
+.tour-copy{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:15px}
+.tour-footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tour-progress{font-family:'JetBrains Mono';font-size:9px;color:var(--faint)}
+.tour-actions{display:flex;gap:7px}
+.tour-btn{border:1px solid var(--border);background:var(--surface2);color:var(--ink);border-radius:8px;padding:8px 11px;font-size:11px;font-weight:600}
+.tour-btn.primary{background:var(--gold);border-color:var(--gold);color:#0B0E11}
+.tour-highlight{
+  position:relative!important;z-index:9999!important;outline:2px solid var(--gold)!important;
+  outline-offset:4px;border-radius:10px;box-shadow:0 0 0 7px rgba(238,185,62,.12)
+}
+
 @media(max-width:1050px){.app{grid-template-columns:220px 1fr}.context{display:none}}@media(max-width:720px){.app{grid-template-columns:1fr}.sidebar{display:none}.starters{grid-template-columns:1fr}.chat-area{padding:20px 14px}.composer-wrap{padding:10px 10px 12px}.topbar{padding:0 12px}.mobile-context{display:inline-flex}}
 </style>
 </head>
@@ -45,6 +70,21 @@ body.light{--bg:#F6F7F9;--surface:#FFFFFF;--surface2:#F0F2F5;--surface3:#E9ECF0;
 </section>
 <aside class="context"><div class="context-head">Workspace context</div><div class="context-scroll"><div class="context-section"><div class="context-label">Active specialist</div><div class="context-card"><div class="context-title" id="contextAgentTitle">@fraud</div><div class="context-copy" id="contextAgentCopy">Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.</div></div></div><div class="context-section"><div class="context-label">Integrations</div><div class="integration"><div class="int-icon">✉</div><div class="int-name">Gmail</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">QB</div><div class="int-name">QuickBooks</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">S</div><div class="int-name">Stripe</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><div class="context-section"><div class="context-label">Attached context</div><div class="context-card"><div class="context-title" id="fileCount">No files attached</div><div class="context-copy">Text, CSV, and JSON can be read immediately. Other file types are uploaded securely but need document parsing in the next backend step.</div></div></div><div class="disclaimer">FraudShield provides decision support, not guarantees. Verify high-risk payment changes independently. Accounting responses are informational and are not tax or professional accounting advice.</div></div></aside>
 </div>
+
+<div class="tour-overlay" id="tourOverlay"></div>
+<div class="tour-card" id="tourCard">
+  <div class="tour-kicker">Welcome to FraudShield</div>
+  <div class="tour-title" id="tourTitle"></div>
+  <div class="tour-copy" id="tourCopy"></div>
+  <div class="tour-footer">
+    <div class="tour-progress" id="tourProgress"></div>
+    <div class="tour-actions">
+      <button class="tour-btn" onclick="finishTour()">Skip</button>
+      <button class="tour-btn primary" id="tourNext" onclick="nextTourStep()">Next →</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const SUPABASE_URL='https://nivqhnqquwszwtsgupgx.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pdnFobnFxdXdzend0c2d1cGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1OTk3NDQsImV4cCI6MjA5NDE3NTc0NH0.IlaMbd-s4BjhUmazzvwJOc_F5f9BiJzcQ99agtuDaiA';
@@ -74,6 +114,156 @@ function buildFileContext(){const readable=attachedFiles.filter(f=>f.readable&&f
 async function callAI(message){const agent=activeAgent;if(currentUser&&!currentChatId)await createConversation(message.replace(/^@(fraud|accounting)\s*/i,'').slice(0,60)||'New conversation');conversationHistory.push({role:'user',content:message,agent});if(currentUser){await saveMessage('user',message,agent);await uploadAttachedFiles()}const userContent=message+buildFileContext();const apiMessages=conversationHistory.map(m=>({role:m.role,content:m.content}));apiMessages[apiMessages.length-1]={role:'user',content:userContent};const {data:{session}}=sb?await sb.auth.getSession():{data:{session:null}};const bearer=session?.access_token||SUPABASE_ANON;const res=await fetch(`${SUPABASE_URL}/functions/v1/smooth-endpoint`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${bearer}`},body:JSON.stringify({system:agentConfig[agent].system,messages:apiMessages})});if(!res.ok){let detail='';try{detail=await res.text()}catch(e){}throw new Error(`Request failed (${res.status})${detail?': '+detail.slice(0,180):''}`)}const data=await res.json();const reply=data.content?.[0]?.text||data.text||data.message||'I could not process that request right now.';conversationHistory.push({role:'assistant',content:reply,agent});if(currentUser){await saveMessage('assistant',reply,agent);await loadConversationList()}return{reply,agent}}
 async function sendMessage(){let msg=chatInput.value.trim();if(!msg||isLoading)return;if(msg.toLowerCase().startsWith('@accounting'))selectAgent('accounting');else if(msg.toLowerCase().startsWith('@fraud'))selectAgent('fraud');chatInput.value='';autoResize(chatInput);isLoading=true;sendBtn.disabled=true;renderMessage('user',msg,activeAgent);showTyping();try{const {reply,agent}=await callAI(msg);removeTyping();renderMessage('ai',reply,agent)}catch(e){removeTyping();renderMessage('ai','I hit a connection error: '+e.message+'. Please try again.',activeAgent)}isLoading=false;sendBtn.disabled=false;chatInput.focus()}
 function startPrompt(agent,text){selectAgent(agent);chatInput.value=text;sendMessage()}function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,140)+'px'}
+
+const tourSteps = [
+  {
+    target:'.agent[data-agent="fraud"]',
+    title:'Start with @fraud',
+    copy:'Use @fraud to review suspicious invoices, vendor payment changes, unusual requests, and other fraud or risk questions.'
+  },
+  {
+    target:'.agent[data-agent="accounting"]',
+    title:'Use @accounting for finance questions',
+    copy:'Switch to @accounting when you want help understanding expenses, categorizing transactions, or summarizing financial data you provide.'
+  },
+  {
+    target:'.composer',
+    title:'Ask anything in one conversation',
+    copy:'Type naturally or begin with @fraud or @accounting. FraudShield keeps the conversation connected to the specialist you choose.'
+  },
+  {
+    target:'.icon-btn',
+    title:'Attach business documents',
+    copy:'Use the + button to attach invoices, receipts, CSVs, or other files. Text-based files can be analyzed immediately.'
+  },
+  {
+    target:'#history',
+    title:'Your conversations are saved',
+    copy:'When you are signed in, FraudShield saves your conversation history so you can return to previous checks later.'
+  },
+  {
+    target:'.context',
+    title:'Your workspace grows with your business',
+    copy:'This panel will become the home for connected tools like Gmail, QuickBooks, Stripe, and Shopify.'
+  }
+];
+
+let currentTourStep = 0;
+let tourRunning = false;
+
+async function maybeStartTour(){
+  if(!currentUser || tourRunning) return;
+
+  let completed = false;
+
+  try{
+    const {data,error} = await sb
+      .from('profiles')
+      .select('onboarding_completed')
+      .eq('id',currentUser.id)
+      .maybeSingle();
+
+    if(!error && data){
+      completed = data.onboarding_completed === true;
+    }else{
+      completed = localStorage.getItem('fs_tour_complete') === '1';
+    }
+  }catch(e){
+    completed = localStorage.getItem('fs_tour_complete') === '1';
+  }
+
+  if(!completed){
+    setTimeout(startTour,500);
+  }
+}
+
+function startTour(){
+  currentTourStep = 0;
+  tourRunning = true;
+  document.getElementById('tourOverlay').classList.add('show');
+  renderTourStep();
+}
+
+function clearTourHighlight(){
+  document.querySelectorAll('.tour-highlight').forEach(el=>el.classList.remove('tour-highlight'));
+}
+
+function renderTourStep(){
+  clearTourHighlight();
+
+  const step = tourSteps[currentTourStep];
+  const card = document.getElementById('tourCard');
+  const target = document.querySelector(step.target);
+
+  document.getElementById('tourTitle').textContent = step.title;
+  document.getElementById('tourCopy').textContent = step.copy;
+  document.getElementById('tourProgress').textContent = `${currentTourStep + 1} of ${tourSteps.length}`;
+  document.getElementById('tourNext').textContent =
+    currentTourStep === tourSteps.length - 1 ? 'Finish ✓' : 'Next →';
+
+  card.style.transform = '';
+
+  if(target){
+    target.classList.add('tour-highlight');
+    const r = target.getBoundingClientRect();
+    const width = Math.min(360, window.innerWidth - 32);
+
+    let left = r.right + 16;
+    let top = Math.max(16, r.top);
+
+    if(left + width > window.innerWidth - 16){
+      left = Math.max(16, r.left - width - 16);
+    }
+
+    if(top + 240 > window.innerHeight - 16){
+      top = Math.max(16, window.innerHeight - 256);
+    }
+
+    card.style.left = left + 'px';
+    card.style.top = top + 'px';
+  }else{
+    card.style.left = '50%';
+    card.style.top = '50%';
+    card.style.transform = 'translate(-50%,-50%)';
+  }
+
+  card.classList.add('show');
+}
+
+function nextTourStep(){
+  if(currentTourStep < tourSteps.length - 1){
+    currentTourStep++;
+    renderTourStep();
+  }else{
+    finishTour();
+  }
+}
+
+async function finishTour(){
+  clearTourHighlight();
+  document.getElementById('tourOverlay').classList.remove('show');
+  document.getElementById('tourCard').classList.remove('show');
+  document.getElementById('tourCard').style.transform = '';
+  tourRunning = false;
+
+  localStorage.setItem('fs_tour_complete','1');
+
+  if(currentUser && sb){
+    try{
+      await sb
+        .from('profiles')
+        .update({onboarding_completed:true})
+        .eq('id',currentUser.id);
+    }catch(e){
+      console.warn('Could not persist onboarding status',e);
+    }
+  }
+}
+
+window.addEventListener('resize',()=>{
+  if(tourRunning) renderTourStep();
+});
+
 let dark=localStorage.getItem('fs_theme')!=='light';function applyTheme(){document.body.classList.toggle('light',!dark);themeBtn.textContent=dark?'☀ Light':'☾ Dark'}function toggleTheme(){dark=!dark;localStorage.setItem('fs_theme',dark?'dark':'light');applyTheme()}
 applyTheme();selectAgent('fraud');checkAuth();if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 </script>
