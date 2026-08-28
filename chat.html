@@ -13,6 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 :root{--bg:#0B0E11;--surface:#101419;--surface2:#151A20;--surface3:#1A2027;--ink:#EDEFF2;--muted:#8B92A0;--faint:#626A76;--border:rgba(237,239,242,.09);--gold:#EEB93E;--gold2:#B8860E;--green:#3DD68C;--red:#FF6B6B;--blue:#79AFFF}
 body.light{--bg:#F6F7F9;--surface:#FFFFFF;--surface2:#F0F2F5;--surface3:#E9ECF0;--ink:#0B0E11;--muted:#5B6270;--faint:#8B92A0;--border:rgba(11,14,17,.10);--gold:#B8860E;--gold2:#8B6508;--green:#1C8A5C;--red:#D64545;--blue:#356FD6}
@@ -122,6 +123,7 @@ async function handleFiles(e){
   for(const file of files){
     const ext=(file.name.split('.').pop()||'').toLowerCase();
     const isImage=file.type?.startsWith('image/')||['jpg','jpeg','png','webp','gif','heic','heif'].includes(ext);
+    const isPdf=file.type==='application/pdf'||ext==='pdf';
 
     const item={
       file,
@@ -133,6 +135,9 @@ async function handleFiles(e){
       storagePath:null,
       previewUrl:null,
       isImage,
+      isPdf,
+      pdfPages:[],
+      pdfReady:false,
       visionSupported:isImage && visionTypes.includes(file.type),
       visionError:null
     };
@@ -145,6 +150,21 @@ async function handleFiles(e){
       }else if(file.size>4.5*1024*1024){
         item.visionSupported=false;
         item.visionError='This image is too large to analyze. Please use an image smaller than 4.5 MB.';
+      }
+    }
+
+    if(isPdf){
+      if(file.size>12*1024*1024){
+        item.visionError='This PDF is too large to analyze. Please use a PDF smaller than 12 MB.';
+      }else{
+        try{
+          item.pdfPages=await pdfToImages(file,5);
+          item.pdfReady=item.pdfPages.length>0;
+          if(!item.pdfReady) item.visionError='FraudShield could not render this PDF.';
+        }catch(err){
+          console.error('PDF rendering failed',err);
+          item.visionError='FraudShield could not render this PDF for analysis.';
+        }
       }
     }
 
@@ -179,7 +199,11 @@ function renderAttachments(){
       ${f.isImage&&f.previewUrl?`<img class="image-preview" src="${f.previewUrl}" alt="">`:'📎'}
       <span>
         ${escapeHtml(f.name)}
-        ${f.isImage?(f.visionSupported?' · ready to analyze':' · upload only'):(f.readable?' · readable':' · upload only')}
+        ${f.isImage
+          ? (f.visionSupported?' · ready to analyze':' · upload only')
+          : f.isPdf
+            ? (f.pdfReady?` · ${f.pdfPages.length} page${f.pdfPages.length===1?'':'s'} ready`:' · upload only')
+            : (f.readable?' · readable':' · upload only')}
       </span>
       <button onclick="removeFile(${i})">×</button>
     </div>
@@ -188,8 +212,9 @@ function renderAttachments(){
 async function uploadAttachedFiles(){if(!currentUser||!currentChatId||!attachedFiles.length)return;for(const item of attachedFiles){if(item.storagePath)continue;const safeName=item.name.replace(/[^a-zA-Z0-9._-]/g,'_');const path=`${currentUser.id}/${currentChatId}/${Date.now()}-${safeName}`;const {error:uploadError}=await sb.storage.from('documents').upload(path,item.file,{cacheControl:'3600',upsert:false});if(uploadError){console.error(uploadError);continue}item.storagePath=path;const ext=(item.name.split('.').pop()||'').toLowerCase();const {error:docError}=await sb.from('documents').insert({user_id:currentUser.id,conversation_id:currentChatId,file_name:item.name,file_type:item.type,storage_path:path,document_type:ext,extracted_text:item.readable?item.text.slice(0,50000):null});if(docError)console.error(docError)}}
 function buildFileContext(){
   const readable=attachedFiles.filter(f=>f.readable&&f.text);
-  const nonImageUnreadable=attachedFiles.filter(f=>!f.readable&&!f.isImage);
+  const nonVisualUnreadable=attachedFiles.filter(f=>!f.readable&&!f.isImage&&!f.isPdf);
   const unsupportedImages=attachedFiles.filter(f=>f.isImage&&!f.visionSupported);
+  const unsupportedPdfs=attachedFiles.filter(f=>f.isPdf&&!f.pdfReady);
 
   let out='';
 
@@ -197,8 +222,12 @@ function buildFileContext(){
     out+='\n\nATTACHED TEXT CONTEXT:\n'+readable.map(f=>`--- ${f.name} ---\n${f.text.slice(0,20000)}`).join('\n\n');
   }
 
-  if(nonImageUnreadable.length){
-    out+=`\n\nThe user attached ${nonImageUnreadable.map(f=>f.name).join(', ')}, but their contents have not been extracted yet. Do not pretend you can read them.`;
+  if(nonVisualUnreadable.length){
+    out+=`\n\nThe user attached ${nonVisualUnreadable.map(f=>f.name).join(', ')}, but their contents have not been extracted yet. Do not pretend you can read them.`;
+  }
+
+  if(unsupportedPdfs.length){
+    out+=`\n\nThe user attached PDF file(s) ${unsupportedPdfs.map(f=>f.name).join(', ')}, but they could not be rendered for analysis. Do not pretend you can read them.`;
   }
 
   if(unsupportedImages.length){
@@ -206,6 +235,46 @@ function buildFileContext(){
   }
 
   return out;
+}
+
+async function pdfToImages(file,maxPages=5){
+  if(typeof pdfjsLib==='undefined'){
+    throw new Error('PDF.js is unavailable.');
+  }
+
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  const bytes=new Uint8Array(await file.arrayBuffer());
+  const pdf=await pdfjsLib.getDocument({data:bytes}).promise;
+  const count=Math.min(pdf.numPages,maxPages);
+  const pages=[];
+
+  for(let pageNumber=1;pageNumber<=count;pageNumber++){
+    const page=await pdf.getPage(pageNumber);
+    const viewport=page.getViewport({scale:1.6});
+    const canvas=document.createElement('canvas');
+    const ctx=canvas.getContext('2d',{alpha:false});
+
+    canvas.width=Math.ceil(viewport.width);
+    canvas.height=Math.ceil(viewport.height);
+
+    await page.render({canvasContext:ctx,viewport}).promise;
+
+    const dataUrl=canvas.toDataURL('image/jpeg',0.82);
+    const comma=dataUrl.indexOf(',');
+
+    pages.push({
+      pageNumber,
+      mediaType:'image/jpeg',
+      data:dataUrl.slice(comma+1)
+    });
+
+    page.cleanup();
+  }
+
+  pdf.cleanup();
+  return pages;
 }
 
 function fileToBase64(file){
@@ -245,6 +314,31 @@ async function buildCurrentUserContent(message){
         data:base64
       }
     });
+  }
+
+  const pdfs=attachedFiles.filter(f=>f.isPdf&&f.pdfReady);
+
+  for(const pdf of pdfs){
+    blocks.push({
+      type:'text',
+      text:`The following images are rendered pages from the attached PDF "${pdf.name}". Analyze them as pages of that document.`
+    });
+
+    for(const page of pdf.pdfPages){
+      blocks.push({
+        type:'text',
+        text:`PDF page ${page.pageNumber}:`
+      });
+
+      blocks.push({
+        type:'image',
+        source:{
+          type:'base64',
+          media_type:page.mediaType,
+          data:page.data
+        }
+      });
+    }
   }
 
   return blocks.length===1 ? blocks[0].text : blocks;
