@@ -13,496 +13,69 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-:root{
-  --bg:#0B0E11;--surface:#101419;--surface2:#151A20;--surface3:#1A2027;
-  --ink:#EDEFF2;--muted:#8B92A0;--faint:#626A76;--border:rgba(237,239,242,.09);
-  --gold:#EEB93E;--gold2:#B8860E;--green:#3DD68C;--red:#FF6B6B;--blue:#79AFFF;
-}
-body.light{
-  --bg:#F6F7F9;--surface:#FFFFFF;--surface2:#F0F2F5;--surface3:#E9ECF0;
-  --ink:#0B0E11;--muted:#5B6270;--faint:#8B92A0;--border:rgba(11,14,17,.10);
-  --gold:#B8860E;--gold2:#8B6508;--green:#1C8A5C;--red:#D64545;--blue:#356FD6;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
-button,textarea,input{font:inherit}
-button{cursor:pointer}
-a{color:inherit;text-decoration:none}
-.app{height:100vh;display:grid;grid-template-columns:245px 1fr 280px}
-
-/* SIDEBAR */
-.sidebar{border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0;background:var(--surface)}
-.brand{display:flex;align-items:center;gap:9px;padding:17px 15px 13px}
-.mark{width:29px;height:29px;border-radius:7px;background:var(--gold);color:#0B0E11;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-size:11px;font-weight:700}
-.brand-name{font-family:'Space Grotesk';font-size:13px;font-weight:700}
-.beta{font-family:'JetBrains Mono';font-size:8px;color:var(--gold);border:1px solid rgba(238,185,62,.25);border-radius:10px;padding:2px 5px;margin-left:auto}
-.new-chat{margin:0 12px 12px;padding:10px 11px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--ink);font-size:12px;font-weight:600;text-align:left}
-.new-chat:hover{border-color:rgba(238,185,62,.35)}
-.side-label{font-family:'JetBrains Mono';font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);padding:9px 14px 5px}
-.agent-list{padding:0 8px}
-.agent{width:100%;display:flex;align-items:center;gap:9px;padding:9px;border:none;border-radius:8px;background:transparent;color:var(--muted);text-align:left;font-size:12px;margin-bottom:2px}
-.agent:hover,.agent.active{background:var(--surface2);color:var(--ink)}
-.agent.active{box-shadow:inset 2px 0 0 var(--gold)}
-.agent-icon{width:24px;height:24px;border-radius:6px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:12px}
-.agent-code{font-family:'JetBrains Mono';font-size:11px;font-weight:700;color:var(--gold)}
-.history{flex:1;overflow:auto;padding:3px 8px 10px}
-.hist{padding:8px 9px;border-radius:7px;margin-bottom:2px;cursor:pointer}
-.hist:hover{background:var(--surface2)}
-.hist-title{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
-.hist-time{font-size:9px;color:var(--faint);margin-top:2px}
-.side-bottom{border-top:1px solid var(--border);padding:10px 12px}
-.user-row{display:flex;align-items:center;gap:8px}
-.avatar{width:27px;height:27px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:#0B0E11;font-size:10px;font-weight:700}
-.user-info{min-width:0;flex:1}
-.user-email{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.user-action{font-size:9px;color:var(--faint);background:none;border:0;text-decoration:underline}
-
-/* MAIN */
-.main{min-width:0;display:flex;flex-direction:column;background:var(--bg)}
-.topbar{height:58px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px;flex-shrink:0}
-.top-left{display:flex;align-items:center;gap:9px}
-.top-icon{width:29px;height:29px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center}
-.top-name{font-family:'Space Grotesk';font-size:13px;font-weight:700}
-.top-sub{font-size:10px;color:var(--muted)}
-.top-actions{display:flex;gap:7px;align-items:center}
-.small-btn{border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:10px;padding:7px 9px;border-radius:7px}
-.small-btn:hover{color:var(--ink)}
-.signin{background:var(--gold);color:#0B0E11;border-color:var(--gold);font-weight:700}
-
-.chat-area{flex:1;overflow:auto;padding:28px 22px}
-.chat-inner{max-width:780px;margin:0 auto}
-.welcome{padding:7vh 0 20px;text-align:center}
-.welcome-mark{width:50px;height:50px;border-radius:13px;background:var(--gold);color:#0B0E11;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:22px}
-.welcome h1{font-family:'Space Grotesk';font-size:26px;letter-spacing:-.02em;margin-bottom:8px}
-.welcome p{color:var(--muted);font-size:13px;max-width:520px;margin:0 auto 25px;line-height:1.6}
-.starters{display:grid;grid-template-columns:1fr 1fr;gap:9px;max-width:640px;margin:0 auto}
-.starter{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:13px;text-align:left;color:var(--ink)}
-.starter:hover{border-color:rgba(238,185,62,.35)}
-.starter-agent{font-family:'JetBrains Mono';font-size:10px;color:var(--gold);font-weight:700;margin-bottom:5px}
-.starter-text{font-size:11px;color:var(--muted);line-height:1.5}
-
-.messages{display:none;flex-direction:column;gap:16px}
-.msg{display:flex;gap:9px;max-width:690px;animation:fade .2s ease}
-@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.msg.user{align-self:flex-end;flex-direction:row-reverse}
-.msg-avatar{width:26px;height:26px;border-radius:7px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
-.msg.ai .msg-avatar{background:var(--gold);color:#0B0E11}
-.bubble{padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:var(--surface);font-size:12px;line-height:1.65;white-space:pre-wrap}
-.msg.user .bubble{background:rgba(238,185,62,.08);border-color:rgba(238,185,62,.18)}
-.agent-pill{display:inline-block;font-family:'JetBrains Mono';font-size:9px;font-weight:700;color:var(--gold);margin-bottom:6px}
-.typing{display:flex;gap:4px;padding:3px}
-.typing i{width:5px;height:5px;border-radius:50%;background:var(--faint);animation:bounce .9s infinite}
-.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,60%,100%{transform:none}30%{transform:translateY(-4px)}}
-
-/* COMPOSER */
-.composer-wrap{padding:12px 18px 16px;flex-shrink:0;background:linear-gradient(180deg,transparent,var(--bg) 20%)}
-.composer{max-width:780px;margin:0 auto;border:1px solid var(--border);border-radius:13px;background:var(--surface);overflow:hidden}
-.attachments{display:none;padding:9px 10px 0;gap:7px;flex-wrap:wrap}
-.file-chip{display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:7px;padding:6px 8px;font-size:10px;color:var(--muted);background:var(--surface2)}
-.file-chip button{border:0;background:none;color:var(--faint);font-size:11px}
-.compose-main{display:flex;align-items:flex-end;gap:7px;padding:10px}
-.chat-input{flex:1;resize:none;min-height:39px;max-height:140px;border:0;outline:0;background:transparent;color:var(--ink);font-size:12px;line-height:1.5;padding:9px 4px}
-.chat-input::placeholder{color:var(--faint)}
-.icon-btn{width:36px;height:36px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--muted);display:flex;align-items:center;justify-content:center}
-.send{background:var(--gold);border-color:var(--gold);color:#0B0E11}
-.compose-bottom{border-top:1px solid var(--border);padding:7px 10px;display:flex;align-items:center;justify-content:space-between}
-.active-agent{font-family:'JetBrains Mono';font-size:9px;color:var(--gold);font-weight:700}
-.hint{font-size:9px;color:var(--faint)}
-.file-input{display:none}
-
-/* RIGHT PANEL */
-.context{border-left:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;min-height:0}
-.context-head{height:58px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;font-family:'Space Grotesk';font-size:12px;font-weight:700}
-.context-scroll{overflow:auto;padding:14px}
-.context-section{margin-bottom:20px}
-.context-label{font-family:'JetBrains Mono';font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);margin-bottom:8px}
-.context-card{border:1px solid var(--border);border-radius:9px;padding:10px;background:var(--surface2);margin-bottom:7px}
-.context-title{font-size:11px;font-weight:600;margin-bottom:4px}
-.context-copy{font-size:10px;color:var(--muted);line-height:1.5}
-.integration{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px}
-.int-icon{width:24px;height:24px;border-radius:6px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:11px}
-.int-name{font-size:10px;flex:1}
-.status{font-family:'JetBrains Mono';font-size:8px;color:var(--faint)}
-.status.soon{color:var(--gold)}
-.disclaimer{font-size:9px;color:var(--faint);line-height:1.5;border-top:1px solid var(--border);padding-top:12px}
-
-.mobile-context{display:none}
-
-@media(max-width:1050px){
-  .app{grid-template-columns:220px 1fr}
-  .context{display:none}
-}
-@media(max-width:720px){
-  .app{grid-template-columns:1fr}
-  .sidebar{display:none}
-  .starters{grid-template-columns:1fr}
-  .chat-area{padding:20px 14px}
-  .composer-wrap{padding:10px 10px 12px}
-  .topbar{padding:0 12px}
-  .mobile-context{display:inline-flex}
-}
+:root{--bg:#0B0E11;--surface:#101419;--surface2:#151A20;--surface3:#1A2027;--ink:#EDEFF2;--muted:#8B92A0;--faint:#626A76;--border:rgba(237,239,242,.09);--gold:#EEB93E;--gold2:#B8860E;--green:#3DD68C;--red:#FF6B6B;--blue:#79AFFF}
+body.light{--bg:#F6F7F9;--surface:#FFFFFF;--surface2:#F0F2F5;--surface3:#E9ECF0;--ink:#0B0E11;--muted:#5B6270;--faint:#8B92A0;--border:rgba(11,14,17,.10);--gold:#B8860E;--gold2:#8B6508;--green:#1C8A5C;--red:#D64545;--blue:#356FD6}
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}button,textarea,input{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.app{height:100vh;display:grid;grid-template-columns:245px 1fr 280px}
+.sidebar{border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0;background:var(--surface)}.brand{display:flex;align-items:center;gap:9px;padding:17px 15px 13px}.mark{width:29px;height:29px;border-radius:7px;background:var(--gold);color:#0B0E11;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-size:11px;font-weight:700}.brand-name{font-family:'Space Grotesk';font-size:13px;font-weight:700}.beta{font-family:'JetBrains Mono';font-size:8px;color:var(--gold);border:1px solid rgba(238,185,62,.25);border-radius:10px;padding:2px 5px;margin-left:auto}.new-chat{margin:0 12px 12px;padding:10px 11px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--ink);font-size:12px;font-weight:600;text-align:left}.new-chat:hover{border-color:rgba(238,185,62,.35)}.side-label{font-family:'JetBrains Mono';font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);padding:9px 14px 5px}.agent-list{padding:0 8px}.agent{width:100%;display:flex;align-items:center;gap:9px;padding:9px;border:none;border-radius:8px;background:transparent;color:var(--muted);text-align:left;font-size:12px;margin-bottom:2px}.agent:hover,.agent.active{background:var(--surface2);color:var(--ink)}.agent.active{box-shadow:inset 2px 0 0 var(--gold)}.agent-icon{width:24px;height:24px;border-radius:6px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:12px}.agent-code{font-family:'JetBrains Mono';font-size:11px;font-weight:700;color:var(--gold)}.history{flex:1;overflow:auto;padding:3px 8px 10px}.hist{padding:8px 9px;border-radius:7px;margin-bottom:2px;cursor:pointer}.hist:hover,.hist.active{background:var(--surface2)}.hist-title{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}.hist-time{font-size:9px;color:var(--faint);margin-top:2px}.side-bottom{border-top:1px solid var(--border);padding:10px 12px}.user-row{display:flex;align-items:center;gap:8px}.avatar{width:27px;height:27px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:#0B0E11;font-size:10px;font-weight:700}.user-info{min-width:0;flex:1}.user-email{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.user-action{font-size:9px;color:var(--faint);background:none;border:0;text-decoration:underline}
+.main{min-width:0;display:flex;flex-direction:column;background:var(--bg)}.topbar{height:58px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px;flex-shrink:0}.top-left{display:flex;align-items:center;gap:9px}.top-icon{width:29px;height:29px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center}.top-name{font-family:'Space Grotesk';font-size:13px;font-weight:700}.top-sub{font-size:10px;color:var(--muted)}.top-actions{display:flex;gap:7px;align-items:center}.small-btn{border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:10px;padding:7px 9px;border-radius:7px}.small-btn:hover{color:var(--ink)}.signin{background:var(--gold);color:#0B0E11;border-color:var(--gold);font-weight:700}
+.chat-area{flex:1;overflow:auto;padding:28px 22px}.chat-inner{max-width:780px;margin:0 auto}.welcome{padding:7vh 0 20px;text-align:center}.welcome-mark{width:50px;height:50px;border-radius:13px;background:var(--gold);color:#0B0E11;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:22px}.welcome h1{font-family:'Space Grotesk';font-size:26px;letter-spacing:-.02em;margin-bottom:8px}.welcome p{color:var(--muted);font-size:13px;max-width:520px;margin:0 auto 25px;line-height:1.6}.starters{display:grid;grid-template-columns:1fr 1fr;gap:9px;max-width:640px;margin:0 auto}.starter{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:13px;text-align:left;color:var(--ink)}.starter:hover{border-color:rgba(238,185,62,.35)}.starter-agent{font-family:'JetBrains Mono';font-size:10px;color:var(--gold);font-weight:700;margin-bottom:5px}.starter-text{font-size:11px;color:var(--muted);line-height:1.5}.messages{display:none;flex-direction:column;gap:16px}.msg{display:flex;gap:9px;max-width:690px;animation:fade .2s ease}@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}.msg.user{align-self:flex-end;flex-direction:row-reverse}.msg-avatar{width:26px;height:26px;border-radius:7px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}.msg.ai .msg-avatar{background:var(--gold);color:#0B0E11}.bubble{padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:var(--surface);font-size:12px;line-height:1.65;white-space:pre-wrap}.msg.user .bubble{background:rgba(238,185,62,.08);border-color:rgba(238,185,62,.18)}.agent-pill{display:inline-block;font-family:'JetBrains Mono';font-size:9px;font-weight:700;color:var(--gold);margin-bottom:6px}.typing{display:flex;gap:4px;padding:3px}.typing i{width:5px;height:5px;border-radius:50%;background:var(--faint);animation:bounce .9s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}@keyframes bounce{0%,60%,100%{transform:none}30%{transform:translateY(-4px)}}
+.composer-wrap{padding:12px 18px 16px;flex-shrink:0;background:linear-gradient(180deg,transparent,var(--bg) 20%)}.composer{max-width:780px;margin:0 auto;border:1px solid var(--border);border-radius:13px;background:var(--surface);overflow:hidden}.attachments{display:none;padding:9px 10px 0;gap:7px;flex-wrap:wrap}.file-chip{display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:7px;padding:6px 8px;font-size:10px;color:var(--muted);background:var(--surface2)}.file-chip button{border:0;background:none;color:var(--faint);font-size:11px}.compose-main{display:flex;align-items:flex-end;gap:7px;padding:10px}.chat-input{flex:1;resize:none;min-height:39px;max-height:140px;border:0;outline:0;background:transparent;color:var(--ink);font-size:12px;line-height:1.5;padding:9px 4px}.chat-input::placeholder{color:var(--faint)}.icon-btn{width:36px;height:36px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--muted);display:flex;align-items:center;justify-content:center}.send{background:var(--gold);border-color:var(--gold);color:#0B0E11}.compose-bottom{border-top:1px solid var(--border);padding:7px 10px;display:flex;align-items:center;justify-content:space-between}.active-agent{font-family:'JetBrains Mono';font-size:9px;color:var(--gold);font-weight:700}.hint{font-size:9px;color:var(--faint)}.file-input{display:none}
+.context{border-left:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;min-height:0}.context-head{height:58px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;font-family:'Space Grotesk';font-size:12px;font-weight:700}.context-scroll{overflow:auto;padding:14px}.context-section{margin-bottom:20px}.context-label{font-family:'JetBrains Mono';font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);margin-bottom:8px}.context-card{border:1px solid var(--border);border-radius:9px;padding:10px;background:var(--surface2);margin-bottom:7px}.context-title{font-size:11px;font-weight:600;margin-bottom:4px}.context-copy{font-size:10px;color:var(--muted);line-height:1.5}.integration{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px}.int-icon{width:24px;height:24px;border-radius:6px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:11px}.int-name{font-size:10px;flex:1}.status{font-family:'JetBrains Mono';font-size:8px;color:var(--faint)}.status.soon{color:var(--gold)}.disclaimer{font-size:9px;color:var(--faint);line-height:1.5;border-top:1px solid var(--border);padding-top:12px}.mobile-context{display:none}
+@media(max-width:1050px){.app{grid-template-columns:220px 1fr}.context{display:none}}@media(max-width:720px){.app{grid-template-columns:1fr}.sidebar{display:none}.starters{grid-template-columns:1fr}.chat-area{padding:20px 14px}.composer-wrap{padding:10px 10px 12px}.topbar{padding:0 12px}.mobile-context{display:inline-flex}}
 </style>
 </head>
-
 <body>
 <div class="app">
-
-  <aside class="sidebar">
-    <a class="brand" href="/">
-      <div class="mark">FS</div>
-      <div class="brand-name">FraudShield</div>
-      <div class="beta">BETA</div>
-    </a>
-
-    <button class="new-chat" onclick="newChat()">＋ New conversation</button>
-
-    <div class="side-label">Specialists</div>
-    <div class="agent-list">
-      <button class="agent active" data-agent="fraud" onclick="selectAgent('fraud')">
-        <div class="agent-icon">🛡</div><div><div class="agent-code">@fraud</div><div>Risk & verification</div></div>
-      </button>
-      <button class="agent" data-agent="accounting" onclick="selectAgent('accounting')">
-        <div class="agent-icon">🧾</div><div><div class="agent-code">@accounting</div><div>Finance & categorization</div></div>
-      </button>
-    </div>
-
-    <div class="side-label">Recent</div>
-    <div class="history" id="history"></div>
-
-    <div class="side-bottom">
-      <div id="guestBox">
-        <button class="new-chat" style="margin:0;width:100%;text-align:center" onclick="signInGoogle()">Sign in to save history</button>
-      </div>
-      <div class="user-row" id="userRow" style="display:none">
-        <div class="avatar" id="userInitial">U</div>
-        <div class="user-info"><div class="user-email" id="userEmail"></div><button class="user-action" onclick="signOut()">Sign out</button></div>
-      </div>
-    </div>
-  </aside>
-
-  <section class="main">
-    <header class="topbar">
-      <div class="top-left">
-        <div class="top-icon" id="topIcon">🛡</div>
-        <div><div class="top-name" id="topName">@fraud</div><div class="top-sub" id="topSub">Risk checks, vendor verification & fraud questions</div></div>
-      </div>
-      <div class="top-actions">
-        <button class="small-btn" onclick="toggleTheme()" id="themeBtn">☀ Light</button>
-        <button class="small-btn mobile-context" onclick="alert('Integrations panel is available on desktop.')" >Integrations</button>
-        <button class="small-btn signin" id="signinTop" onclick="signInGoogle()">Sign in</button>
-      </div>
-    </header>
-
-    <div class="chat-area" id="chatArea">
-      <div class="chat-inner">
-        <div class="welcome" id="welcome">
-          <div class="welcome-mark">FS</div>
-          <h1>What should we check?</h1>
-          <p>Use <span style="color:var(--gold);font-family:'JetBrains Mono'">@fraud</span> for risk and verification, or <span style="color:var(--gold);font-family:'JetBrains Mono'">@accounting</span> for finance and categorization help.</p>
-
-          <div class="starters">
-            <button class="starter" onclick="startPrompt('fraud','@fraud Check this invoice for anything suspicious.')">
-              <div class="starter-agent">@fraud</div><div class="starter-text">Check an invoice before I pay it</div>
-            </button>
-            <button class="starter" onclick="startPrompt('fraud','@fraud What should I verify when a vendor changes bank details?')">
-              <div class="starter-agent">@fraud</div><div class="starter-text">A vendor changed payment details</div>
-            </button>
-            <button class="starter" onclick="startPrompt('accounting','@accounting Help me categorize this business expense.')">
-              <div class="starter-agent">@accounting</div><div class="starter-text">Categorize an expense</div>
-            </button>
-            <button class="starter" onclick="startPrompt('accounting','@accounting What information do you need to summarize my vendor spend?')">
-              <div class="starter-agent">@accounting</div><div class="starter-text">Understand vendor spending</div>
-            </button>
-          </div>
-        </div>
-        <div class="messages" id="messages"></div>
-      </div>
-    </div>
-
-    <div class="composer-wrap">
-      <div class="composer">
-        <div class="attachments" id="attachments"></div>
-        <div class="compose-main">
-          <input class="file-input" id="fileInput" type="file" accept=".txt,.csv,.json,.pdf,.png,.jpg,.jpeg" multiple onchange="handleFiles(event)"/>
-          <button class="icon-btn" title="Attach a file" onclick="document.getElementById('fileInput').click()">＋</button>
-          <textarea id="chatInput" class="chat-input" rows="1" placeholder="@fraud Check this invoice..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-          <button class="icon-btn send" id="sendBtn" onclick="sendMessage()">➤</button>
-        </div>
-        <div class="compose-bottom">
-          <div class="active-agent" id="activeAgent">@fraud active</div>
-          <div class="hint">Enter to send · Shift+Enter for new line</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <aside class="context">
-    <div class="context-head">Business context</div>
-    <div class="context-scroll">
-      <div class="context-section">
-        <div class="context-label">Current specialist</div>
-        <div class="context-card">
-          <div class="context-title" id="contextAgentTitle">@fraud</div>
-          <div class="context-copy" id="contextAgentCopy">Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.</div>
-        </div>
-      </div>
-
-      <div class="context-section">
-        <div class="context-label">Integrations</div>
-        <div class="integration"><div class="int-icon">✉</div><div class="int-name">Gmail</div><div class="status soon">NEXT</div></div>
-        <div class="integration"><div class="int-icon">Q</div><div class="int-name">QuickBooks</div><div class="status soon">NEXT</div></div>
-        <div class="integration"><div class="int-icon">S</div><div class="int-name">Stripe</div><div class="status">PLANNED</div></div>
-        <div class="integration"><div class="int-icon">◫</div><div class="int-name">Browser extension</div><div class="status">PLANNED</div></div>
-      </div>
-
-      <div class="context-section">
-        <div class="context-label">Attached context</div>
-        <div class="context-card">
-          <div class="context-title" id="fileCount">No files attached</div>
-          <div class="context-copy">Text, CSV, and JSON files can be read in this beta. PDF/image parsing is the next backend step.</div>
-        </div>
-      </div>
-
-      <div class="disclaimer">FraudShield provides decision support, not guarantees. Verify high-risk payment changes independently. Accounting responses are informational and are not tax or professional accounting advice.</div>
-    </div>
-  </aside>
-
+<aside class="sidebar">
+<a class="brand" href="/"><div class="mark">FS</div><div class="brand-name">FraudShield</div><div class="beta">BETA</div></a>
+<button class="new-chat" onclick="newChat()">＋ New conversation</button>
+<div class="side-label">Specialists</div>
+<div class="agent-list">
+<button class="agent active" data-agent="fraud" onclick="selectAgent('fraud')"><div class="agent-icon">🛡</div><div><div class="agent-code">@fraud</div><div>Risk & verification</div></div></button>
+<button class="agent" data-agent="accounting" onclick="selectAgent('accounting')"><div class="agent-icon">🧾</div><div><div class="agent-code">@accounting</div><div>Finance & categorization</div></div></button>
 </div>
-
+<div class="side-label">Recent</div><div class="history" id="history"></div>
+<div class="side-bottom"><div id="guestBox"><button class="new-chat" style="margin:0;width:100%;text-align:center" onclick="signInGoogle()">Sign in to save history</button></div><div class="user-row" id="userRow" style="display:none"><div class="avatar" id="userInitial">U</div><div class="user-info"><div class="user-email" id="userEmail"></div><button class="user-action" onclick="signOut()">Sign out</button></div></div></div>
+</aside>
+<section class="main">
+<header class="topbar"><div class="top-left"><div class="top-icon" id="topIcon">🛡</div><div><div class="top-name" id="topName">@fraud</div><div class="top-sub" id="topSub">Risk checks, vendor verification & fraud questions</div></div></div><div class="top-actions"><button class="small-btn" onclick="toggleTheme()" id="themeBtn">☀ Light</button><button class="small-btn mobile-context" onclick="alert('Integrations panel is available on desktop.')">Integrations</button><button class="small-btn signin" id="signinTop" onclick="signInGoogle()">Sign in</button></div></header>
+<div class="chat-area" id="chatArea"><div class="chat-inner"><div class="welcome" id="welcome"><div class="welcome-mark">FS</div><h1>What do you want to check?</h1><p>Use FraudShield for risk checks, vendor verification, financial questions, and document review.</p><div class="starters"><button class="starter" onclick="startPrompt('fraud','@fraud Check this invoice before I pay it.')"><div class="starter-agent">@fraud</div><div class="starter-text">Check this invoice before I pay it.</div></button><button class="starter" onclick="startPrompt('fraud','@fraud What should I verify when a vendor changes bank details?')"><div class="starter-agent">@fraud</div><div class="starter-text">A vendor changed bank details. What should I verify?</div></button><button class="starter" onclick="startPrompt('accounting','@accounting Help me categorize this business expense.')"><div class="starter-agent">@accounting</div><div class="starter-text">Help me categorize a business expense.</div></button><button class="starter" onclick="startPrompt('accounting','@accounting Summarize the financial data I provide.')"><div class="starter-agent">@accounting</div><div class="starter-text">Summarize financial data I provide.</div></button></div></div><div class="messages" id="messages"></div></div></div>
+<div class="composer-wrap"><div class="composer"><div class="attachments" id="attachments"></div><div class="compose-main"><input type="file" class="file-input" id="fileInput" multiple onchange="handleFiles(event)"/><button class="icon-btn" onclick="document.getElementById('fileInput').click()" title="Attach file">＋</button><textarea id="chatInput" class="chat-input" rows="1" placeholder="@fraud Check this invoice before I pay it..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea><button class="icon-btn send" id="sendBtn" onclick="sendMessage()">➤</button></div><div class="compose-bottom"><div class="active-agent" id="activeAgent">@fraud active</div><div class="hint">Enter to send · Shift+Enter for new line</div></div></div></div>
+</section>
+<aside class="context"><div class="context-head">Workspace context</div><div class="context-scroll"><div class="context-section"><div class="context-label">Active specialist</div><div class="context-card"><div class="context-title" id="contextAgentTitle">@fraud</div><div class="context-copy" id="contextAgentCopy">Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.</div></div></div><div class="context-section"><div class="context-label">Integrations</div><div class="integration"><div class="int-icon">✉</div><div class="int-name">Gmail</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">QB</div><div class="int-name">QuickBooks</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">S</div><div class="int-name">Stripe</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><div class="context-section"><div class="context-label">Attached context</div><div class="context-card"><div class="context-title" id="fileCount">No files attached</div><div class="context-copy">Text, CSV, and JSON can be read immediately. Other file types are uploaded securely but need document parsing in the next backend step.</div></div></div><div class="disclaimer">FraudShield provides decision support, not guarantees. Verify high-risk payment changes independently. Accounting responses are informational and are not tax or professional accounting advice.</div></div></aside>
+</div>
 <script>
-const SUPABASE_URL = 'https://nivqhnqquwszwtsgupgx.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pdnFobnFxdXdzend0c2d1cGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1OTk3NDQsImV4cCI6MjA5NDE3NTc0NH0.IlaMbd-s4BjhUmazzvwJOc_F5f9BiJzcQ99agtuDaiA';
-let sb = null;
-try { sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON); } catch(e){}
-
-let activeAgent = 'fraud';
-let attachedFiles = [];
-let conversationHistory = [];
-let isLoading = false;
-let currentChatId = null;
-let chatHistory = JSON.parse(localStorage.getItem('fs_workspace_history') || '[]');
-
-const agentConfig = {
-  fraud: {
-    icon:'🛡',
-    name:'@fraud',
-    sub:'Risk checks, vendor verification & fraud questions',
-    copy:'Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.',
-    placeholder:'@fraud Check this invoice before I pay it...',
-    system:`You are @fraud inside FraudShield SMB, an AI business risk and fraud-prevention assistant for small businesses.
-
-Your job is to help a business owner assess suspicious invoices, vendor communications, payment-change requests, transactions, refunds, account activity, and potential fraud. You are not a payment processor and you do not claim to block or guarantee fraud prevention.
-
-Use only the information the user provides in the conversation and attached text context. Clearly distinguish facts from concerns or possibilities. Never invent historical vendor records, bank changes, prior invoices, transactions, or connected-system data that was not provided.
-
-For a risk review, structure the response compactly:
-Risk level: LOW, REVIEW, or HIGH
-What I noticed: concise signals
-Why it matters: plain-English explanation
-Recommended next step: practical verification action
-
-For high-risk payment or bank-detail changes, recommend independent verification using a previously known contact method. Do not tell the user a transaction is definitely fraudulent unless the provided evidence establishes that.
-
-Be concise, conversational, and practical.`
-  },
-  accounting: {
-    icon:'🧾',
-    name:'@accounting',
-    sub:'Finance questions, categorization & business summaries',
-    copy:'Helps explain expenses, categorize transactions, summarize supplied financial data, and answer operational finance questions.',
-    placeholder:'@accounting Help me understand this expense...',
-    system:`You are @accounting inside FraudShield SMB, an AI financial-operations assistant for small businesses.
-
-Help users understand business expenses, transaction categories, vendor spend, supplied financial data, cash-flow concepts, bookkeeping workflows, and accounting-related operational questions.
-
-Use only data provided by the user or supplied as attached text context. Never pretend you can see QuickBooks, Stripe, bank, invoice, or vendor history unless that information is actually present in the conversation.
-
-When categorizing an expense, give the likely category, why, and what additional information could change the answer. When summarizing data, state the numbers supplied and avoid fabricating totals.
-
-You provide informational assistance, not tax, audit, or professional accounting advice. Flag situations that should be confirmed with a qualified accountant.
-
-Be concise, practical, and use plain English.`
-  }
-};
-
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-}
-
-function selectAgent(agent){
-  activeAgent = agentConfig[agent] ? agent : 'fraud';
-  document.querySelectorAll('.agent').forEach(x=>x.classList.toggle('active',x.dataset.agent===activeAgent));
-  const c = agentConfig[activeAgent];
-  document.getElementById('topIcon').textContent=c.icon;
-  document.getElementById('topName').textContent=c.name;
-  document.getElementById('topSub').textContent=c.sub;
-  document.getElementById('activeAgent').textContent=c.name+' active';
-  document.getElementById('chatInput').placeholder=c.placeholder;
-  document.getElementById('contextAgentTitle').textContent=c.name;
-  document.getElementById('contextAgentCopy').textContent=c.copy;
-}
-
-async function signInGoogle(){
-  if(!sb) return alert('Sign-in is temporarily unavailable.');
-  await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://www.fraudshieldsmb.com/chat.html'}});
-}
-async function signOut(){ if(sb) await sb.auth.signOut(); location.reload(); }
-async function checkAuth(){
-  if(!sb) return;
-  const {data} = await sb.auth.getSession();
-  const user=data?.session?.user;
-  if(user){
-    document.getElementById('guestBox').style.display='none';
-    document.getElementById('userRow').style.display='flex';
-    document.getElementById('signinTop').style.display='none';
-    const email=user.email||'';
-    document.getElementById('userEmail').textContent=email;
-    document.getElementById('userInitial').textContent=(email[0]||'U').toUpperCase();
-  }
-}
-
-function saveHistory(){localStorage.setItem('fs_workspace_history',JSON.stringify(chatHistory));}
-function renderHistory(){
-  const el=document.getElementById('history');
-  if(!chatHistory.length){el.innerHTML='<div style="font-size:10px;color:var(--faint);padding:9px;text-align:center">No conversations yet</div>';return;}
-  el.innerHTML=[...chatHistory].reverse().slice(0,20).map(c=>`
-    <div class="hist" onclick="loadChat('${c.id}')">
-      <div class="hist-title">${escapeHtml(c.title)}</div>
-      <div class="hist-time">${escapeHtml(c.time||'')}</div>
-    </div>`).join('');
-}
-function loadChat(id){
-  const c=chatHistory.find(x=>x.id===id); if(!c)return;
-  currentChatId=id; conversationHistory=JSON.parse(JSON.stringify(c.messages||[]));
-  if(c.agent) selectAgent(c.agent);
-  showMessages(); document.getElementById('messages').innerHTML='';
-  conversationHistory.forEach(m=>renderMessage(m.role==='assistant'?'ai':'user',m.content,m.agent||c.agent));
-}
-function newChat(){
-  currentChatId=null;conversationHistory=[];attachedFiles=[];renderAttachments();
-  document.getElementById('messages').innerHTML='';
-  document.getElementById('messages').style.display='none';
-  document.getElementById('welcome').style.display='block';
-  document.getElementById('chatInput').focus();
-}
-function showMessages(){
-  document.getElementById('welcome').style.display='none';
-  document.getElementById('messages').style.display='flex';
-}
-function renderMessage(role,content,agent){
-  showMessages();
-  const wrap=document.createElement('div');
-  wrap.className='msg '+role;
-  const pill=role==='ai'?`<div class="agent-pill">${escapeHtml(agentConfig[agent||activeAgent]?.name||'FraudShield')}</div>`:'';
-  wrap.innerHTML=`<div class="msg-avatar">${role==='ai'?(agentConfig[agent||activeAgent]?.icon||'FS'):'U'}</div><div class="bubble">${pill}${escapeHtml(content)}</div>`;
-  document.getElementById('messages').appendChild(wrap);
-  document.getElementById('chatArea').scrollTop=document.getElementById('chatArea').scrollHeight;
-}
-function showTyping(){
-  showMessages();
-  const d=document.createElement('div');d.className='msg ai';d.id='typing';
-  d.innerHTML=`<div class="msg-avatar">${agentConfig[activeAgent].icon}</div><div class="bubble"><div class="typing"><i></i><i></i><i></i></div></div>`;
-  document.getElementById('messages').appendChild(d);
-}
-function removeTyping(){document.getElementById('typing')?.remove();}
-
-async function handleFiles(e){
-  const files=[...e.target.files];
-  for(const file of files){
-    const ext=(file.name.split('.').pop()||'').toLowerCase();
-    const item={name:file.name,type:file.type||ext,size:file.size,text:'',readable:false};
-    if(['txt','csv','json'].includes(ext) && file.size<750000){
-      try{item.text=await file.text();item.readable=true;}catch(err){}
-    }
-    attachedFiles.push(item);
-  }
-  e.target.value='';
-  renderAttachments();
-}
-function removeFile(i){attachedFiles.splice(i,1);renderAttachments();}
-function renderAttachments(){
-  const box=document.getElementById('attachments');
-  const count=document.getElementById('fileCount');
-  count.textContent=attachedFiles.length?`${attachedFiles.length} file${attachedFiles.length>1?'s':''} attached`:'No files attached';
-  if(!attachedFiles.length){box.style.display='none';box.innerHTML='';return;}
-  box.style.display='flex';
-  box.innerHTML=attachedFiles.map((f,i)=>`<div class="file-chip">📎 ${escapeHtml(f.name)} ${f.readable?'':'· preview only'} <button onclick="removeFile(${i})">×</button></div>`).join('');
-}
-
-function buildFileContext(){
-  const readable=attachedFiles.filter(f=>f.readable&&f.text);
-  const unreadable=attachedFiles.filter(f=>!f.readable);
-  let out='';
-  if(readable.length){
-    out+='\n\nATTACHED TEXT CONTEXT:\n'+readable.map(f=>`--- ${f.name} ---\n${f.text.slice(0,20000)}`).join('\n\n');
-  }
-  if(unreadable.length){
-    out+=`\n\nThe user attached ${unreadable.map(f=>f.name).join(', ')}, but the current beta cannot parse PDF/image contents yet. Do not pretend you can see their contents. Ask the user to paste the relevant text or wait for document parsing.`;
-  }
-  return out;
-}
-
-async function callAI(message){
-  const agent=activeAgent;
-  const userContent=message+buildFileContext();
-  conversationHistory.push({role:'user',content:message,agent});
-  const apiMessages=conversationHistory.map(m=>({role:m.role,content:m.content}));
-  apiMessages[apiMessages.length-1]={role:'user',content:userContent};
-
-  const res=await fetch(`${SUPABASE_URL}/functions/v1/smooth-endpoint`,{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_ANON}`},
-    body:JSON.stringify({system:agentConfig[agent].system,messages:apiMessages})
-  });
-  if(!res.ok) throw new Error(`Request failed (${res.status})`);
-  const data=await res.json();
-  const reply=data.content?.[0]?.text||data.text||'I could not process that request right now.';
-  conversationHistory.push({role:'assistant',content:reply,agent});
-
-  if(!currentChatId){
-    currentChatId='chat_'+Date.now();
-    chatHistory.push({id:currentChatId,title:message.slice(0,55)+(message.length>55?'…':''),time:'Just now',agent,messages:conversationHistory});
-  }else{
-    const idx=chatHistory.findIndex(x=>x.id===currentChatId);
-    if(idx>-1){chatHistory[idx].messages=conversationHistory;chatHistory[idx].agent=agent;}
-  }
-  saveHistory();renderHistory();
-  return {reply,agent};
-}
-
-async function sendMessage(){
-  const input=document.getElementById('chatInput');
-  let msg=input.value.trim();
-  if(!msg||isLoading)return;
-
-  if(msg.toLowerCase().startsWith('@accounting')) selectAgent('accounting');
-  else if(msg.toLowerCase().startsWith('@fraud')) selectAgent('fraud');
-
-  input.value='';autoResize(input);
-  isLoading=true;document.getElementById('sendBtn').disabled=true;
-  renderMessage('user',msg);showTyping();
-  try{
-    const {reply,agent}=await callAI(msg);
-    removeTyping();renderMessage('ai',reply,agent);
-  }catch(e){
-    removeTyping();renderMessage('ai','I hit a connection error: '+e.message+'. Please try again.',activeAgent);
-  }
-  isLoading=false;document.getElementById('sendBtn').disabled=false;input.focus();
-}
-function startPrompt(agent,text){selectAgent(agent);document.getElementById('chatInput').value=text;sendMessage();}
-function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
-function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,140)+'px';}
-
-let dark=localStorage.getItem('fs_theme')!=='light';
-function applyTheme(){document.body.classList.toggle('light',!dark);document.getElementById('themeBtn').textContent=dark?'☀ Light':'☾ Dark';}
-function toggleTheme(){dark=!dark;localStorage.setItem('fs_theme',dark?'dark':'light');applyTheme();}
-
-applyTheme();selectAgent('fraud');renderHistory();checkAuth();
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}
+const SUPABASE_URL='https://nivqhnqquwszwtsgupgx.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pdnFobnFxdXdzend0c2d1cGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1OTk3NDQsImV4cCI6MjA5NDE3NTc0NH0.IlaMbd-s4BjhUmazzvwJOc_F5f9BiJzcQ99agtuDaiA';
+let sb=null;try{sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON)}catch(e){}
+let activeAgent='fraud',attachedFiles=[],conversationHistory=[],isLoading=false,currentChatId=null,currentUser=null,conversations=[];
+const agentConfig={fraud:{icon:'🛡',name:'@fraud',sub:'Risk checks, vendor verification & fraud questions',copy:'Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.',placeholder:'@fraud Check this invoice before I pay it...',system:`You are @fraud inside FraudShield SMB, an AI business risk and fraud-prevention assistant for small businesses. Use only information actually provided by the user or supplied in attached text context. Never invent vendor history, connected systems, bank changes, invoices, transactions, or account activity. For risk reviews, structure the response as: Risk level: LOW, REVIEW, or HIGH; What I noticed; Why it matters; Recommended next step. For payment or bank-detail changes, recommend independent verification using a previously known contact method. Do not claim something is definitely fraudulent unless the supplied evidence establishes that. Be concise, conversational, and practical.`},accounting:{icon:'🧾',name:'@accounting',sub:'Finance questions, categorization & business summaries',copy:'Helps explain expenses, categorize transactions, summarize supplied financial data, and answer operational finance questions.',placeholder:'@accounting Help me understand this expense...',system:`You are @accounting inside FraudShield SMB, an AI financial-operations assistant for small businesses. Help users understand expenses, transaction categories, vendor spend, supplied financial data, cash-flow concepts, bookkeeping workflows, and operational finance questions. Use only data provided by the user or attached text context. Never pretend you can see QuickBooks, Stripe, bank, invoice, or vendor history unless that information is actually present. When categorizing an expense, give the likely category, reason, and what additional information could change the answer. Use only supplied numbers. This is informational assistance, not tax, audit, or professional accounting advice.`}};
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function selectAgent(agent){activeAgent=agentConfig[agent]?agent:'fraud';document.querySelectorAll('.agent').forEach(x=>x.classList.toggle('active',x.dataset.agent===activeAgent));const c=agentConfig[activeAgent];topIcon.textContent=c.icon;topName.textContent=c.name;topSub.textContent=c.sub;activeAgentEl().textContent=c.name+' active';chatInput.placeholder=c.placeholder;contextAgentTitle.textContent=c.name;contextAgentCopy.textContent=c.copy}
+function activeAgentEl(){return document.getElementById('activeAgent')}
+async function signInGoogle(){if(!sb)return alert('Sign-in is temporarily unavailable.');await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://www.fraudshieldsmb.com/chat.html'}})}
+async function signOut(){if(sb)await sb.auth.signOut();location.reload()}
+async function checkAuth(){if(!sb)return;const {data,error}=await sb.auth.getSession();if(error){console.error(error);return}currentUser=data?.session?.user||null;if(currentUser){guestBox.style.display='none';userRow.style.display='flex';signinTop.style.display='none';const email=currentUser.email||'';userEmail.textContent=email;userInitial.textContent=(email[0]||'U').toUpperCase();await loadConversationList()}else renderHistory()}
+async function loadConversationList(){if(!currentUser)return;const {data,error}=await sb.from('conversations').select('id,title,created_at,updated_at').eq('user_id',currentUser.id).order('updated_at',{ascending:false}).limit(30);if(error){console.error('Failed to load conversations',error);return}conversations=data||[];renderHistory()}
+function renderHistory(){const el=document.getElementById('history');if(!currentUser){el.innerHTML='<div style="font-size:10px;color:var(--faint);padding:9px;text-align:center">Sign in to save conversation history</div>';return}if(!conversations.length){el.innerHTML='<div style="font-size:10px;color:var(--faint);padding:9px;text-align:center">No conversations yet</div>';return}el.innerHTML=conversations.map(c=>{const date=c.updated_at?new Date(c.updated_at).toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'';return `<div class="hist ${c.id===currentChatId?'active':''}" onclick="loadChat('${c.id}')"><div class="hist-title">${escapeHtml(c.title||'New conversation')}</div><div class="hist-time">${escapeHtml(date)}</div></div>`}).join('')}
+async function createConversation(title){if(!currentUser)return null;const {data,error}=await sb.from('conversations').insert({user_id:currentUser.id,title:title||'New conversation'}).select().single();if(error)throw error;currentChatId=data.id;conversations.unshift(data);renderHistory();return data}
+async function saveMessage(role,content,agent){if(!currentUser||!currentChatId)return null;const {data,error}=await sb.from('messages').insert({conversation_id:currentChatId,user_id:currentUser.id,role,agent,content}).select().single();if(error)throw error;return data}
+async function loadChat(id){if(!currentUser)return;currentChatId=id;conversationHistory=[];attachedFiles=[];renderAttachments();messages.innerHTML='';const {data,error}=await sb.from('messages').select('role,agent,content,created_at').eq('conversation_id',id).eq('user_id',currentUser.id).order('created_at',{ascending:true});if(error){alert('Could not load that conversation.');return}const rows=data||[];if(rows.length&&rows[0].agent)selectAgent(rows[0].agent);rows.forEach(m=>{conversationHistory.push({role:m.role,agent:m.agent||activeAgent,content:m.content});renderMessage(m.role==='assistant'?'ai':'user',m.content,m.agent||activeAgent)});if(!rows.length)showWelcome();renderHistory()}
+function newChat(){currentChatId=null;conversationHistory=[];attachedFiles=[];renderAttachments();messages.innerHTML='';showWelcome();renderHistory();chatInput.focus()}
+function showWelcome(){messages.style.display='none';welcome.style.display='block'}function showMessages(){welcome.style.display='none';messages.style.display='flex'}
+function renderMessage(role,content,agent){showMessages();const wrap=document.createElement('div');wrap.className='msg '+role;const actualAgent=agent||activeAgent;const pill=role==='ai'?`<div class="agent-pill">${escapeHtml(agentConfig[actualAgent]?.name||'FraudShield')}</div>`:'';wrap.innerHTML=`<div class="msg-avatar">${role==='ai'?(agentConfig[actualAgent]?.icon||'FS'):'U'}</div><div class="bubble">${pill}${escapeHtml(content)}</div>`;messages.appendChild(wrap);requestAnimationFrame(()=>chatArea.scrollTop=chatArea.scrollHeight)}
+function showTyping(){showMessages();const d=document.createElement('div');d.className='msg ai';d.id='typing';d.innerHTML=`<div class="msg-avatar">${agentConfig[activeAgent].icon}</div><div class="bubble"><div class="typing"><i></i><i></i><i></i></div></div>`;messages.appendChild(d)}function removeTyping(){document.getElementById('typing')?.remove()}
+async function handleFiles(e){const files=[...e.target.files];for(const file of files){const ext=(file.name.split('.').pop()||'').toLowerCase();const item={file,name:file.name,type:file.type||ext,size:file.size,text:'',readable:false,storagePath:null};if(['txt','csv','json'].includes(ext)&&file.size<750000){try{item.text=await file.text();item.readable=true}catch(err){}}attachedFiles.push(item)}e.target.value='';renderAttachments()}
+function removeFile(i){attachedFiles.splice(i,1);renderAttachments()}
+function renderAttachments(){fileCount.textContent=attachedFiles.length?`${attachedFiles.length} file${attachedFiles.length>1?'s':''} attached`:'No files attached';if(!attachedFiles.length){attachments.style.display='none';attachments.innerHTML='';return}attachments.style.display='flex';attachments.innerHTML=attachedFiles.map((f,i)=>`<div class="file-chip">📎 ${escapeHtml(f.name)} ${f.readable?'':'· upload only'} <button onclick="removeFile(${i})">×</button></div>`).join('')}
+async function uploadAttachedFiles(){if(!currentUser||!currentChatId||!attachedFiles.length)return;for(const item of attachedFiles){if(item.storagePath)continue;const safeName=item.name.replace(/[^a-zA-Z0-9._-]/g,'_');const path=`${currentUser.id}/${currentChatId}/${Date.now()}-${safeName}`;const {error:uploadError}=await sb.storage.from('documents').upload(path,item.file,{cacheControl:'3600',upsert:false});if(uploadError){console.error(uploadError);continue}item.storagePath=path;const ext=(item.name.split('.').pop()||'').toLowerCase();const {error:docError}=await sb.from('documents').insert({user_id:currentUser.id,conversation_id:currentChatId,file_name:item.name,file_type:item.type,storage_path:path,document_type:ext,extracted_text:item.readable?item.text.slice(0,50000):null});if(docError)console.error(docError)}}
+function buildFileContext(){const readable=attachedFiles.filter(f=>f.readable&&f.text),unreadable=attachedFiles.filter(f=>!f.readable);let out='';if(readable.length)out+='\n\nATTACHED TEXT CONTEXT:\n'+readable.map(f=>`--- ${f.name} ---\n${f.text.slice(0,20000)}`).join('\n\n');if(unreadable.length)out+=`\n\nThe user attached ${unreadable.map(f=>f.name).join(', ')}, but this beta has not extracted their content yet. Do not pretend you can see their contents. Ask the user to paste the relevant text if analysis is needed.`;return out}
+async function callAI(message){const agent=activeAgent;if(currentUser&&!currentChatId)await createConversation(message.replace(/^@(fraud|accounting)\s*/i,'').slice(0,60)||'New conversation');conversationHistory.push({role:'user',content:message,agent});if(currentUser){await saveMessage('user',message,agent);await uploadAttachedFiles()}const userContent=message+buildFileContext();const apiMessages=conversationHistory.map(m=>({role:m.role,content:m.content}));apiMessages[apiMessages.length-1]={role:'user',content:userContent};const {data:{session}}=sb?await sb.auth.getSession():{data:{session:null}};const bearer=session?.access_token||SUPABASE_ANON;const res=await fetch(`${SUPABASE_URL}/functions/v1/smooth-endpoint`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${bearer}`},body:JSON.stringify({system:agentConfig[agent].system,messages:apiMessages})});if(!res.ok){let detail='';try{detail=await res.text()}catch(e){}throw new Error(`Request failed (${res.status})${detail?': '+detail.slice(0,180):''}`)}const data=await res.json();const reply=data.content?.[0]?.text||data.text||data.message||'I could not process that request right now.';conversationHistory.push({role:'assistant',content:reply,agent});if(currentUser){await saveMessage('assistant',reply,agent);await loadConversationList()}return{reply,agent}}
+async function sendMessage(){let msg=chatInput.value.trim();if(!msg||isLoading)return;if(msg.toLowerCase().startsWith('@accounting'))selectAgent('accounting');else if(msg.toLowerCase().startsWith('@fraud'))selectAgent('fraud');chatInput.value='';autoResize(chatInput);isLoading=true;sendBtn.disabled=true;renderMessage('user',msg,activeAgent);showTyping();try{const {reply,agent}=await callAI(msg);removeTyping();renderMessage('ai',reply,agent)}catch(e){removeTyping();renderMessage('ai','I hit a connection error: '+e.message+'. Please try again.',activeAgent)}isLoading=false;sendBtn.disabled=false;chatInput.focus()}
+function startPrompt(agent,text){selectAgent(agent);chatInput.value=text;sendMessage()}function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,140)+'px'}
+let dark=localStorage.getItem('fs_theme')!=='light';function applyTheme(){document.body.classList.toggle('light',!dark);themeBtn.textContent=dark?'☀ Light':'☾ Dark'}function toggleTheme(){dark=!dark;localStorage.setItem('fs_theme',dark?'dark':'light');applyTheme()}
+applyTheme();selectAgent('fraud');checkAuth();if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 </script>
 </body>
 </html>
