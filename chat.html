@@ -12,7 +12,101 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+function openMobileHistory(){
+  syncMobileHistory();
+  document.getElementById('mobileHistoryDrawer')?.classList.add('show');
+  document.getElementById('mobileHistoryOverlay')?.classList.add('show');
+}
+
+function closeMobileHistory(){
+  document.getElementById('mobileHistoryDrawer')?.classList.remove('show');
+  document.getElementById('mobileHistoryOverlay')?.classList.remove('show');
+}
+
+function syncMobileHistory(){
+  const list=document.getElementById('mobileHistoryList');
+  if(!list)return;
+
+  const creditText=document.getElementById('creditsBtn')?.textContent||'';
+  const label=document.getElementById('mobileCreditLabel');
+  if(label) label.textContent=creditText ? `Available: ${creditText}` : 'Credits';
+
+  // Prefer the same loaded conversation data already rendered in desktop history.
+  const desktopCandidates=[
+    ...document.querySelectorAll(
+      '.conversation-item, .history-item, [data-conversation-id]'
+    )
+  ];
+
+  if(desktopCandidates.length){
+    list.innerHTML=desktopCandidates.map((el,i)=>{
+      const id=el.dataset?.conversationId || '';
+      const title=(el.querySelector('.title')?.textContent || el.textContent || 'Conversation').trim();
+      const clean=title.replace(/\s+/g,' ').slice(0,80);
+      return `<button class="mobile-history-item ${id&&String(id)===String(currentChatId)?'active':''}" 
+        data-mobile-conversation-id="${escapeHtml(id)}"
+        onclick="openMobileConversation('${String(id).replace(/'/g,"\\'")}', ${i})">
+        <div class="mobile-history-item-title">${escapeHtml(clean)}</div>
+      </button>`;
+    }).join('');
+    return;
+  }
+
+  // Fallback to conversation history list if available globally.
+  if(Array.isArray(window.conversations) && window.conversations.length){
+    list.innerHTML=window.conversations.map((c,i)=>`
+      <button class="mobile-history-item ${String(c.id)===String(currentChatId)?'active':''}"
+        onclick="openMobileConversation('${String(c.id).replace(/'/g,"\\'")}', ${i})">
+        <div class="mobile-history-item-title">${escapeHtml(c.title||'New conversation')}</div>
+      </button>
+    `).join('');
+  }else{
+    list.innerHTML='<div style="padding:14px;font-size:13px;opacity:.65">Your conversations will appear here.</div>';
+  }
+}
+
+async function openMobileConversation(id,index){
+  try{
+    if(id && typeof loadConversation==='function'){
+      await loadConversation(id);
+    }else{
+      const desktopCandidates=[
+        ...document.querySelectorAll('.conversation-item, .history-item, [data-conversation-id]')
+      ];
+      const target=desktopCandidates[index];
+      if(target) target.click();
+    }
+  }finally{
+    closeMobileHistory();
+    setTimeout(()=>{
+      const scroller=
+        document.getElementById('chatMessages')||
+        document.getElementById('messages')||
+        document.querySelector('.messages,.chat-messages');
+      if(scroller) scroller.scrollTop=scroller.scrollHeight;
+    },120);
+  }
+}
+
+// Keep mobile drawer credit display in sync.
+const originalSetCreditBalance = typeof setCreditBalance==='function' ? setCreditBalance : null;
+if(originalSetCreditBalance){
+  setCreditBalance=function(balance){
+    originalSetCreditBalance(balance);
+    const label=document.getElementById('mobileCreditLabel');
+    if(label){
+      const n=Number(balance??0);
+      label.textContent=`Available: ${n} credit${n===1?'':'s'}`;
+    }
+  }
+}
+
+window.addEventListener('resize',()=>{
+  if(window.innerWidth>760) closeMobileHistory();
+});
+
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 :root{--bg:#0B0E11;--surface:#101419;--surface2:#151A20;--surface3:#1A2027;--ink:#EDEFF2;--muted:#8B92A0;--faint:#626A76;--border:rgba(237,239,242,.09);--gold:#EEB93E;--gold2:#B8860E;--green:#3DD68C;--red:#FF6B6B;--blue:#79AFFF}
@@ -52,6 +146,215 @@ body.light{--bg:#F6F7F9;--surface:#FFFFFF;--surface2:#F0F2F5;--surface3:#E9ECF0;
 }
 
 @media(max-width:1050px){.app{grid-template-columns:220px 1fr}.context{display:none}}@media(max-width:720px){.app{grid-template-columns:1fr}.sidebar{display:none}.starters{grid-template-columns:1fr}.chat-area{padding:20px 14px}.composer-wrap{padding:10px 10px 12px}.topbar{padding:0 12px}.mobile-context{display:inline-flex}}
+
+/* ===== MOBILE UX IMPROVEMENTS ===== */
+.mobile-history-btn{
+  display:none;
+  border:1px solid var(--border,#d9d9d9);
+  background:transparent;
+  border-radius:10px;
+  padding:8px 10px;
+  font-size:13px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.mobile-history-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.35);
+  z-index:998;
+}
+.mobile-history-drawer{
+  position:fixed;
+  top:0;
+  left:0;
+  bottom:0;
+  width:min(86vw,360px);
+  background:var(--panel,#fff);
+  z-index:999;
+  transform:translateX(-102%);
+  transition:transform .22s ease;
+  box-shadow:8px 0 24px rgba(0,0,0,.14);
+  display:flex;
+  flex-direction:column;
+}
+.mobile-history-drawer.show{transform:translateX(0)}
+.mobile-history-overlay.show{display:block}
+.mobile-history-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  padding:18px 16px;
+  border-bottom:1px solid var(--border,#e5e5e5);
+}
+.mobile-history-title{font-weight:700;font-size:17px}
+.mobile-history-sub{font-size:13px;opacity:.7;margin-top:4px}
+.mobile-history-close{
+  border:0;background:transparent;font-size:26px;line-height:1;cursor:pointer;
+}
+.mobile-history-list{
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:10px;
+  flex:1;
+}
+.mobile-history-item{
+  width:100%;
+  text-align:left;
+  border:0;
+  background:transparent;
+  padding:12px 10px;
+  border-radius:10px;
+  cursor:pointer;
+  display:block;
+}
+.mobile-history-item:hover{background:rgba(0,0,0,.04)}
+.mobile-history-item.active{background:rgba(0,0,0,.07)}
+.mobile-history-item-title{
+  font-size:14px;
+  font-weight:600;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.mobile-history-item-meta{
+  font-size:12px;
+  opacity:.6;
+  margin-top:3px;
+}
+
+/* Fix mobile viewport / scrolling */
+html,body{
+  height:100%;
+  max-width:100%;
+}
+body{
+  overflow:hidden;
+}
+.chat-shell,
+.app,
+main{
+  min-height:0;
+}
+.messages,
+#messages,
+.chat-messages,
+#chatMessages{
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  min-height:0;
+}
+.composer,
+#composer{
+  flex-shrink:0;
+}
+
+@media (max-width: 760px){
+  body{
+    height:100dvh;
+    min-height:100dvh;
+    overflow:hidden;
+  }
+
+  .mobile-history-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+
+  /* Hide desktop sidebar on phone */
+  .sidebar,
+  #sidebar,
+  .history-panel,
+  #historyPanel{
+    display:none !important;
+  }
+
+  /* Make top bar compact */
+  .topbar,
+  .chat-topbar,
+  header{
+    padding-left:10px !important;
+    padding-right:10px !important;
+    gap:8px !important;
+  }
+
+  #creditsBtn{
+    display:inline-flex !important;
+    align-items:center;
+    justify-content:center;
+    min-width:auto !important;
+    padding:8px 10px !important;
+    font-size:12px !important;
+    white-space:nowrap;
+  }
+
+  #topUpBtn{
+    display:none !important;
+  }
+
+  .brand-name{
+    font-size:15px !important;
+  }
+
+  /* Let only messages scroll, not the whole screen */
+  .chat-main,
+  .chat-wrap,
+  .chat-area,
+  main{
+    height:100dvh !important;
+    min-height:0 !important;
+    overflow:hidden !important;
+  }
+
+  .messages,
+  #messages,
+  .chat-messages,
+  #chatMessages{
+    flex:1 1 auto !important;
+    min-height:0 !important;
+    overflow-y:auto !important;
+    padding:14px 12px 110px !important;
+    scroll-behavior:smooth;
+  }
+
+  .composer,
+  #composer{
+    position:sticky;
+    bottom:0;
+    z-index:20;
+    background:var(--panel,#fff);
+    padding-bottom:max(10px,env(safe-area-inset-bottom));
+  }
+
+  textarea,
+  #chatInput{
+    font-size:16px !important; /* prevents iOS zoom */
+    max-height:140px !important;
+  }
+
+  .message,
+  .bubble,
+  .msg{
+    max-width:92% !important;
+  }
+
+  .quick-actions,
+  .prompt-row,
+  .suggestions{
+    overflow-x:auto;
+    flex-wrap:nowrap !important;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .quick-actions::-webkit-scrollbar,
+  .prompt-row::-webkit-scrollbar,
+  .suggestions::-webkit-scrollbar{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -691,5 +994,18 @@ window.addEventListener('resize',()=>{
 let dark=localStorage.getItem('fs_theme')!=='light';function applyTheme(){document.body.classList.toggle('light',!dark);themeBtn.textContent=dark?'☀ Light':'☾ Dark'}function toggleTheme(){dark=!dark;localStorage.setItem('fs_theme',dark?'dark':'light');applyTheme()}
 applyTheme();selectAgent('fraud');checkAuth();if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 </script>
+
+<div id="mobileHistoryOverlay" class="mobile-history-overlay" onclick="closeMobileHistory()"></div>
+<aside id="mobileHistoryDrawer" class="mobile-history-drawer">
+  <div class="mobile-history-header">
+    <div>
+      <div class="mobile-history-title">Chat history</div>
+      <div class="mobile-history-sub" id="mobileCreditLabel">Credits</div>
+    </div>
+    <button class="mobile-history-close" onclick="closeMobileHistory()">×</button>
+  </div>
+  <div id="mobileHistoryList" class="mobile-history-list"></div>
+</aside>
+
 </body>
 </html>
