@@ -77,7 +77,7 @@ body.light{--bg:#F6F7F9;--surface:#FFFFFF;--surface2:#F0F2F5;--surface3:#E9ECF0;
 </div>
 
 
-<div class="pricing-overlay" id="pricingOverlay" onclick="if(event.target===this)closePricing()"><div class="pricing-modal"><div class="pricing-head"><div><div class="pricing-title">FraudShield credits</div><div class="pricing-sub">Start with 10 free credits. Top up when you need more, or move to Pro for a larger monthly allowance and future integrations.</div></div><button class="close-modal" onclick="closePricing()">✕</button></div><div class="price-grid"><div class="price-card"><div class="price-name">Quick top-up</div><div class="price-value">$1.99</div><div class="price-copy">A small refill for occasional checks.</div><button class="price-action" onclick="paymentComingSoon('$1.99 top-up')">Choose</button></div><div class="price-card"><div class="price-name">Standard</div><div class="price-value">$4.99</div><div class="price-copy">Better value for regular document and risk checks.</div><button class="price-action" onclick="paymentComingSoon('$4.99 top-up')">Choose</button></div><div class="price-card"><div class="price-name">Power top-up</div><div class="price-value">$9.99</div><div class="price-copy">For heavier use without a subscription.</div><button class="price-action" onclick="paymentComingSoon('$9.99 top-up')">Choose</button></div><div class="price-card featured"><div class="price-name">FraudShield Pro</div><div class="price-value">$19.99<span style="font-size:11px;font-weight:500">/mo</span></div><div class="price-copy">Monthly credits plus advanced features and integrations as they launch.</div><button class="price-action" onclick="paymentComingSoon('FraudShield Pro')">Upgrade</button></div></div><div class="credit-note">Payments are not enabled yet. The next backend step will connect Stripe so purchases and subscriptions update securely.</div></div></div>
+<div class="pricing-overlay" id="pricingOverlay" onclick="if(event.target===this)closePricing()"><div class="pricing-modal"><div class="pricing-head"><div><div class="pricing-title" id="pricingTitle">FraudShield credits</div><div class="pricing-sub" id="pricingSub">Start with 10 free credits. Top up when you need more, or move to Pro for a larger monthly allowance and future integrations.</div></div><button class="close-modal" onclick="closePricing()">✕</button></div><div class="price-grid"><div class="price-card"><div class="price-name">Quick top-up</div><div class="price-value">$1.99</div><div class="price-copy">A small refill for occasional checks.</div><button class="price-action" onclick="paymentComingSoon('$1.99 top-up')">Choose</button></div><div class="price-card"><div class="price-name">Standard</div><div class="price-value">$4.99</div><div class="price-copy">Better value for regular document and risk checks.</div><button class="price-action" onclick="paymentComingSoon('$4.99 top-up')">Choose</button></div><div class="price-card"><div class="price-name">Power top-up</div><div class="price-value">$9.99</div><div class="price-copy">For heavier use without a subscription.</div><button class="price-action" onclick="paymentComingSoon('$9.99 top-up')">Choose</button></div><div class="price-card featured"><div class="price-name">FraudShield Pro</div><div class="price-value">$19.99<span style="font-size:11px;font-weight:500">/mo</span></div><div class="price-copy">Monthly credits plus advanced features and integrations as they launch.</div><button class="price-action" onclick="paymentComingSoon('FraudShield Pro')">Upgrade</button></div></div><div class="credit-note">Payments are not enabled yet. The next backend step will connect Stripe so purchases and subscriptions update securely.</div></div></div>
 <div class="tour-overlay" id="tourOverlay"></div>
 <div class="tour-card" id="tourCard">
   <div class="tour-kicker">Welcome to FraudShield</div>
@@ -104,8 +104,47 @@ function activeAgentEl(){return document.getElementById('activeAgent')}
 async function signInGoogle(){if(!sb)return alert('Sign-in is temporarily unavailable.');await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://www.fraudshieldsmb.com/chat.html'}})}
 async function signOut(){if(sb)await sb.auth.signOut();location.reload()}
 async function checkAuth(){if(!sb)return;const {data,error}=await sb.auth.getSession();if(error){console.error(error);return}currentUser=data?.session?.user||null;if(currentUser){guestBox.style.display='none';userRow.style.display='flex';signinTop.style.display='none';const email=currentUser.email||'';userEmail.textContent=email;userInitial.textContent=(email[0]||'U').toUpperCase();await loadConversationList()}else renderHistory()}
-async function loadCreditBalance(){if(!currentUser||!sb)return;const {data,error}=await sb.from('profiles').select('credit_balance,plan,subscription_status').eq('id',currentUser.id).maybeSingle();if(error){console.error('Could not load credits',error);return;}const credits=data?.credit_balance??0;const creditsBtn=document.getElementById('creditsBtn');const topUpBtn=document.getElementById('topUpBtn');creditsBtn.textContent=`${credits} credit${credits===1?'':'s'}`;creditsBtn.style.display='inline-block';topUpBtn.style.display='inline-block';if(data?.plan==='pro')topUpBtn.textContent='Pro';}
-function openPricing(){document.getElementById('pricingOverlay').classList.add('show')}function closePricing(){document.getElementById('pricingOverlay').classList.remove('show')}function paymentComingSoon(option){alert(`${option} checkout is the next step. Stripe is not connected yet, so no payment has been taken.`)}
+async function loadCreditBalance(){
+  if(!currentUser||!sb)return;
+  const {data,error}=await sb.from('profiles').select('credit_balance,plan,subscription_status').eq('id',currentUser.id).maybeSingle();
+  if(error){console.error('Could not load credits',error);return;}
+  setCreditBalance(data?.credit_balance??0);
+  const topUpBtn=document.getElementById('topUpBtn');
+  if(topUpBtn){
+    topUpBtn.style.display='inline-block';
+    if(data?.plan==='pro')topUpBtn.textContent='Pro';
+  }
+}
+
+function setCreditBalance(balance){
+  const creditsBtn=document.getElementById('creditsBtn');
+  const topUpBtn=document.getElementById('topUpBtn');
+  if(!creditsBtn)return;
+  const n=Number(balance??0);
+  creditsBtn.textContent=`${n} credit${n===1?'':'s'}`;
+  creditsBtn.style.display='inline-block';
+  if(topUpBtn)topUpBtn.style.display='inline-block';
+  creditsBtn.title=n<=2?'Low credit balance':'';
+}
+
+function openPricing(mode='default'){
+  const title=document.getElementById('pricingTitle');
+  const sub=document.getElementById('pricingSub');
+  if(mode==='out'){
+    if(title)title.textContent='You’re out of credits';
+    if(sub)sub.textContent='You’ve used your free FraudShield credits. Top up or upgrade to continue using @fraud, @accounting, @docs, image analysis, and PDF review.';
+  }else{
+    if(title)title.textContent='FraudShield credits';
+    if(sub)sub.textContent='Start with 10 free credits. Top up when you need more, or move to Pro for a larger monthly allowance and future integrations.';
+  }
+  document.getElementById('pricingOverlay').classList.add('show');
+}
+
+function closePricing(){document.getElementById('pricingOverlay').classList.remove('show')}
+
+function paymentComingSoon(option){
+  alert(`${option} checkout is the next step. Stripe is not connected yet, so no payment has been taken.`);
+}
 
 async function loadConversationList(){if(!currentUser)return;const {data,error}=await sb.from('conversations').select('id,title,created_at,updated_at').eq('user_id',currentUser.id).order('updated_at',{ascending:false}).limit(30);if(error){console.error('Failed to load conversations',error);return}conversations=data||[];renderHistory()}
 function renderHistory(){const el=document.getElementById('history');if(!currentUser){el.innerHTML='<div style="font-size:10px;color:var(--faint);padding:9px;text-align:center">Sign in to save conversation history</div>';return}if(!conversations.length){el.innerHTML='<div style="font-size:10px;color:var(--faint);padding:9px;text-align:center">No conversations yet</div>';return}el.innerHTML=conversations.map(c=>{const date=c.updated_at?new Date(c.updated_at).toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'';return `<div class="hist ${c.id===currentChatId?'active':''}" onclick="loadChat('${c.id}')"><div class="hist-title">${escapeHtml(c.title||'New conversation')}</div><div class="hist-time">${escapeHtml(date)}</div></div>`}).join('')}
@@ -393,17 +432,33 @@ async function callAI(message){
   });
 
   if(!res.ok){
-    let detail='';
+    let errorData=null;
+    let raw='';
     try{
-      detail=await res.text();
+      raw=await res.text();
+      errorData=JSON.parse(raw);
     }catch(e){}
 
-    throw new Error(
-      `Request failed (${res.status})${detail?': '+detail.slice(0,220):''}`
-    );
+    if(res.status===402||errorData?.code==='INSUFFICIENT_CREDITS'){
+      const err=new Error(errorData?.error||'You are out of FraudShield credits.');
+      err.code='INSUFFICIENT_CREDITS';
+      throw err;
+    }
+
+    if(res.status===401||errorData?.code==='SIGN_IN_REQUIRED'){
+      const err=new Error(errorData?.error||'Sign in to continue.');
+      err.code='SIGN_IN_REQUIRED';
+      throw err;
+    }
+
+    throw new Error(errorData?.error||`Request failed (${res.status})${raw?': '+raw.slice(0,220):''}`);
   }
 
   const data=await res.json();
+
+  if(data?.fraudshield?.credits_remaining!==undefined){
+    setCreditBalance(data.fraudshield.credits_remaining);
+  }
 
   const reply=
     data.content?.find?.(block=>block.type==='text')?.text ||
@@ -425,7 +480,63 @@ async function callAI(message){
 
   return {reply,agent};
 }
-async function sendMessage(){let msg=chatInput.value.trim();if(!msg||isLoading)return;if(msg.toLowerCase().startsWith('@accounting'))selectAgent('accounting');else if(msg.toLowerCase().startsWith('@fraud'))selectAgent('fraud');chatInput.value='';autoResize(chatInput);isLoading=true;sendBtn.disabled=true;renderMessage('user',msg,activeAgent);showTyping();try{const {reply,agent}=await callAI(msg);removeTyping();renderMessage('ai',reply,agent)}catch(e){removeTyping();renderMessage('ai','I hit a connection error: '+e.message+'. Please try again.',activeAgent)}isLoading=false;sendBtn.disabled=false;chatInput.focus()}
+async function sendMessage(){
+  let msg=chatInput.value.trim();
+  if(!msg||isLoading)return;
+
+  if(currentUser){
+    const currentCredits=parseInt(document.getElementById('creditsBtn')?.textContent||'',10);
+    if(Number.isFinite(currentCredits)&&currentCredits<=0){
+      openPricing('out');
+      return;
+    }
+  }
+
+  if(msg.toLowerCase().startsWith('@accounting'))selectAgent('accounting');
+  else if(msg.toLowerCase().startsWith('@fraud'))selectAgent('fraud');
+  else if(msg.toLowerCase().startsWith('@docs'))selectAgent('docs');
+
+  chatInput.value='';
+  autoResize(chatInput);
+  isLoading=true;
+  sendBtn.disabled=true;
+  renderMessage('user',msg,activeAgent);
+  showTyping();
+
+  try{
+    const {reply,agent}=await callAI(msg);
+    removeTyping();
+    renderMessage('ai',reply,agent);
+
+    const remaining=parseInt(document.getElementById('creditsBtn')?.textContent||'',10);
+    if(Number.isFinite(remaining)&&remaining>0&&remaining<=2){
+      renderMessage(
+        'ai',
+        `You have ${remaining} credit${remaining===1?'':'s'} remaining. You can top up anytime from the top bar.`,
+        agent
+      );
+    }
+  }catch(e){
+    console.error(e);
+    removeTyping();
+
+    if(e.code==='INSUFFICIENT_CREDITS'){
+      setCreditBalance(0);
+      renderMessage('ai','You’re out of FraudShield credits. Top up or upgrade to continue.',activeAgent);
+      openPricing('out');
+    }else if(e.code==='SIGN_IN_REQUIRED'){
+      renderMessage('ai','Sign in to claim your free FraudShield credits and continue.',activeAgent);
+      if(document.getElementById('signinTop'))document.getElementById('signinTop').style.display='inline-block';
+    }else{
+      renderMessage('ai','I hit a connection error: '+e.message+'. Please try again.',activeAgent);
+    }
+  }
+
+  isLoading=false;
+  sendBtn.disabled=false;
+  chatInput.focus();
+}
+
 function startPrompt(agent,text){selectAgent(agent);chatInput.value=text;sendMessage()}function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,140)+'px'}
 
 const tourSteps = [
