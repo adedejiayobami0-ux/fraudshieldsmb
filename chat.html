@@ -355,6 +355,156 @@ main{
   .suggestions::-webkit-scrollbar{display:none}
 }
 
+
+/* ===== MOBILE: KEEP HISTORY SIDEBAR VISIBLE ===== */
+@media (max-width: 760px){
+  .mobile-history-btn,
+  .mobile-history-overlay,
+  .mobile-history-drawer{
+    display:none !important;
+  }
+
+  body{
+    overflow:hidden !important;
+  }
+
+  /* Restore the same left history rail used on desktop */
+  .sidebar,
+  #sidebar,
+  .history-panel,
+  #historyPanel{
+    display:flex !important;
+    flex-direction:column !important;
+    position:relative !important;
+    width:34vw !important;
+    min-width:118px !important;
+    max-width:150px !important;
+    height:100dvh !important;
+    flex:0 0 34vw !important;
+    overflow:hidden !important;
+    border-right:1px solid var(--border,#e5e5e5) !important;
+    background:var(--panel,#fff) !important;
+  }
+
+  /* Make the overall app a two-column layout */
+  .app,
+  .chat-shell,
+  .workspace{
+    display:flex !important;
+    flex-direction:row !important;
+    width:100vw !important;
+    height:100dvh !important;
+    overflow:hidden !important;
+  }
+
+  .chat-main,
+  .chat-wrap,
+  .chat-area,
+  main{
+    flex:1 1 auto !important;
+    width:auto !important;
+    min-width:0 !important;
+    height:100dvh !important;
+    overflow:hidden !important;
+  }
+
+  /* Compact sidebar contents */
+  .sidebar .brand,
+  #sidebar .brand,
+  .history-panel .brand,
+  #historyPanel .brand{
+    padding-left:10px !important;
+    padding-right:10px !important;
+  }
+
+  .sidebar .brand-name,
+  #sidebar .brand-name,
+  .history-panel .brand-name,
+  #historyPanel .brand-name{
+    font-size:13px !important;
+  }
+
+  .sidebar button,
+  #sidebar button,
+  .history-panel button,
+  #historyPanel button{
+    font-size:12px !important;
+  }
+
+  .conversation-list,
+  #conversationList,
+  .history-list,
+  #historyList{
+    overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+    flex:1 1 auto !important;
+    min-height:0 !important;
+  }
+
+  .conversation-item,
+  .history-item{
+    padding:10px 8px !important;
+    border-radius:8px !important;
+  }
+
+  .conversation-item .title,
+  .history-item .title{
+    font-size:12px !important;
+    line-height:1.25 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  /* Keep chat header usable in the remaining space */
+  .topbar,
+  .chat-topbar,
+  header{
+    min-width:0 !important;
+    padding:8px !important;
+    gap:6px !important;
+  }
+
+  #creditsBtn{
+    font-size:11px !important;
+    padding:7px 8px !important;
+  }
+
+  #topUpBtn{
+    display:none !important;
+  }
+
+  /* Chat content stays independently scrollable */
+  .messages,
+  #messages,
+  .chat-messages,
+  #chatMessages{
+    flex:1 1 auto !important;
+    min-height:0 !important;
+    overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+    padding:12px 10px 105px !important;
+  }
+
+  .message,
+  .bubble,
+  .msg{
+    max-width:96% !important;
+  }
+
+  .composer,
+  #composer{
+    flex-shrink:0 !important;
+    padding-left:8px !important;
+    padding-right:8px !important;
+  }
+
+  textarea,
+  #chatInput{
+    font-size:16px !important;
+  }
+}
+
 </style>
 </head>
 <body>
