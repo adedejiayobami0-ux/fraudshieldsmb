@@ -124,18 +124,7 @@ function ensureHistoryControls(){
     close.textContent='×';
     close.onclick=()=>setHistorySidebar(false);
 
-    const firstHeader=
-      sidebar.querySelector('.sidebar-header,.history-header,.brand') ||
-      sidebar.firstElementChild;
-
-    if(firstHeader){
-      firstHeader.style.display='flex';
-      firstHeader.style.alignItems='center';
-      firstHeader.style.gap='8px';
-      firstHeader.appendChild(close);
-    }else{
-      sidebar.prepend(close);
-    }
+    sidebar.appendChild(close);
   }
 
   // Add reopen button to topbar.
@@ -160,9 +149,15 @@ function ensureHistoryControls(){
     document.body.appendChild(backdrop);
   }
 
-  // Default mobile state: open, but remember user's previous choice.
   const saved=localStorage.getItem('fraudshield_history_open');
-  const shouldOpen=saved===null ? true : saved==='1';
+
+  // Mobile starts closed so the chat is immediately usable.
+  // Desktop can remember the user's last preference.
+  const shouldOpen =
+    window.innerWidth<=760
+      ? false
+      : (saved===null ? true : saved==='1');
+
   setHistorySidebar(shouldOpen,false);
 }
 
@@ -759,6 +754,98 @@ main{
   header{
     width:100% !important;
     min-width:0 !important;
+  }
+}
+
+
+/* ===== FINAL MOBILE HISTORY DRAWER FIX ===== */
+@media (max-width:760px){
+  .sidebar,
+  #sidebar,
+  .history-panel,
+  #historyPanel{
+    width:min(78vw,310px) !important;
+    max-width:310px !important;
+    min-width:0 !important;
+    position:fixed !important;
+    top:0 !important;
+    left:0 !important;
+    bottom:0 !important;
+    height:100dvh !important;
+    z-index:1000 !important;
+    background:#fff !important;
+    box-shadow:10px 0 28px rgba(0,0,0,.16) !important;
+    overflow:hidden !important;
+  }
+
+  .sidebar.sidebar-collapsed,
+  #sidebar.sidebar-collapsed,
+  .history-panel.sidebar-collapsed,
+  #historyPanel.sidebar-collapsed{
+    transform:translateX(-105%) !important;
+  }
+
+  .sidebar-close-btn{
+    position:absolute !important;
+    top:16px !important;
+    right:14px !important;
+    width:34px !important;
+    height:34px !important;
+    border-radius:10px !important;
+    background:#fff !important;
+    border:1px solid #ddd !important;
+    font-size:24px !important;
+    z-index:1002 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    box-shadow:0 2px 8px rgba(0,0,0,.06) !important;
+  }
+
+  .history-sidebar-backdrop{
+    z-index:999 !important;
+    background:rgba(0,0,0,.32) !important;
+  }
+
+  .sidebar-toggle-btn{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    min-width:36px !important;
+    height:36px !important;
+    padding:0 9px !important;
+    font-size:18px !important;
+    border-radius:10px !important;
+    flex:0 0 auto !important;
+  }
+
+  .sidebar-toggle-btn.hidden{
+    display:none !important;
+  }
+
+  .sidebar > *:first-child,
+  #sidebar > *:first-child,
+  .history-panel > *:first-child,
+  #historyPanel > *:first-child{
+    padding-right:58px !important;
+  }
+
+  .chat-main,
+  .chat-wrap,
+  .chat-area,
+  main{
+    width:100vw !important;
+    max-width:100vw !important;
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+
+  .messages,
+  #messages,
+  .chat-messages,
+  #chatMessages{
+    width:100% !important;
+    max-width:100% !important;
   }
 }
 
