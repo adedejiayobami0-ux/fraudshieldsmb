@@ -1046,6 +1046,52 @@ body{
   }
 }
 
+
+/* ===== KEEP CREDITS + TOP UP VISIBLE ===== */
+@media (max-width:820px){
+  #creditsBtn{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    flex:0 0 auto !important;
+    max-width:none !important;
+    min-width:68px !important;
+    padding:7px 9px !important;
+    font-size:11px !important;
+    white-space:nowrap !important;
+  }
+
+  #topUpBtn{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    flex:0 0 auto !important;
+    padding:7px 9px !important;
+    font-size:11px !important;
+    white-space:nowrap !important;
+  }
+
+  .topbar,
+  .chat-topbar,
+  header{
+    overflow:visible !important;
+    flex-wrap:nowrap !important;
+  }
+}
+
+@media (max-width:390px){
+  #creditsBtn{
+    min-width:62px !important;
+    padding:6px 7px !important;
+    font-size:10px !important;
+  }
+
+  #topUpBtn{
+    padding:6px 7px !important;
+    font-size:10px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1079,7 +1125,7 @@ body{
   aria-label="Open chat history"
   onclick="setHistorySidebar(true)"
 >☰</button>
-<div class="top-left"><div class="top-icon" id="topIcon">🛡</div><div><div class="top-name" id="topName">@fraud</div><div class="top-sub" id="topSub">Risk checks, vendor verification & fraud questions</div></div></div><div class="top-actions"><button class="small-btn" id="creditsBtn" onclick="openPricing()" style="display:none">10 credits</button><button class="small-btn" id="topUpBtn" onclick="openPricing()" style="display:none">Top up</button><button class="small-btn" onclick="toggleTheme()" id="themeBtn">☀ Light</button><button class="small-btn mobile-context" onclick="alert('Integrations panel is available on desktop.')">Integrations</button><button class="small-btn signin" id="signinTop" onclick="signInGoogle()">Sign in</button></div></header>
+<div class="top-left"><div class="top-icon" id="topIcon">🛡</div><div><div class="top-name" id="topName">@fraud</div><div class="top-sub" id="topSub">Risk checks, vendor verification & fraud questions</div></div></div><div class="top-actions"><button class="small-btn" id="creditsBtn" style="display:none" onclick="openPricing()">10 credits</button><button class="small-btn" id="topUpBtn" style="display:none" onclick="openPricing()">Top up</button><button class="small-btn" onclick="toggleTheme()" id="themeBtn">☀ Light</button><button class="small-btn mobile-context" onclick="alert('Integrations panel is available on desktop.')">Integrations</button><button class="small-btn signin" id="signinTop" onclick="signInGoogle()">Sign in</button></div></header>
 <div class="chat-area" id="chatArea"><div class="chat-inner"><div class="welcome" id="welcome"><div class="welcome-mark">FS</div><h1>What do you want to check?</h1><p>Use FraudShield for risk checks, finance questions, document review, and business paperwork readiness.</p><div class="starters"><button class="starter" onclick="startPrompt('fraud','@fraud Check this invoice before I pay it.')"><div class="starter-agent">@fraud</div><div class="starter-text">Check this invoice before I pay it.</div></button><button class="starter" onclick="startPrompt('fraud','@fraud What should I verify when a vendor changes bank details?')"><div class="starter-agent">@fraud</div><div class="starter-text">A vendor changed bank details. What should I verify?</div></button><button class="starter" onclick="startPrompt('accounting','@accounting Help me categorize this business expense.')"><div class="starter-agent">@accounting</div><div class="starter-text">Help me categorize a business expense.</div></button><button class="starter" onclick="startPrompt('accounting','@accounting Summarize the financial data I provide.')"><div class="starter-agent">@accounting</div><div class="starter-text">Summarize financial data I provide.</div></button><button class="starter" onclick="startPrompt('docs','@docs I want to open a business bank account. What paperwork should I gather?')"><div class="starter-agent">@docs</div><div class="starter-text">What paperwork should I gather for a business bank account?</div></button><button class="starter" onclick="startPrompt('docs','@docs Build me a checklist for a small-business loan application.')"><div class="starter-agent">@docs</div><div class="starter-text">Build a document checklist for a business loan.</div></button></div></div><div class="messages" id="messages"></div></div></div>
 <div class="composer-wrap"><div class="composer"><div class="attachments" id="attachments"></div><div class="compose-main"><input type="file" class="file-input" id="fileInput" multiple accept="image/*,.pdf,.txt,.csv,.json" onchange="handleFiles(event)"/><button class="icon-btn" onclick="document.getElementById('fileInput').click()" title="Attach file">＋</button><textarea id="chatInput" class="chat-input" rows="1" placeholder="@fraud Check this invoice before I pay it..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea><button class="icon-btn send" id="sendBtn" onclick="sendMessage()">➤</button></div><div class="compose-bottom"><div class="active-agent" id="activeAgent">@fraud active</div><div class="hint">Enter to send · Shift+Enter for new line</div></div></div></div>
 </section>
@@ -1119,6 +1165,10 @@ async function loadCreditBalance(){
   const {data,error}=await sb.from('profiles').select('credit_balance,plan,subscription_status').eq('id',currentUser.id).maybeSingle();
   if(error){console.error('Could not load credits',error);return;}
   setCreditBalance(data?.credit_balance??0);
+  const creditsBtn=document.getElementById('creditsBtn');
+  const topUpBtnVisible=document.getElementById('topUpBtn');
+  if(creditsBtn) creditsBtn.style.display='inline-flex';
+  if(topUpBtnVisible) topUpBtnVisible.style.display='inline-flex';
   const topUpBtn=document.getElementById('topUpBtn');
   if(topUpBtn){
     topUpBtn.style.display='inline-block';
@@ -1133,7 +1183,7 @@ function setCreditBalance(balance){
   const n=Number(balance??0);
   creditsBtn.textContent=`${n} credit${n===1?'':'s'}`;
   creditsBtn.style.display='inline-block';
-  if(topUpBtn)topUpBtn.style.display='inline-block';
+  if(topUpBtn)topUpBtn.style.display='inline-flex';
   creditsBtn.title=n<=2?'Low credit balance':'';
 }
 
