@@ -1159,9 +1159,99 @@ body{
   }
 }
 
+
+/* ===== BILLING UX ===== */
+.billing-summary{
+  margin:14px 0 18px;
+  border:1px solid var(--border,#e5e5e5);
+  border-radius:14px;
+  padding:14px;
+}
+.billing-summary-row{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.billing-label{
+  font-size:11px;
+  opacity:.58;
+  margin-bottom:4px;
+}
+.billing-value{
+  font-size:14px;
+  font-weight:700;
+}
+.billing-actions{
+  margin-top:12px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.payment-success-toast{
+  position:fixed;
+  top:18px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:3000;
+  width:min(92vw,520px);
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:#fff;
+  color:#111;
+  border:1px solid rgba(16,185,129,.3);
+  box-shadow:0 10px 30px rgba(0,0,0,.14);
+}
+.payment-success-icon{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  background:rgba(16,185,129,.12);
+  font-weight:800;
+}
+.payment-success-toast strong{
+  display:block;
+  margin-bottom:2px;
+}
+.payment-success-toast div div{
+  font-size:12px;
+  opacity:.68;
+}
+.payment-success-toast button{
+  margin-left:auto;
+  border:0;
+  background:transparent;
+  font-size:20px;
+  cursor:pointer;
+}
+@media(max-width:600px){
+  .billing-summary-row{
+    grid-template-columns:1fr 1fr;
+  }
+  #billingRenewWrap{
+    grid-column:1 / -1;
+  }
+}
+
 </style>
 </head>
 <body>
+
+<div id="paymentSuccessToast" class="payment-success-toast" style="display:none">
+  <div class="payment-success-icon">✓</div>
+  <div>
+    <strong>Payment successful</strong>
+    <div>Your FraudShield billing status and credits are being refreshed.</div>
+  </div>
+  <button onclick="dismissPaymentToast()">×</button>
+</div>
+
 <div class="app">
 <aside class="sidebar">
 <button
@@ -1200,7 +1290,30 @@ body{
 </div>
 
 
-<div class="pricing-overlay" id="pricingOverlay" onclick="if(event.target===this)closePricing()"><div class="pricing-modal"><div class="pricing-head"><div><div class="pricing-title" id="pricingTitle">FraudShield credits</div><div class="pricing-sub" id="pricingSub">Start with 10 free credits. Top up when you need more, or move to Pro for a larger monthly allowance and future integrations.</div></div><button class="close-modal" onclick="closePricing()">✕</button></div><div class="price-grid"><div class="price-card"><div class="price-name">Quick top-up</div><div class="price-value">$1.99</div><div class="price-copy">A small refill for occasional checks.</div><button class="price-action" onclick="paymentComingSoon('$1.99 top-up')">Choose</button></div><div class="price-card"><div class="price-name">Standard</div><div class="price-value">$4.99</div><div class="price-copy">Better value for regular document and risk checks.</div><button class="price-action" onclick="paymentComingSoon('$4.99 top-up')">Choose</button></div><div class="price-card"><div class="price-name">Power top-up</div><div class="price-value">$9.99</div><div class="price-copy">For heavier use without a subscription.</div><button class="price-action" onclick="paymentComingSoon('$9.99 top-up')">Choose</button></div><div class="price-card featured"><div class="price-name">FraudShield Pro</div><div class="price-value">$19.99<span style="font-size:11px;font-weight:500">/mo</span></div><div class="price-copy">Monthly credits plus advanced features and integrations as they launch.</div><button class="price-action" onclick="paymentComingSoon('FraudShield Pro')">Upgrade</button></div></div><div class="credit-note">Secure checkout is powered by Stripe. Sandbox payments are enabled while FraudShield is being tested.</div></div></div>
+<div class="pricing-overlay" id="pricingOverlay" onclick="if(event.target===this)closePricing()"><div class="pricing-modal"><div class="pricing-head"><div><div class="pricing-title" id="pricingTitle">FraudShield credits</div><div class="pricing-sub" id="pricingSub">Start with 10 free credits. Top up when you need more, or move to Pro for a larger monthly allowance and future integrations.</div></div><button class="close-modal" onclick="closePricing()">✕</button></div>
+<div class="billing-summary" id="billingSummary" style="display:none">
+  <div class="billing-summary-row">
+    <div>
+      <div class="billing-label">Current plan</div>
+      <div class="billing-value" id="billingPlan">Free</div>
+    </div>
+    <div>
+      <div class="billing-label">Credits</div>
+      <div class="billing-value" id="billingCredits">0</div>
+    </div>
+    <div id="billingRenewWrap" style="display:none">
+      <div class="billing-label">Next renewal</div>
+      <div class="billing-value" id="billingRenewal">—</div>
+    </div>
+  </div>
+  <div class="billing-actions">
+    <button class="small-btn" id="manageSubscriptionBtn" style="display:none" onclick="openBillingPortal()">
+      Manage subscription
+    </button>
+  </div>
+</div>
+<div class="price-grid">
+<div class="price-card"><div class="price-name">Quick top-up</div><div class="price-value">$1.99</div><div class="price-copy">A small refill for occasional checks.</div><button class="price-action" onclick="paymentComingSoon('$1.99 top-up')">Choose</button></div><div class="price-card"><div class="price-name">Standard</div><div class="price-value">$4.99</div><div class="price-copy">Better value for regular document and risk checks.</div><button class="price-action" onclick="paymentComingSoon('$4.99 top-up')">Choose</button></div><div class="price-card"><div class="price-name">Power top-up</div><div class="price-value">$9.99</div><div class="price-copy">For heavier use without a subscription.</div><button class="price-action" onclick="paymentComingSoon('$9.99 top-up')">Choose</button></div><div class="price-card featured"><div class="price-name">FraudShield Pro</div><div class="price-value">$19.99<span style="font-size:11px;font-weight:500">/mo</span></div><div class="price-copy">Monthly credits plus advanced features and integrations as they launch.</div><button class="price-action" onclick="paymentComingSoon('FraudShield Pro')">Upgrade</button></div></div><div class="credit-note">Secure checkout is powered by Stripe. Sandbox payments are enabled while FraudShield is being tested.</div></div></div>
 <div class="tour-overlay" id="tourOverlay"></div>
 <div class="tour-card" id="tourCard">
   <div class="tour-kicker">Welcome to FraudShield</div>
@@ -1252,6 +1365,8 @@ async function checkAuth(){
       loadConversationList(),
       loadCreditBalance()
     ]);
+
+    await handlePaymentReturn();
   }else{
     document.getElementById('creditsBtn').style.display='none';
     document.getElementById('topUpBtn').style.display='none';
@@ -1264,7 +1379,7 @@ async function loadCreditBalance(){
 
   const {data,error}=await sb
     .from('profiles')
-    .select('credit_balance,plan,subscription_status')
+    .select('credit_balance,plan,subscription_status,subscription_renews_at,stripe_customer_id')
     .eq('id',currentUser.id)
     .maybeSingle();
 
@@ -1274,6 +1389,9 @@ async function loadCreditBalance(){
   }
 
   const credits=data?.credit_balance??0;
+  const plan=data?.plan||'free';
+  const status=data?.subscription_status||'free';
+
   setCreditBalance(credits);
 
   const creditsBtn=document.getElementById('creditsBtn');
@@ -1283,7 +1401,37 @@ async function loadCreditBalance(){
 
   if(topUpBtn){
     topUpBtn.style.display='inline-flex';
-    topUpBtn.textContent=data?.plan==='pro' ? 'Pro' : 'Top Up';
+    topUpBtn.textContent=plan==='pro' ? 'Pro' : 'Top Up';
+  }
+
+  const summary=document.getElementById('billingSummary');
+  const billingPlan=document.getElementById('billingPlan');
+  const billingCredits=document.getElementById('billingCredits');
+  const renewWrap=document.getElementById('billingRenewWrap');
+  const renewal=document.getElementById('billingRenewal');
+  const manageBtn=document.getElementById('manageSubscriptionBtn');
+
+  if(summary) summary.style.display='block';
+  if(billingPlan){
+    billingPlan.textContent=plan==='pro'
+      ? `Pro · ${status.replace('_',' ')}`
+      : 'Free';
+  }
+  if(billingCredits) billingCredits.textContent=String(credits);
+
+  if(plan==='pro' && data?.subscription_renews_at){
+    const dt=new Date(data.subscription_renews_at);
+    if(renewal) renewal.textContent=dt.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+    if(renewWrap) renewWrap.style.display='block';
+  }else{
+    if(renewWrap) renewWrap.style.display='none';
+  }
+
+  if(manageBtn){
+    manageBtn.style.display=
+      plan==='pro' && data?.stripe_customer_id
+        ? 'inline-flex'
+        : 'none';
   }
 }
 
@@ -1312,6 +1460,74 @@ function openPricing(mode='default'){
 }
 
 function closePricing(){document.getElementById('pricingOverlay').classList.remove('show')}
+
+
+async function openBillingPortal(){
+  if(!currentUser){
+    alert('Please sign in first.');
+    return;
+  }
+
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+
+    if(!session?.access_token){
+      throw new Error('Your session has expired. Please sign in again.');
+    }
+
+    const res=await fetch(`${SUPABASE_URL}/functions/v1/create-billing-portal`,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':`Bearer ${session.access_token}`
+      }
+    });
+
+    const data=await res.json();
+
+    if(!res.ok){
+      throw new Error(data?.error||'Unable to open billing portal.');
+    }
+
+    if(!data?.url){
+      throw new Error('Billing portal URL was not returned.');
+    }
+
+    window.location.href=data.url;
+  }catch(err){
+    console.error('Billing portal error:',err);
+    alert(`Could not open billing settings: ${err.message}`);
+  }
+}
+
+function dismissPaymentToast(){
+  const toast=document.getElementById('paymentSuccessToast');
+  if(toast) toast.style.display='none';
+}
+
+async function handlePaymentReturn(){
+  const params=new URLSearchParams(window.location.search);
+
+  if(params.get('payment')!=='success') return;
+
+  const toast=document.getElementById('paymentSuccessToast');
+
+  if(toast){
+    toast.style.display='flex';
+  }
+
+  // Give the Stripe webhook a moment, then refresh billing state.
+  for(const delay of [300,1200,2500]){
+    await new Promise(resolve=>setTimeout(resolve,delay));
+    await loadCreditBalance();
+  }
+
+  // Clean the Stripe query params without reloading the page.
+  const cleanUrl=window.location.pathname;
+  window.history.replaceState({},document.title,cleanUrl);
+
+  setTimeout(dismissPaymentToast,6000);
+}
 
 async function startCheckout(packageKey){
   if(!currentUser){
