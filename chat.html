@@ -1152,8 +1152,56 @@ function openPricing(mode='default'){
 
 function closePricing(){document.getElementById('pricingOverlay').classList.remove('show')}
 
+async function startCheckout(packageKey){
+  if(!currentUser){
+    alert('Please sign in before purchasing FraudShield credits.');
+    return;
+  }
+
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+
+    if(!session?.access_token){
+      alert('Your session has expired. Please sign in again.');
+      return;
+    }
+
+    const res=await fetch(`${SUPABASE_URL}/functions/v1/create-checkout`,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':`Bearer ${session.access_token}`
+      },
+      body:JSON.stringify({package:packageKey})
+    });
+
+    const data=await res.json();
+
+    if(!res.ok){
+      throw new Error(data?.error||'Unable to start checkout.');
+    }
+
+    if(!data?.url){
+      throw new Error('Stripe checkout URL was not returned.');
+    }
+
+    window.location.href=data.url;
+  }catch(err){
+    console.error('Checkout error:',err);
+    alert(`Could not open checkout: ${err.message}`);
+  }
+}
+
 function paymentComingSoon(option){
-  alert(`${option} checkout is the next step. Stripe is not connected yet, so no payment has been taken.`);
+  const key=String(option||'').toLowerCase();
+
+  if(key.includes('starter')||key.includes('1.99')) return startCheckout('starter');
+  if(key.includes('regular')||key.includes('4.99')) return startCheckout('regular');
+  if(key.includes('power')||key.includes('9.99')) return startCheckout('power');
+  if(key.includes('pro')||key.includes('19.99')) return startCheckout('pro');
+
+  alert('That FraudShield package is not configured yet.');
+} checkout is the next step. Stripe is not connected yet, so no payment has been taken.`);
 }
 
 async function loadConversationList(){if(!currentUser)return;const {data,error}=await sb.from('conversations').select('id,title,created_at,updated_at').eq('user_id',currentUser.id).order('updated_at',{ascending:false}).limit(30);if(error){console.error('Failed to load conversations',error);return}conversations=data||[];renderHistory()}
