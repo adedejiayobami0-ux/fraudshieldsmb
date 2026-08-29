@@ -1092,6 +1092,73 @@ body{
   }
 }
 
+
+/* ===== FINAL CREDIT HEADER FIX ===== */
+@media (max-width:820px){
+  .topbar{
+    height:auto !important;
+    min-height:58px !important;
+    display:grid !important;
+    grid-template-columns:auto minmax(0,1fr) !important;
+    grid-template-areas:
+      "menu identity"
+      "actions actions" !important;
+    align-items:center !important;
+    gap:7px 8px !important;
+    padding:8px 10px !important;
+    overflow:visible !important;
+  }
+
+  #mobileSidebarOpen,
+  .sidebar-toggle-btn{
+    grid-area:menu !important;
+  }
+
+  .top-left{
+    grid-area:identity !important;
+    min-width:0 !important;
+    overflow:hidden !important;
+  }
+
+  .top-sub{
+    display:none !important;
+  }
+
+  .top-actions{
+    grid-area:actions !important;
+    width:100% !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:6px !important;
+    min-width:0 !important;
+    overflow-x:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+    scrollbar-width:none !important;
+  }
+
+  .top-actions::-webkit-scrollbar{
+    display:none !important;
+  }
+
+  #creditsBtn,
+  #topUpBtn{
+    flex:0 0 auto !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+  }
+
+  #themeBtn,
+  .mobile-context{
+    display:none !important;
+  }
+
+  #signinTop{
+    flex:0 0 auto !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1159,20 +1226,64 @@ function selectAgent(agent){activeAgent=agentConfig[agent]?agent:'fraud';documen
 function activeAgentEl(){return document.getElementById('activeAgent')}
 async function signInGoogle(){if(!sb)return alert('Sign-in is temporarily unavailable.');await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://www.fraudshieldsmb.com/chat.html'}})}
 async function signOut(){if(sb)await sb.auth.signOut();location.reload()}
-async function checkAuth(){if(!sb)return;const {data,error}=await sb.auth.getSession();if(error){console.error(error);return}currentUser=data?.session?.user||null;if(currentUser){guestBox.style.display='none';userRow.style.display='flex';signinTop.style.display='none';const email=currentUser.email||'';userEmail.textContent=email;userInitial.textContent=(email[0]||'U').toUpperCase();await loadConversationList()}else renderHistory()}
+async function checkAuth(){
+  if(!sb)return;
+
+  const {data,error}=await sb.auth.getSession();
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  currentUser=data?.session?.user||null;
+
+  if(currentUser){
+    guestBox.style.display='none';
+    userRow.style.display='flex';
+    signinTop.style.display='none';
+
+    const email=currentUser.email||'';
+    userEmail.textContent=email;
+    userInitial.textContent=(email[0]||'U').toUpperCase();
+
+    // Load both saved chats AND the user's credit balance.
+    await Promise.all([
+      loadConversationList(),
+      loadCreditBalance()
+    ]);
+  }else{
+    document.getElementById('creditsBtn').style.display='none';
+    document.getElementById('topUpBtn').style.display='none';
+    signinTop.style.display='inline-flex';
+    renderHistory();
+  }
+}
 async function loadCreditBalance(){
   if(!currentUser||!sb)return;
-  const {data,error}=await sb.from('profiles').select('credit_balance,plan,subscription_status').eq('id',currentUser.id).maybeSingle();
-  if(error){console.error('Could not load credits',error);return;}
-  setCreditBalance(data?.credit_balance??0);
+
+  const {data,error}=await sb
+    .from('profiles')
+    .select('credit_balance,plan,subscription_status')
+    .eq('id',currentUser.id)
+    .maybeSingle();
+
+  if(error){
+    console.error('Could not load credits',error);
+    return;
+  }
+
+  const credits=data?.credit_balance??0;
+  setCreditBalance(credits);
+
   const creditsBtn=document.getElementById('creditsBtn');
-  const topUpBtnVisible=document.getElementById('topUpBtn');
-  if(creditsBtn) creditsBtn.style.display='inline-flex';
-  if(topUpBtnVisible) topUpBtnVisible.style.display='inline-flex';
   const topUpBtn=document.getElementById('topUpBtn');
+
+  if(creditsBtn) creditsBtn.style.display='inline-flex';
+
   if(topUpBtn){
-    topUpBtn.style.display='inline-block';
-    if(data?.plan==='pro')topUpBtn.textContent='Pro';
+    topUpBtn.style.display='inline-flex';
+    topUpBtn.textContent=data?.plan==='pro' ? 'Pro' : 'Top Up';
   }
 }
 
