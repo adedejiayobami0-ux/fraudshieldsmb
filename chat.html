@@ -3026,7 +3026,7 @@ async function disconnectGmail(){
 
 
 async function quickBooksAuthHeaders(){
-  const {data:{session}}=await supabase.auth.getSession();
+  const {data:{session}}=await sb.auth.getSession();
 
   if(!session?.access_token){
     throw new Error('Please sign in again.');
@@ -3035,7 +3035,7 @@ async function quickBooksAuthHeaders(){
   return {
     'Content-Type':'application/json',
     'Authorization':`Bearer ${session.access_token}`,
-    'apikey':SUPABASE_ANON_KEY
+    'apikey':SUPABASE_ANON
   };
 }
 
