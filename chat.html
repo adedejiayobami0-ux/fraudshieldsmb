@@ -2783,6 +2783,124 @@ body.text-large{
   }
 }
 
+
+/* ===== QUICKBOOKS OUTSTANDING INVOICES ===== */
+.qb-action-row{
+  grid-template-columns:1fr 1fr;
+}
+.qb-wide-action{
+  grid-column:1 / -1;
+}
+.qb-invoice-summary{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+  margin-top:8px;
+}
+.qb-invoice-summary>div{
+  border:1px solid var(--border);
+  background:var(--surface);
+  border-radius:9px;
+  padding:8px;
+}
+.qb-invoice-summary span{
+  display:block;
+  font-size:8px;
+  color:var(--faint);
+}
+.qb-invoice-summary strong{
+  display:block;
+  margin-top:3px;
+  font-size:11px;
+  color:var(--ink);
+}
+.qb-invoice-list{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-top:8px;
+}
+.qb-invoice-card{
+  border:1px solid var(--border);
+  background:var(--surface);
+  border-radius:10px;
+  overflow:hidden;
+}
+.qb-invoice-card summary{
+  list-style:none;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+  cursor:pointer;
+  padding:9px 10px;
+}
+.qb-invoice-card summary::-webkit-details-marker{
+  display:none;
+}
+.qb-invoice-main{
+  min-width:0;
+}
+.qb-invoice-customer{
+  font-size:10px;
+  font-weight:800;
+  color:var(--ink);
+}
+.qb-invoice-meta{
+  margin-top:2px;
+  font-size:8px;
+  color:var(--muted);
+}
+.qb-invoice-amount{
+  font-size:10px;
+  font-weight:800;
+  color:var(--ink);
+  text-align:right;
+  white-space:nowrap;
+}
+.qb-overdue{
+  display:block;
+  margin-top:3px;
+  font-size:7px;
+  color:var(--red);
+}
+.qb-invoice-body{
+  border-top:1px solid var(--border);
+  padding:9px 10px 10px;
+}
+.qb-invoice-body>div{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:5px;
+  font-size:9px;
+  color:var(--muted);
+}
+.qb-invoice-body strong{
+  color:var(--ink);
+}
+.qb-invoice-body button{
+  width:100%;
+  margin-top:5px;
+  border:1px solid var(--border);
+  background:var(--surface2);
+  color:var(--ink);
+  border-radius:7px;
+  padding:7px 8px;
+  font-size:9px;
+  font-weight:700;
+}
+@media(max-width:760px){
+  .qb-invoice-summary span{font-size:10px}
+  .qb-invoice-summary strong{font-size:13px}
+  .qb-invoice-customer{font-size:12px}
+  .qb-invoice-meta{font-size:10px}
+  .qb-invoice-amount{font-size:12px}
+  .qb-overdue{font-size:9px}
+  .qb-invoice-body>div{font-size:11px}
+  .qb-invoice-body button{font-size:11px;padding:8px}
+}
+
 </style>
 </head>
 <body>
@@ -3528,6 +3646,134 @@ async function loadQuickBooksCompany(){
         err.message ||
         'Unable to load company.';
     }
+  }
+}
+
+
+async function loadOutstandingInvoices(){
+  const output=document.getElementById(
+    'quickbooksDataOutput'
+  );
+
+  if(output){
+    output.textContent='Loading outstanding invoices…';
+  }
+
+  try{
+    const data=await quickBooksApi(
+      'quickbooks-data',
+      {mode:'invoices'}
+    );
+
+    const invoices=
+      data?.data?.QueryResponse?.Invoice || [];
+
+    const outstanding=invoices
+      .filter(inv=>Number(inv?.Balance || 0)>0)
+      .sort((a,b)=>{
+        const dueA=new Date(a?.DueDate || '9999-12-31').getTime();
+        const dueB=new Date(b?.DueDate || '9999-12-31').getTime();
+        return dueA-dueB;
+      });
+
+    const totalOutstanding=outstanding.reduce(
+      (sum,inv)=>sum+Number(inv?.Balance || 0),
+      0
+    );
+
+    const overdue=outstanding.filter(inv=>{
+      if(!inv?.DueDate)return false;
+      return new Date(inv.DueDate).getTime() < new Date().setHours(0,0,0,0);
+    });
+
+    if(!outstanding.length){
+      if(output){
+        output.innerHTML=`
+          <div class="qb-empty-state">
+            No outstanding invoices found.
+          </div>
+        `;
+      }
+      return;
+    }
+
+    const summary=`
+      <div class="qb-invoice-summary">
+        <div>
+          <span>Outstanding</span>
+          <strong>$${totalOutstanding.toFixed(2)}</strong>
+        </div>
+        <div>
+          <span>Open invoices</span>
+          <strong>${outstanding.length}</strong>
+        </div>
+        <div>
+          <span>Overdue</span>
+          <strong>${overdue.length}</strong>
+        </div>
+      </div>
+    `;
+
+    const cards=outstanding.slice(0,20).map(inv=>{
+      const customer=inv?.CustomerRef?.name || 'Customer';
+      const due=inv?.DueDate || 'No due date';
+      const balance=Number(inv?.Balance || 0).toFixed(2);
+      const total=Number(inv?.TotalAmt || 0).toFixed(2);
+      const number=inv?.DocNumber || inv?.Id || '';
+      const isOverdue=inv?.DueDate &&
+        new Date(inv.DueDate).getTime() < new Date().setHours(0,0,0,0);
+
+      return `
+        <details class="qb-invoice-card">
+          <summary>
+            <div class="qb-invoice-main">
+              <div class="qb-invoice-customer">${gmailEscape(customer)}</div>
+              <div class="qb-invoice-meta">
+                ${gmailEscape(number ? `Invoice ${number}` : 'Invoice')}
+                · Due ${gmailEscape(due)}
+              </div>
+            </div>
+            <div class="qb-invoice-amount">
+              $${gmailEscape(balance)}
+              ${isOverdue ? '<span class="qb-overdue">Overdue</span>' : ''}
+            </div>
+          </summary>
+          <div class="qb-invoice-body">
+            <div><span>Total</span><strong>$${gmailEscape(total)}</strong></div>
+            <div><span>Balance due</span><strong>$${gmailEscape(balance)}</strong></div>
+            <button type="button" onclick="askAboutInvoice('${gmailEscape(String(inv?.Id || ''))}')">
+              Ask @accounting
+            </button>
+          </div>
+        </details>
+      `;
+    }).join('');
+
+    if(output){
+      output.innerHTML=summary + `
+        <div class="qb-invoice-list">${cards}</div>
+      `;
+    }
+  }catch(err){
+    console.error('Outstanding invoices error:',err);
+
+    if(output){
+      output.textContent=
+        err.message ||
+        'Unable to load outstanding invoices.';
+    }
+  }
+}
+
+function askAboutInvoice(invoiceId){
+  const input=document.getElementById('messageInput') ||
+              document.querySelector('textarea');
+
+  selectAgent('accounting');
+
+  if(input){
+    input.value=`Tell me about QuickBooks invoice ${invoiceId}. Is it overdue and what should I pay attention to?`;
+    input.focus();
   }
 }
 
