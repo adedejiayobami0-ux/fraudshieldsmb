@@ -3104,7 +3104,8 @@ async function checkAuth(){
     await Promise.all([
       loadConversationList(),
       loadCreditBalance(),
-      loadGmailStatus()
+      loadGmailStatus(),
+      loadQuickBooksStatus()
     ]);
 
     await handlePaymentReturn();
