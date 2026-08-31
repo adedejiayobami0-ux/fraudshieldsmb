@@ -2901,6 +2901,29 @@ body.text-large{
   .qb-invoice-body button{font-size:11px;padding:8px}
 }
 
+
+/* ===== QUICKBOOKS COMPLETE ===== */
+.qb-wide-action{
+  grid-column:1 / -1;
+}
+.qb-small-note{
+  margin-top:8px;
+  padding:8px 9px;
+  border:1px dashed var(--border);
+  border-radius:8px;
+  font-size:8px;
+  line-height:1.45;
+  color:var(--faint);
+}
+.qb-invoice-summary strong{
+  overflow-wrap:anywhere;
+}
+@media(max-width:760px){
+  .qb-small-note{
+    font-size:10px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2958,10 +2981,7 @@ body.text-large{
 </div>
 <span class="qb-live-pill">Live</span>
 </div>
-<div class="qb-action-row">
-<button onclick="loadQuickBooksCompany()" type="button">Overview</button>
-<button onclick="loadQuickBooksAccounts()" type="button">Accounts</button>
-</div>
+<div class="qb-action-row"><button onclick="loadQuickBooksCompany()" type="button">Overview</button><button onclick="loadQuickBooksAccounts()" type="button">Accounts</button><button class="qb-wide-action" onclick="loadOutstandingInvoices()" type="button">Outstanding invoices</button><button class="qb-wide-action" onclick="loadRecentPayments()" type="button">Recent payments</button><button class="qb-wide-action" onclick="loadMonthlySpendSummary()" type="button">Monthly spend</button><button class="qb-wide-action" onclick="loadVendorSpendBreakdown()" type="button">Vendor spend</button><button class="qb-wide-action" onclick="loadUnusualExpenses()" type="button">Unusual expenses</button></div>
 <div class="qb-data-output" id="quickbooksDataOutput">
 <div class="qb-empty-state">Your QuickBooks data will appear here.</div>
 </div>
@@ -3651,6 +3671,354 @@ async function loadQuickBooksCompany(){
 }
 
 
+
+
+function qbMoney(value){
+  return `$${Number(value || 0).toFixed(2)}`;
+}
+
+function qbMonthKey(dateString){
+  if(!dateString)return 'Unknown';
+  const d=new Date(`${dateString}T00:00:00`);
+  if(Number.isNaN(d.getTime()))return 'Unknown';
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+
+function qbMonthLabel(key){
+  if(key==='Unknown')return key;
+  const [y,m]=key.split('-').map(Number);
+  return new Date(y,m-1,1).toLocaleDateString(undefined,{
+    month:'short',
+    year:'numeric'
+  });
+}
+
+function qbVendorName(purchase){
+  return (
+    purchase?.EntityRef?.name ||
+    purchase?.PayeeRef?.name ||
+    purchase?.AccountRef?.name ||
+    'Unlabeled'
+  );
+}
+
+async function getQuickBooksPurchases(){
+  const data=await quickBooksApi(
+    'quickbooks-data',
+    {mode:'expenses'}
+  );
+
+  return data?.data?.QueryResponse?.Purchase || [];
+}
+
+async function loadMonthlySpendSummary(){
+  const output=document.getElementById('quickbooksDataOutput');
+  if(output)output.textContent='Loading monthly spend…';
+
+  try{
+    const purchases=await getQuickBooksPurchases();
+
+    if(!purchases.length){
+      if(output)output.innerHTML='<div class="qb-empty-state">No purchase data found.</div>';
+      return;
+    }
+
+    const byMonth={};
+
+    purchases.forEach(p=>{
+      const key=qbMonthKey(p?.TxnDate);
+      if(!byMonth[key])byMonth[key]={
+        total:0,
+        count:0,
+        biggest:null
+      };
+
+      const amount=Number(p?.TotalAmt || 0);
+      byMonth[key].total+=amount;
+      byMonth[key].count+=1;
+
+      if(
+        !byMonth[key].biggest ||
+        amount > Number(byMonth[key].biggest?.TotalAmt || 0)
+      ){
+        byMonth[key].biggest=p;
+      }
+    });
+
+    const months=Object.keys(byMonth)
+      .filter(k=>k!=='Unknown')
+      .sort()
+      .reverse()
+      .slice(0,6);
+
+    const current=months[0];
+    const previous=months[1];
+
+    const currentTotal=current ? byMonth[current].total : 0;
+    const previousTotal=previous ? byMonth[previous].total : 0;
+
+    let changeText='No prior month';
+    if(previous && previousTotal){
+      const pct=((currentTotal-previousTotal)/previousTotal)*100;
+      changeText=`${pct>=0?'+':''}${pct.toFixed(1)}% vs ${qbMonthLabel(previous)}`;
+    }
+
+    const rows=months.map(key=>{
+      const item=byMonth[key];
+      const biggestVendor=qbVendorName(item.biggest);
+
+      return `
+        <details class="qb-invoice-card">
+          <summary>
+            <div class="qb-invoice-main">
+              <div class="qb-invoice-customer">${gmailEscape(qbMonthLabel(key))}</div>
+              <div class="qb-invoice-meta">${item.count} purchases · Biggest: ${gmailEscape(biggestVendor)}</div>
+            </div>
+            <div class="qb-invoice-amount">${qbMoney(item.total)}</div>
+          </summary>
+          <div class="qb-invoice-body">
+            <div><span>Transactions</span><strong>${item.count}</strong></div>
+            <div><span>Biggest purchase</span><strong>${qbMoney(item.biggest?.TotalAmt || 0)}</strong></div>
+            <div><span>Vendor</span><strong>${gmailEscape(biggestVendor)}</strong></div>
+          </div>
+        </details>
+      `;
+    }).join('');
+
+    if(output){
+      output.innerHTML=`
+        <div class="qb-invoice-summary">
+          <div>
+            <span>${gmailEscape(current ? qbMonthLabel(current) : 'Current')}</span>
+            <strong>${qbMoney(currentTotal)}</strong>
+          </div>
+          <div>
+            <span>Purchases</span>
+            <strong>${current ? byMonth[current].count : 0}</strong>
+          </div>
+          <div>
+            <span>Change</span>
+            <strong>${gmailEscape(changeText)}</strong>
+          </div>
+        </div>
+        <div class="qb-invoice-list">${rows}</div>
+      `;
+    }
+  }catch(err){
+    console.error('Monthly spend error:',err);
+    if(output)output.textContent=err.message || 'Unable to load monthly spend.';
+  }
+}
+
+async function loadVendorSpendBreakdown(){
+  const output=document.getElementById('quickbooksDataOutput');
+  if(output)output.textContent='Loading vendor spend…';
+
+  try{
+    const purchases=await getQuickBooksPurchases();
+
+    if(!purchases.length){
+      if(output)output.innerHTML='<div class="qb-empty-state">No purchase data found.</div>';
+      return;
+    }
+
+    const vendors={};
+
+    purchases.forEach(p=>{
+      const vendor=qbVendorName(p);
+
+      if(!vendors[vendor]){
+        vendors[vendor]={
+          total:0,
+          count:0,
+          latest:null
+        };
+      }
+
+      vendors[vendor].total+=Number(p?.TotalAmt || 0);
+      vendors[vendor].count+=1;
+
+      if(
+        !vendors[vendor].latest ||
+        new Date(p?.TxnDate || 0) >
+        new Date(vendors[vendor].latest?.TxnDate || 0)
+      ){
+        vendors[vendor].latest=p;
+      }
+    });
+
+    const ranked=Object.entries(vendors)
+      .sort((a,b)=>b[1].total-a[1].total)
+      .slice(0,20);
+
+    const grandTotal=ranked.reduce(
+      (sum,[,v])=>sum+v.total,
+      0
+    );
+
+    const cards=ranked.map(([vendor,v],idx)=>`
+      <details class="qb-invoice-card" ${idx===0?'open':''}>
+        <summary>
+          <div class="qb-invoice-main">
+            <div class="qb-invoice-customer">${gmailEscape(vendor)}</div>
+            <div class="qb-invoice-meta">${v.count} purchases · Last ${gmailEscape(v.latest?.TxnDate || 'Unknown')}</div>
+          </div>
+          <div class="qb-invoice-amount">${qbMoney(v.total)}</div>
+        </summary>
+        <div class="qb-invoice-body">
+          <div><span>Total spend</span><strong>${qbMoney(v.total)}</strong></div>
+          <div><span>Transactions</span><strong>${v.count}</strong></div>
+          <button type="button" onclick="askAboutVendor(${JSON.stringify(vendor)})">Ask @accounting</button>
+        </div>
+      </details>
+    `).join('');
+
+    if(output){
+      output.innerHTML=`
+        <div class="qb-invoice-summary">
+          <div>
+            <span>Tracked spend</span>
+            <strong>${qbMoney(grandTotal)}</strong>
+          </div>
+          <div>
+            <span>Vendors</span>
+            <strong>${ranked.length}</strong>
+          </div>
+          <div>
+            <span>Top vendor</span>
+            <strong>${gmailEscape(ranked[0]?.[0] || '—')}</strong>
+          </div>
+        </div>
+        <div class="qb-invoice-list">${cards}</div>
+      `;
+    }
+  }catch(err){
+    console.error('Vendor spend error:',err);
+    if(output)output.textContent=err.message || 'Unable to load vendor spend.';
+  }
+}
+
+function askAboutVendor(vendor){
+  selectAgent('accounting');
+  if(chatInput){
+    chatInput.value=
+      `Summarize my QuickBooks spending with ${vendor}. Is anything unusual or worth reviewing?`;
+    chatInput.focus();
+  }
+}
+
+async function loadUnusualExpenses(){
+  const output=document.getElementById('quickbooksDataOutput');
+  if(output)output.textContent='Checking unusual expenses…';
+
+  try{
+    const purchases=await getQuickBooksPurchases();
+
+    if(!purchases.length){
+      if(output)output.innerHTML='<div class="qb-empty-state">No purchase data found.</div>';
+      return;
+    }
+
+    const amounts=purchases
+      .map(p=>Number(p?.TotalAmt || 0))
+      .filter(n=>n>0);
+
+    const avg=amounts.reduce((a,b)=>a+b,0) /
+      Math.max(amounts.length,1);
+
+    const sorted=[...amounts].sort((a,b)=>a-b);
+
+    const median=sorted.length
+      ? (
+          sorted.length%2
+            ? sorted[Math.floor(sorted.length/2)]
+            : (sorted[sorted.length/2-1]+sorted[sorted.length/2])/2
+        )
+      : 0;
+
+    const threshold=Math.max(
+      avg*2,
+      median*3
+    );
+
+    const flagged=purchases
+      .filter(p=>Number(p?.TotalAmt || 0)>=threshold)
+      .sort((a,b)=>
+        Number(b?.TotalAmt || 0) -
+        Number(a?.TotalAmt || 0)
+      )
+      .slice(0,20);
+
+    if(!flagged.length){
+      if(output){
+        output.innerHTML=`
+          <div class="qb-empty-state">
+            No unusually large purchases found.
+          </div>
+        `;
+      }
+      return;
+    }
+
+    const cards=flagged.map((p,idx)=>{
+      const vendor=qbVendorName(p);
+      const amount=Number(p?.TotalAmt || 0);
+      const ratio=avg ? amount/avg : 0;
+
+      return `
+        <details class="qb-invoice-card" ${idx===0?'open':''}>
+          <summary>
+            <div class="qb-invoice-main">
+              <div class="qb-invoice-customer">${gmailEscape(vendor)}</div>
+              <div class="qb-invoice-meta">${gmailEscape(p?.TxnDate || 'No date')} · ${ratio.toFixed(1)}× average purchase</div>
+            </div>
+            <div class="qb-invoice-amount">${qbMoney(amount)}</div>
+          </summary>
+          <div class="qb-invoice-body">
+            <div><span>Payment type</span><strong>${gmailEscape(p?.PaymentType || 'Unknown')}</strong></div>
+            <div><span>Memo</span><strong>${gmailEscape(p?.PrivateNote || 'None')}</strong></div>
+            <button type="button" onclick="askAboutExpense('${gmailEscape(String(p?.Id || ''))}')">Ask @accounting</button>
+          </div>
+        </details>
+      `;
+    }).join('');
+
+    if(output){
+      output.innerHTML=`
+        <div class="qb-invoice-summary">
+          <div>
+            <span>Flagged</span>
+            <strong>${flagged.length}</strong>
+          </div>
+          <div>
+            <span>Avg purchase</span>
+            <strong>${qbMoney(avg)}</strong>
+          </div>
+          <div>
+            <span>Threshold</span>
+            <strong>${qbMoney(threshold)}</strong>
+          </div>
+        </div>
+        <div class="qb-invoice-list">${cards}</div>
+        <div class="qb-small-note">
+          These are size-based review flags, not fraud determinations.
+        </div>
+      `;
+    }
+  }catch(err){
+    console.error('Unusual expenses error:',err);
+    if(output)output.textContent=err.message || 'Unable to review expenses.';
+  }
+}
+
+function askAboutExpense(expenseId){
+  selectAgent('accounting');
+  if(chatInput){
+    chatInput.value=
+      `Review QuickBooks purchase ${expenseId}. Explain why it may stand out and what I should verify.`;
+    chatInput.focus();
+  }
+}
 
 async function loadRecentPayments(){
   const output=document.getElementById(
