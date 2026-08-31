@@ -5387,7 +5387,25 @@ async function callAI(message){
 
   return {reply,agent};
 }
+
+function shouldRouteToAccounting(message){
+  const text=String(message || '').toLowerCase().trim();
+
+  if(!text)return false;
+
+  return /(^|\b)(quickbooks|invoice|invoices|outstanding invoice|receivable|accounts receivable|accounts payable|expense|expenses|spend|spending|vendor spend|payment|payments|paid|cash flow|cashflow|balance|balances|revenue|income|profit|loss|p&l|bookkeeping|accounting)(\b|$)/i.test(text);
+}
+
 async function sendMessage(){
+  const draftText=String(input?.value || '').trim();
+
+  if(
+    activeAgent!=='accounting' &&
+    shouldRouteToAccounting(draftText)
+  ){
+    selectAgent('accounting');
+  }
+
   let msg=chatInput.value.trim();
   if(!msg||isLoading)return;
 
