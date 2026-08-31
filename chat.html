@@ -2933,8 +2933,7 @@ try{
         persistSession:true,
         autoRefreshToken:true,
         detectSessionInUrl:true,
-        storage:window.localStorage,
-        storageKey:'fraudshield-auth'
+        storage:window.localStorage
       }
     }
   );
@@ -3339,7 +3338,14 @@ async function disconnectGmail(){
 
 
 async function quickBooksAuthHeaders(){
-  const {data:{session}}=await sb.auth.getSession();
+  let {
+    data:{session}
+  }=await sb.auth.getSession();
+
+  if(!session?.access_token){
+    const refreshed=await sb.auth.refreshSession();
+    session=refreshed?.data?.session || null;
+  }
 
   if(!session?.access_token){
     throw new Error('Please sign in again.');
