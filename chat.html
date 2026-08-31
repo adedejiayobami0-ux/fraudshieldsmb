@@ -1764,6 +1764,329 @@ html,body{
   line-height:1.45;
 }
 
+
+/* ===== PHONE UX + COLLAPSIBLE ANALYSIS ===== */
+.context-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.context-head-title{
+  min-width:0;
+  font-weight:700;
+}
+.context-close-btn{
+  display:none;
+  width:34px;
+  height:34px;
+  border:1px solid var(--border);
+  background:var(--surface2);
+  color:var(--ink);
+  border-radius:10px;
+  font-size:18px;
+  line-height:1;
+  align-items:center;
+  justify-content:center;
+}
+.context-panel-backdrop{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.32);
+  z-index:1000;
+}
+.context-panel-backdrop.show{display:block}
+
+.gmail-result-card{
+  padding:0;
+  overflow:hidden;
+}
+.gmail-result-toggle{
+  list-style:none;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:12px;
+  cursor:pointer;
+}
+.gmail-result-toggle::-webkit-details-marker{display:none}
+.gmail-result-top{
+  margin-bottom:0;
+  width:100%;
+}
+.gmail-result-toggle-right{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex:0 0 auto;
+}
+.gmail-result-chevron{
+  font-size:11px;
+  color:var(--faint);
+  transition:transform .18s ease;
+}
+.gmail-result-card[open] .gmail-result-chevron{
+  transform:rotate(180deg);
+}
+.gmail-result-content{
+  padding:0 12px 12px;
+  border-top:1px solid var(--border);
+}
+.gmail-result-card .gmail-result-row:first-child{
+  margin-top:10px;
+}
+
+@media (max-width:760px){
+  html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+  }
+
+  .app{
+    display:block !important;
+    width:100vw !important;
+    height:100dvh !important;
+    overflow:hidden !important;
+  }
+
+  .main{
+    width:100vw !important;
+    height:100dvh !important;
+    overflow:hidden !important;
+  }
+
+  .sidebar{
+    width:min(86vw,320px) !important;
+    z-index:1002 !important;
+  }
+
+  .topbar{
+    display:grid !important;
+    grid-template-columns:auto minmax(0,1fr);
+    gap:8px 10px;
+    align-items:center;
+    padding:10px 12px !important;
+    min-height:auto !important;
+  }
+
+  .top-left{
+    min-width:0;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .top-icon{
+    width:34px;
+    height:34px;
+    font-size:16px;
+    flex:0 0 34px;
+  }
+
+  .top-name{
+    font-size:15px !important;
+    line-height:1.2;
+  }
+
+  .top-sub{
+    display:none !important;
+  }
+
+  .top-actions{
+    grid-column:1 / -1;
+    display:flex !important;
+    gap:6px;
+    overflow-x:auto;
+    padding-bottom:2px;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .top-actions::-webkit-scrollbar{
+    display:none;
+  }
+
+  .small-btn{
+    flex:0 0 auto;
+    padding:7px 9px !important;
+    font-size:11px !important;
+    border-radius:10px !important;
+  }
+
+  #themeBtn{
+    display:none !important;
+  }
+
+  .chat-area{
+    padding:12px 10px 118px !important;
+    height:calc(100dvh - 116px) !important;
+    overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .chat-inner{
+    width:100%;
+    max-width:100%;
+  }
+
+  .msg{
+    width:100%;
+  }
+
+  .msg .bubble{
+    max-width:calc(100vw - 76px) !important;
+    word-break:break-word;
+  }
+
+  .composer-wrap{
+    position:sticky !important;
+    bottom:0 !important;
+    z-index:25 !important;
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom)) !important;
+    background:var(--bg) !important;
+    border-top:1px solid var(--border);
+  }
+
+  .compose-main{
+    gap:8px;
+  }
+
+  .chat-input{
+    font-size:16px !important;
+    max-height:30dvh;
+  }
+
+  .compose-bottom{
+    gap:8px;
+    flex-wrap:wrap;
+  }
+
+  .hint{
+    font-size:9px;
+  }
+
+  .welcome{
+    padding:12px 2px;
+  }
+
+  .starters{
+    grid-template-columns:1fr !important;
+    gap:8px;
+  }
+
+  .context{
+    display:flex !important;
+    flex-direction:column;
+    position:fixed !important;
+    left:0 !important;
+    right:0 !important;
+    bottom:0 !important;
+    top:auto !important;
+    width:100vw !important;
+    height:min(78dvh, 720px) !important;
+    max-height:78dvh !important;
+    border-left:0 !important;
+    border-top:1px solid var(--border) !important;
+    border-radius:18px 18px 0 0 !important;
+    transform:translateY(105%);
+    transition:transform .22s ease;
+    z-index:1001 !important;
+    background:var(--surface) !important;
+    box-shadow:0 -14px 40px rgba(0,0,0,.20);
+  }
+
+  .context.open{
+    transform:translateY(0);
+  }
+
+  .context-head{
+    position:sticky;
+    top:0;
+    z-index:2;
+    padding:14px 16px !important;
+    background:var(--surface) !important;
+    border-bottom:1px solid var(--border);
+  }
+
+  .context-close-btn{
+    display:inline-flex;
+  }
+
+  .context-scroll{
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch;
+    padding:12px 14px calc(18px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .gmail-message-list{
+    max-height:none !important;
+  }
+
+  .gmail-toolbar{
+    position:sticky;
+    top:0;
+    z-index:1;
+    background:var(--surface);
+    padding-bottom:8px;
+  }
+
+  .gmail-email-card{
+    grid-template-columns:18px minmax(0,1fr);
+    padding:10px;
+  }
+
+  .gmail-email-subject{
+    font-size:11px;
+  }
+
+  .gmail-email-from,
+  .gmail-status-line,
+  .gmail-selected-count,
+  .gmail-select-all{
+    font-size:10px;
+  }
+
+  .gmail-bulk-btn,
+  .gmail-analyze-btn,
+  .gmail-connect-btn,
+  .gmail-refresh-btn{
+    font-size:11px;
+  }
+
+  .gmail-analysis-progress{
+    font-size:10px;
+  }
+
+  .gmail-result-summary,
+  .gmail-result-toggle,
+  .gmail-result-content{
+    padding-left:10px;
+    padding-right:10px;
+  }
+
+  .gmail-result-row{
+    grid-template-columns:50px 1fr;
+    gap:8px;
+  }
+
+  .gmail-result-name{
+    font-size:10px;
+  }
+
+  .gmail-result-value{
+    font-size:10px;
+  }
+
+  .plan-badge-chat{
+    max-width:none;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1792,11 +2115,11 @@ html,body{
 <section class="main">
 <header class="topbar">
 <button aria-label="Open chat history" class="sidebar-toggle-btn" id="mobileSidebarOpen" onclick="setHistorySidebar(true)" type="button">☰</button>
-<div class="top-left"><div class="top-icon" id="topIcon">🛡</div><div><div class="top-name" id="topName">@fraud</div><div class="top-sub" id="topSub">Risk checks, vendor verification &amp; fraud questions</div></div></div><div class="top-actions"><span class="plan-badge-chat" id="planBadge" style="display:none">Basic</span><button class="small-btn" id="creditsBtn" onclick="openPricing()" style="display:none">10 credits</button><button class="small-btn" id="topUpBtn" onclick="openPricing()" style="display:none">Top up</button><button class="small-btn" id="themeBtn" onclick="toggleTheme()">☀ Light</button><button class="small-btn mobile-context" onclick="alert('Integrations panel is available on desktop.')">Integrations</button><button class="small-btn signin" id="signinTop" onclick="signInGoogle()">Sign in</button></div></header>
+<div class="top-left"><div class="top-icon" id="topIcon">🛡</div><div><div class="top-name" id="topName">@fraud</div><div class="top-sub" id="topSub">Risk checks, vendor verification &amp; fraud questions</div></div></div><div class="top-actions"><span class="plan-badge-chat" id="planBadge" style="display:none">Basic</span><button class="small-btn" id="creditsBtn" onclick="openPricing()" style="display:none">10 credits</button><button class="small-btn" id="topUpBtn" onclick="openPricing()" style="display:none">Top up</button><button class="small-btn" id="themeBtn" onclick="toggleTheme()">☀ Light</button><button class="small-btn mobile-context" id="mobileContextOpen" onclick="setContextPanel(true)">Gmail</button><button class="small-btn signin" id="signinTop" onclick="signInGoogle()">Sign in</button></div></header>
 <div class="chat-area" id="chatArea"><div class="chat-inner"><div class="welcome" id="welcome"><div class="welcome-mark">FS</div><h1>What do you want to check?</h1><p>Use FraudShield for risk checks, finance questions, document review, and business paperwork readiness.</p><div class="starters"><button class="starter" onclick="startPrompt('fraud','@fraud Check this invoice before I pay it.')"><div class="starter-agent">@fraud</div><div class="starter-text">Check this invoice before I pay it.</div></button><button class="starter" onclick="startPrompt('fraud','@fraud What should I verify when a vendor changes bank details?')"><div class="starter-agent">@fraud</div><div class="starter-text">A vendor changed bank details. What should I verify?</div></button><button class="starter" onclick="startPrompt('accounting','@accounting Help me categorize this business expense.')"><div class="starter-agent">@accounting</div><div class="starter-text">Help me categorize a business expense.</div></button><button class="starter" onclick="startPrompt('accounting','@accounting Summarize the financial data I provide.')"><div class="starter-agent">@accounting</div><div class="starter-text">Summarize financial data I provide.</div></button><button class="starter" onclick="startPrompt('docs','@docs I want to open a business bank account. What paperwork should I gather?')"><div class="starter-agent">@docs</div><div class="starter-text">What paperwork should I gather for a business bank account?</div></button><button class="starter" onclick="startPrompt('docs','@docs Build me a checklist for a small-business loan application.')"><div class="starter-agent">@docs</div><div class="starter-text">Build a document checklist for a business loan.</div></button></div></div><div class="messages" id="messages"></div></div></div>
 <div class="composer-wrap"><div class="composer"><div class="attachments" id="attachments"></div><div class="compose-main"><input accept="image/*,.pdf,.txt,.csv,.json" class="file-input" id="fileInput" multiple="" onchange="handleFiles(event)" type="file"/><button class="icon-btn" onclick="document.getElementById('fileInput').click()" title="Attach file">＋</button><textarea class="chat-input" id="chatInput" oninput="autoResize(this)" onkeydown="handleKey(event)" placeholder="@fraud Check this invoice before I pay it..." rows="1"></textarea><button class="icon-btn send" id="sendBtn" onclick="sendMessage()">➤</button></div><div class="compose-bottom"><div class="active-agent" id="activeAgent">@fraud active</div><div class="hint">Enter to send · Shift+Enter for new line</div></div></div></div>
 </section>
-<aside class="context"><div class="context-head">Workspace context</div><div class="context-scroll"><div class="context-section"><div class="context-label">Active specialist</div><div class="context-card"><div class="context-title" id="contextAgentTitle">@fraud</div><div class="context-copy" id="contextAgentCopy">Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.</div></div></div><div class="context-section"><div class="context-label">Integrations</div><div class="integration gmail-integration" id="gmailIntegration">
+<aside class="context"><div class="context-head"><div class="context-head-title">Workspace context</div><button aria-label="Close Gmail panel" class="context-close-btn" id="mobileContextClose" onclick="setContextPanel(false)" type="button">×</button></div><div class="context-scroll"><div class="context-section"><div class="context-label">Active specialist</div><div class="context-card"><div class="context-title" id="contextAgentTitle">@fraud</div><div class="context-copy" id="contextAgentCopy">Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.</div></div></div><div class="context-section"><div class="context-label">Integrations</div><div class="integration gmail-integration" id="gmailIntegration">
 <div class="int-icon">✉</div>
 <div class="gmail-int-copy">
 <div class="int-name">Gmail</div>
@@ -2376,6 +2699,7 @@ async function analyzeSelectedGmail(){
     );
 
     selectAgent('fraud');
+    if(window.innerWidth <= 760) setContextPanel(false);
 
     const emails=[];
     for(const item of selected){
@@ -2973,24 +3297,32 @@ function renderGmailAnalysisResult(text){
     wrap.appendChild(summary);
   }
 
-  parsed.items.forEach(item=>{
-    const card=document.createElement('div');
+  parsed.items.forEach((item,index)=>{
+    const card=document.createElement('details');
     card.className='gmail-result-card';
+    if(index===0) card.open=true;
 
     card.innerHTML=`
-      <div class="gmail-result-top">
-        <div class="gmail-result-name">${gmailEscape(item.name)}</div>
-        <div class="gmail-status-pill ${gmailStatusClass(item.status)}">${gmailEscape(item.status)}</div>
-      </div>
+      <summary class="gmail-result-toggle">
+        <div class="gmail-result-top">
+          <div class="gmail-result-name">${gmailEscape(item.name)}</div>
+        </div>
+        <div class="gmail-result-toggle-right">
+          <div class="gmail-status-pill ${gmailStatusClass(item.status)}">${gmailEscape(item.status)}</div>
+          <div class="gmail-result-chevron">⌄</div>
+        </div>
+      </summary>
 
-      <div class="gmail-result-row">
-        <div class="gmail-result-label">Why</div>
-        <div class="gmail-result-value">${gmailEscape(item.why)}</div>
-      </div>
+      <div class="gmail-result-content">
+        <div class="gmail-result-row">
+          <div class="gmail-result-label">Why</div>
+          <div class="gmail-result-value">${gmailEscape(item.why)}</div>
+        </div>
 
-      <div class="gmail-result-row">
-        <div class="gmail-result-label">Action</div>
-        <div class="gmail-result-value">${gmailEscape(item.action)}</div>
+        <div class="gmail-result-row">
+          <div class="gmail-result-label">Action</div>
+          <div class="gmail-result-value">${gmailEscape(item.action)}</div>
+        </div>
       </div>
     `;
 
@@ -3439,6 +3771,27 @@ applyTheme();selectAgent('fraud');checkAuth();if('serviceWorker'in navigator)win
 <div class="mobile-history-list" id="mobileHistoryList"></div>
 </aside>
 <script>
+
+window.setContextPanel = function(open){
+  const panel=document.querySelector('.context');
+  const backdrop=document.querySelector('.context-panel-backdrop');
+  if(!panel)return;
+
+  panel.classList.toggle('open', !!open);
+
+  if(backdrop){
+    backdrop.classList.toggle('show', !!open && window.innerWidth <= 760);
+  }
+
+  document.body.classList.toggle('context-open', !!open && window.innerWidth <= 760);
+};
+
+window.addEventListener('resize', function(){
+  if(window.innerWidth > 760){
+    window.setContextPanel(false);
+  }
+});
+
 (function(){
   function sidebar(){
     return document.querySelector('.sidebar');
@@ -3537,5 +3890,5 @@ applyTheme();selectAgent('fraud');checkAuth();if('serviceWorker'in navigator)win
   }
 })();
 </script>
-</body>
+<div class="context-panel-backdrop" onclick="setContextPanel(false)"></div></body>
 </html>
