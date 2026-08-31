@@ -3162,6 +3162,36 @@ body.text-large{
   }
 }
 
+
+/* ===== QUICKBOOKS DISCONNECT CONTROL ===== */
+.qb-card-status-actions{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex:0 0 auto;
+}
+.qb-disconnect-link{
+  border:0;
+  background:transparent;
+  color:var(--faint);
+  padding:4px 0;
+  font-size:8px;
+  font-weight:700;
+  cursor:pointer;
+}
+.qb-disconnect-link:hover{
+  color:var(--ink);
+}
+.qb-disconnect-link:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+@media(max-width:760px){
+  .qb-disconnect-link{
+    font-size:10px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -3217,14 +3247,17 @@ body.text-large{
 <div class="qb-eyebrow">CONNECTED BUSINESS</div>
 <div class="qb-company-name" id="quickbooksCompanyName">QuickBooks company</div>
 </div>
+<div class="qb-card-status-actions">
 <span class="qb-live-pill">Live</span>
+<button class="qb-disconnect-link" id="quickbooksDisconnectBtn" onclick="disconnectQuickBooks()" type="button">
+    Disconnect
+  </button>
+</div>
 </div>
 <div class="qb-search-wrap" id="qbSearchBar">
 <div class="qb-search-row">
 <input class="qb-search-input" id="qbSearchInput" oninput="filterQuickBooksView()" placeholder="Search QuickBooks tools" type="search"/>
-
 </div>
-
 </div><div class="qb-action-row"><div class="qb-top-actions">
 <button onclick="loadQuickBooksCompany()" type="button">Overview</button>
 <button onclick="loadQuickBooksAccounts()" type="button">Accounts</button>
@@ -3799,6 +3832,79 @@ async function quickBooksApi(path,body={}){
   }
 
   return data;
+}
+
+
+async function disconnectQuickBooks(){
+  if(!currentUser)return;
+
+  const ok=confirm(
+    'Disconnect QuickBooks from FraudShield? You can reconnect at any time.'
+  );
+
+  if(!ok)return;
+
+  const btn=document.getElementById('quickbooksDisconnectBtn');
+
+  try{
+    if(btn){
+      btn.disabled=true;
+      btn.textContent='Disconnecting…';
+    }
+
+    const data=await quickBooksApi(
+      'quickbooks-disconnect',
+      {}
+    );
+
+    if(!data?.disconnected){
+      throw new Error(
+        data?.error ||
+        'Unable to disconnect QuickBooks.'
+      );
+    }
+
+    const textEl=document.getElementById(
+      'quickbooksConnectionText'
+    );
+
+    const connectBtn=document.getElementById(
+      'quickbooksConnectBtn'
+    );
+
+    const section=document.getElementById(
+      'quickbooksDataSection'
+    );
+
+    if(textEl){
+      textEl.textContent='Not connected';
+    }
+
+    if(connectBtn){
+      connectBtn.textContent='Connect';
+      connectBtn.classList.remove('connected');
+    }
+
+    if(section){
+      section.style.display='none';
+    }
+
+    alert('QuickBooks disconnected.');
+  }catch(err){
+    console.error(
+      'QuickBooks disconnect error:',
+      err
+    );
+
+    alert(
+      `Could not disconnect QuickBooks: ${err.message}`
+    );
+  }finally{
+    if(btn){
+      btn.disabled=false;
+      btn.textContent='Disconnect';
+    }
+  }
 }
 
 async function connectQuickBooks(){
