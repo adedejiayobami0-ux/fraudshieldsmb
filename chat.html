@@ -2177,6 +2177,177 @@ body.text-large{
   }
 }
 
+
+/* ===== GMAIL TRASH CONFIRMATION ===== */
+.gmail-trash-btn{
+  border:1px solid var(--border);
+  background:var(--surface3);
+  color:var(--muted);
+  border-radius:7px;
+  padding:7px 9px;
+  font-size:9px;
+  font-weight:700;
+}
+.gmail-trash-btn:hover{
+  color:var(--ink);
+}
+.gmail-trash-btn:disabled{
+  opacity:.42;
+  cursor:not-allowed;
+}
+.gmail-trash-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.58);
+  z-index:12000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+.gmail-trash-overlay.show{
+  display:flex;
+}
+.gmail-trash-modal{
+  width:min(520px,100%);
+  max-height:86vh;
+  overflow:auto;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 24px 70px rgba(0,0,0,.38);
+}
+.gmail-trash-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+}
+.gmail-trash-title{
+  font-family:'Space Grotesk';
+  font-size:17px;
+  font-weight:700;
+}
+.gmail-trash-copy{
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.5;
+  margin-top:4px;
+}
+.gmail-trash-close{
+  border:1px solid var(--border);
+  background:var(--surface2);
+  color:var(--ink);
+  width:32px;
+  height:32px;
+  border-radius:9px;
+}
+.gmail-trash-list{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  max-height:38vh;
+  overflow:auto;
+  margin-bottom:14px;
+}
+.gmail-trash-item{
+  border:1px solid var(--border);
+  background:var(--surface2);
+  border-radius:9px;
+  padding:9px 10px;
+}
+.gmail-trash-subject{
+  font-size:11px;
+  font-weight:700;
+  line-height:1.35;
+}
+.gmail-trash-from{
+  font-size:9px;
+  color:var(--muted);
+  margin-top:3px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.gmail-trash-confirm-check{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  font-size:10px;
+  color:var(--muted);
+  line-height:1.45;
+  margin-bottom:14px;
+}
+.gmail-trash-confirm-check input{
+  margin-top:2px;
+  accent-color:var(--gold);
+}
+.gmail-trash-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+}
+.gmail-trash-cancel,
+.gmail-trash-confirm{
+  border-radius:8px;
+  padding:9px 11px;
+  font-size:10px;
+  font-weight:700;
+}
+.gmail-trash-cancel{
+  border:1px solid var(--border);
+  background:var(--surface2);
+  color:var(--ink);
+}
+.gmail-trash-confirm{
+  border:1px solid var(--red);
+  background:rgba(255,107,107,.10);
+  color:var(--red);
+}
+.gmail-trash-confirm:disabled{
+  opacity:.4;
+  cursor:not-allowed;
+}
+
+@media(max-width:760px){
+  .gmail-trash-btn{
+    font-size:11px;
+  }
+  .gmail-trash-overlay{
+    align-items:flex-end;
+    padding:0;
+  }
+  .gmail-trash-modal{
+    width:100%;
+    max-height:82dvh;
+    border-radius:18px 18px 0 0;
+    padding:16px 14px calc(16px + env(safe-area-inset-bottom));
+  }
+  .gmail-trash-title{
+    font-size:18px;
+  }
+  .gmail-trash-copy{
+    font-size:12px;
+  }
+  .gmail-trash-subject{
+    font-size:13px;
+  }
+  .gmail-trash-from{
+    font-size:11px;
+  }
+  .gmail-trash-confirm-check{
+    font-size:12px;
+  }
+  .gmail-trash-cancel,
+  .gmail-trash-confirm{
+    flex:1;
+    font-size:12px;
+    padding:11px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2229,7 +2400,7 @@ body.text-large{
 </label>
 <div style="display:flex;align-items:center;gap:7px">
 <span class="gmail-selected-count" id="gmailSelectedCount">0 selected</span>
-<button class="gmail-bulk-btn" disabled="" id="gmailBulkAnalyzeBtn" onclick="analyzeSelectedGmail()" type="button">Analyze selected</button>
+<button class="gmail-bulk-btn" disabled="" id="gmailBulkAnalyzeBtn" onclick="analyzeSelectedGmail()" type="button">Analyze selected</button><button class="gmail-trash-btn" disabled="" id="gmailTrashBtn" onclick="openTrashConfirmation()" type="button">Move to Trash</button>
 </div>
 </div><div class="gmail-analysis-progress" id="gmailAnalysisProgress">
 <span class="gmail-analysis-dot"></span>
@@ -2674,6 +2845,115 @@ function shortSender(value){
 
 
 
+
+function updateTrashButtonState(){
+  const btn=document.getElementById('gmailTrashBtn');
+  if(btn)btn.disabled=selectedGmailIds.size===0;
+}
+
+function openTrashConfirmation(){
+  const selected=recentGmailMessages.filter(m=>selectedGmailIds.has(m.id));
+  if(!selected.length)return;
+
+  const modal=document.getElementById('gmailTrashModal');
+  const list=document.getElementById('gmailTrashList');
+  const check=document.getElementById('gmailTrashConfirmCheck');
+  const confirmBtn=document.getElementById('gmailTrashConfirmBtn');
+
+  if(list){
+    list.innerHTML=selected.map(item=>`
+      <div class="gmail-trash-item">
+        <div class="gmail-trash-subject">${gmailEscape(item.subject || '(No subject)')}</div>
+        <div class="gmail-trash-from">${gmailEscape(item.from || 'Unknown sender')}</div>
+      </div>
+    `).join('');
+  }
+
+  if(check)check.checked=false;
+  if(confirmBtn)confirmBtn.disabled=true;
+  if(modal)modal.classList.add('show');
+}
+
+function closeTrashConfirmation(){
+  const modal=document.getElementById('gmailTrashModal');
+  if(modal)modal.classList.remove('show');
+}
+
+function updateTrashConfirmButton(){
+  const check=document.getElementById('gmailTrashConfirmCheck');
+  const btn=document.getElementById('gmailTrashConfirmBtn');
+  if(btn)btn.disabled=!check?.checked;
+}
+
+async function confirmTrashSelected(){
+  const selected=recentGmailMessages.filter(m=>selectedGmailIds.has(m.id));
+  if(!selected.length)return;
+
+  const confirmBtn=document.getElementById('gmailTrashConfirmBtn');
+  if(confirmBtn){
+    confirmBtn.disabled=true;
+    confirmBtn.textContent='Moving…';
+  }
+
+  try{
+    const headers=await gmailAuthHeaders();
+    const res=await fetch(`${SUPABASE_URL}/functions/v1/gmail-trash`,{
+      method:'POST',
+      headers,
+      body:JSON.stringify({
+        messageIds:selected.map(m=>m.id)
+      })
+    });
+
+    let data={};
+    try{
+      data=await res.json();
+    }catch{
+      data={};
+    }
+
+    if(!res.ok){
+      throw new Error(data?.error || 'Could not move emails to Trash.');
+    }
+
+    const successIds=new Set(
+      Array.isArray(data?.results)
+        ? data.results.filter(r=>r.success).map(r=>r.id)
+        : selected.map(m=>m.id)
+    );
+
+    recentGmailMessages=
+      recentGmailMessages.filter(m=>!successIds.has(m.id));
+
+    successIds.forEach(id=>{
+      selectedGmailIds.delete(id);
+      reviewedGmailIds.delete(id);
+      delete gmailAnalysisStatus[id];
+    });
+
+    closeTrashConfirmation();
+    renderRecentGmail();
+
+    const moved=Number(data?.moved_to_trash || successIds.size);
+    const failed=Number(data?.failed || 0);
+
+    if(failed>0){
+      alert(`${moved} email${moved===1?'':'s'} moved to Trash. ${failed} could not be moved.`);
+    }else{
+      alert(`${moved} email${moved===1?'':'s'} moved to Gmail Trash.`);
+    }
+  }catch(err){
+    console.error('Gmail trash error:',err);
+    alert(`Could not move selected emails to Trash: ${err.message}`);
+  }finally{
+    const freshBtn=document.getElementById('gmailTrashConfirmBtn');
+    if(freshBtn){
+      freshBtn.textContent='Move to Trash';
+      freshBtn.disabled=true;
+    }
+  }
+}
+
 function updateGmailBulkControls(){
   const count=document.getElementById('gmailSelectedCount');
   const btn=document.getElementById('gmailBulkAnalyzeBtn');
@@ -2682,6 +2962,7 @@ function updateGmailBulkControls(){
   const selectedCount=selectedGmailIds.size;
   if(count)count.textContent=`${selectedCount} selected`;
   if(btn)btn.disabled=selectedCount===0;
+  updateTrashButtonState();
 
   if(all){
     const total=recentGmailMessages.length;
@@ -4041,6 +4322,34 @@ if(document.readyState==='loading'){
 }else{
   initializeTextSize();
 }
+
+</script>
+<div class="gmail-trash-overlay" id="gmailTrashModal">
+<div aria-labelledby="gmailTrashTitle" aria-modal="true" class="gmail-trash-modal" role="dialog">
+<div class="gmail-trash-head">
+<div>
+<div class="gmail-trash-title" id="gmailTrashTitle">Move selected emails to Trash?</div>
+<div class="gmail-trash-copy">Review the emails below. Nothing moves until you confirm.</div>
+</div>
+<button class="gmail-trash-close" onclick="closeTrashConfirmation()" type="button">×</button>
+</div>
+<div class="gmail-trash-list" id="gmailTrashList"></div>
+<label class="gmail-trash-confirm-check">
+<input id="gmailTrashConfirmCheck" onchange="updateTrashConfirmButton()" type="checkbox"/>
+<span>I reviewed this list and want to move all selected emails to Gmail Trash.</span>
+</label>
+<div class="gmail-trash-actions">
+<button class="gmail-trash-cancel" onclick="closeTrashConfirmation()" type="button">Cancel</button>
+<button class="gmail-trash-confirm" disabled="" id="gmailTrashConfirmBtn" onclick="confirmTrashSelected()" type="button">Move to Trash</button>
+</div>
+</div>
+</div><script>
+
+document.addEventListener('keydown',function(event){
+  if(event.key==='Escape'){
+    closeTrashConfirmation();
+  }
+});
 
 </script>
 </body>
