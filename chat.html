@@ -2449,75 +2449,156 @@ body.text-large{
 }
 
 
-/* ===== QUICKBOOKS ===== */
-.qb-icon{
-  background:#2ca01c !important;
-  color:#fff !important;
-  font-size:9px;
-  font-weight:800;
-}
-.qb-data-section{
-  margin-top:12px;
-  border-top:1px solid var(--border);
-  padding-top:12px;
-}
-.qb-data-head{
+
+/* ===== QUICKBOOKS CLEAN UI ===== */
+.qb-row-clean{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:8px;
+  gap:12px;
+  padding:11px 12px !important;
+  border:1px solid var(--border) !important;
+  background:var(--surface2) !important;
+  border-radius:12px !important;
 }
-.qb-data-title{
+.qb-row-main{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+.qb-logo-clean{
+  width:30px;
+  height:30px;
+  border-radius:9px;
+  display:grid;
+  place-items:center;
+  background:#2ca01c;
+  color:#fff;
+  font-size:13px;
+  font-weight:800;
+  flex:0 0 auto;
+}
+.qb-row-copy{
+  min-width:0;
+}
+.qb-row-name{
   font-size:11px;
   font-weight:800;
+  color:var(--ink);
 }
-.qb-data-sub{
+.qb-row-status{
+  margin-top:2px;
   font-size:9px;
   color:var(--muted);
-  margin-top:2px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
-.qb-refresh-btn,
-.qb-actions button{
+.qb-connect-clean{
   border:1px solid var(--border);
-  background:var(--surface2);
+  background:var(--surface);
   color:var(--ink);
-  border-radius:7px;
-  padding:7px 8px;
+  border-radius:8px;
+  padding:7px 10px;
   font-size:9px;
   font-weight:700;
+  flex:0 0 auto;
 }
-.qb-actions{
+.qb-connect-clean.connected{
+  color:#2ca01c;
+  border-color:rgba(44,160,28,.24);
+  background:rgba(44,160,28,.06);
+}
+.qb-data-section-clean{
+  margin-top:10px;
+}
+.qb-card-clean{
+  border:1px solid var(--border);
+  background:var(--surface2);
+  border-radius:12px;
+  padding:12px;
+}
+.qb-card-top{
   display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.qb-eyebrow{
+  font-size:8px;
+  color:var(--faint);
+  letter-spacing:.08em;
+}
+.qb-company-name{
+  margin-top:3px;
+  font-size:12px;
+  font-weight:800;
+  color:var(--ink);
+}
+.qb-live-pill{
+  border:1px solid rgba(44,160,28,.22);
+  background:rgba(44,160,28,.07);
+  color:#2ca01c;
+  border-radius:999px;
+  padding:4px 7px;
+  font-size:8px;
+  font-weight:800;
+}
+.qb-action-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
   gap:6px;
-  margin-top:8px;
+  margin-top:10px;
+}
+.qb-action-row button{
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--ink);
+  border-radius:8px;
+  padding:8px 9px;
+  font-size:9px;
+  font-weight:700;
 }
 .qb-data-output{
   margin-top:8px;
+}
+.qb-empty-state{
+  border:1px dashed var(--border);
+  border-radius:9px;
+  padding:10px;
+  text-align:center;
   font-size:9px;
-  color:var(--muted);
-  line-height:1.45;
+  color:var(--faint);
 }
 .qb-account-item{
   border:1px solid var(--border);
-  background:var(--surface2);
-  border-radius:8px;
-  padding:8px 9px;
+  background:var(--surface);
+  border-radius:9px;
+  padding:9px 10px;
   margin-top:6px;
 }
 .qb-account-name{
-  font-weight:700;
+  font-size:10px;
+  font-weight:800;
   color:var(--ink);
 }
 .qb-account-meta{
-  margin-top:2px;
+  margin-top:3px;
+  font-size:9px;
   color:var(--muted);
 }
 @media(max-width:760px){
-  .qb-data-title{font-size:13px}
-  .qb-data-sub,
-  .qb-data-output{font-size:11px}
-  .qb-refresh-btn,
-  .qb-actions button{font-size:11px;padding:8px 10px}
+  .qb-row-clean{padding:13px !important;border-radius:14px !important}
+  .qb-logo-clean{width:34px;height:34px;border-radius:10px;font-size:14px}
+  .qb-row-name{font-size:13px}
+  .qb-row-status{font-size:11px}
+  .qb-connect-clean{font-size:11px;padding:8px 11px}
+  .qb-card-clean{padding:13px;border-radius:14px}
+  .qb-eyebrow,.qb-live-pill{font-size:10px}
+  .qb-company-name{font-size:14px}
+  .qb-action-row button{font-size:11px;padding:9px 10px}
+  .qb-empty-state,.qb-account-name,.qb-account-meta{font-size:11px}
 }
 
 </style>
@@ -2559,14 +2640,33 @@ body.text-large{
 <div class="gmail-connection-text" id="gmailConnectionText">Not connected</div>
 </div>
 <button class="gmail-connect-btn" id="gmailConnectBtn" onclick="connectGmail()" type="button">Connect</button>
-<button class="gmail-disconnect-btn" id="gmailDisconnectBtn" onclick="disconnectGmail()" style="display:none" type="button">Disconnect</button></div><div class="integration-row" id="quickbooksIntegration">
-<div class="integration-icon qb-icon">QB</div>
-<div class="integration-info">
-<div class="integration-name">QuickBooks</div>
-<div class="integration-status" id="quickbooksConnectionText">Not connected</div>
+<button class="gmail-disconnect-btn" id="gmailDisconnectBtn" onclick="disconnectGmail()" style="display:none" type="button">Disconnect</button></div><div class="integration-row qb-row-clean" id="quickbooksIntegration">
+<div class="qb-row-main">
+<div class="qb-logo-clean">Q</div>
+<div class="qb-row-copy">
+<div class="qb-row-name">QuickBooks</div>
+<div class="qb-row-status" id="quickbooksConnectionText">Not connected</div>
 </div>
-<button class="integration-btn" id="quickbooksConnectBtn" onclick="connectQuickBooks()" type="button">Connect</button>
-</div><div class="integration"><div class="int-icon">QB</div><div class="int-name">QuickBooks</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">S</div><div class="int-name">Stripe</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><div class="context-section gmail-recent-section" id="recentGmailSection" style="display:none">
+</div>
+<button class="qb-connect-clean" id="quickbooksConnectBtn" onclick="connectQuickBooks()" type="button">Connect</button>
+</div><div class="integration"><div class="int-icon">S</div><div class="int-name">Stripe</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><div class="qb-data-section-clean" id="quickbooksDataSection" style="display:none">
+<div class="qb-card-clean">
+<div class="qb-card-top">
+<div>
+<div class="qb-eyebrow">CONNECTED BUSINESS</div>
+<div class="qb-company-name" id="quickbooksCompanyName">QuickBooks company</div>
+</div>
+<span class="qb-live-pill">Live</span>
+</div>
+<div class="qb-action-row">
+<button onclick="loadQuickBooksCompany()" type="button">Overview</button>
+<button onclick="loadQuickBooksAccounts()" type="button">Accounts</button>
+</div>
+<div class="qb-data-output" id="quickbooksDataOutput">
+<div class="qb-empty-state">Your QuickBooks data will appear here.</div>
+</div>
+</div>
+</div><div class="context-section gmail-recent-section" id="recentGmailSection" style="display:none">
 <div class="gmail-recent-head">
 <div class="context-label" style="margin-bottom:0">Recent Gmail</div>
 <button class="gmail-refresh-btn" onclick="loadRecentGmailWithQuery(buildGmailQuery())" type="button">Refresh</button>
@@ -3196,7 +3296,7 @@ async function loadQuickBooksCompany(){
             ${gmailEscape(name)}
           </div>
           <div class="qb-account-meta">
-            Connected successfully. FraudShield can now read this company's QuickBooks data.
+            QuickBooks is connected and ready for @accounting.
           </div>
         </div>
       `;
