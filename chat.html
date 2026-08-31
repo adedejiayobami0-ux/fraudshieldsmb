@@ -3012,6 +3012,156 @@ body.text-large{
   }
 }
 
+
+/* ===== COLLAPSIBLE QB RESULTS ===== */
+.qb-result-collapse{
+  margin-top:8px;
+  border:1px solid var(--border);
+  background:var(--surface2);
+  border-radius:10px;
+  overflow:hidden;
+}
+.qb-result-collapse summary{
+  list-style:none;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  padding:10px;
+  font-size:10px;
+  font-weight:800;
+  color:var(--ink);
+}
+.qb-result-collapse summary::-webkit-details-marker{
+  display:none;
+}
+.qb-result-collapse-icon{
+  width:22px;
+  height:22px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  border-radius:7px;
+  display:grid;
+  place-items:center;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1;
+  transition:transform .16s ease;
+}
+.qb-result-collapse[open] .qb-result-collapse-icon{
+  transform:rotate(45deg);
+}
+.qb-result-collapse-body{
+  border-top:1px solid var(--border);
+  padding:8px;
+}
+@media(max-width:760px){
+  .qb-result-collapse{
+    border-radius:12px;
+  }
+  .qb-result-collapse summary{
+    padding:12px;
+    font-size:12px;
+  }
+  .qb-result-collapse-body{
+    padding:10px;
+  }
+}
+
+
+/* ===== QUICKBOOKS SIDEBAR GROUPS ===== */
+.qb-action-row{
+  display:flex !important;
+  flex-direction:column;
+  gap:7px;
+}
+.qb-top-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+.qb-top-actions button,
+.qb-tool-group-body button{
+  width:100%;
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--ink);
+  border-radius:9px;
+  padding:9px 10px;
+  font-size:9px;
+  font-weight:700;
+}
+.qb-tool-group{
+  border:1px solid var(--border);
+  background:var(--surface);
+  border-radius:10px;
+  overflow:hidden;
+}
+.qb-tool-group summary{
+  list-style:none;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 11px;
+  cursor:pointer;
+  font-size:10px;
+  font-weight:800;
+  color:var(--ink);
+}
+.qb-tool-group summary::-webkit-details-marker{
+  display:none;
+}
+.qb-tool-count{
+  min-width:22px;
+  height:22px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--border);
+  border-radius:999px;
+  color:var(--muted);
+  background:var(--surface2);
+  font-size:8px;
+  font-weight:800;
+}
+.qb-tool-group[open] .qb-tool-count{
+  color:#2ca01c;
+  border-color:rgba(44,160,28,.24);
+  background:rgba(44,160,28,.06);
+}
+.qb-tool-group-body{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:8px;
+  border-top:1px solid var(--border);
+  background:var(--surface2);
+}
+.qb-search-row{
+  display:block !important;
+}
+.qb-search-input{
+  width:100%;
+}
+@media(max-width:760px){
+  .qb-top-actions button,
+  .qb-tool-group-body button{
+    font-size:12px;
+    padding:11px 12px;
+  }
+  .qb-tool-group{
+    border-radius:12px;
+  }
+  .qb-tool-group summary{
+    padding:12px;
+    font-size:12px;
+  }
+  .qb-tool-count{
+    font-size:10px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -3071,16 +3221,40 @@ body.text-large{
 </div>
 <div class="qb-search-wrap" id="qbSearchBar">
 <div class="qb-search-row">
-<input class="qb-search-input" id="qbSearchInput" oninput="filterQuickBooksView()" placeholder="Search QuickBooks" type="search"/>
-<button class="qb-search-clear" onclick="clearQuickBooksSearch()" type="button">Clear</button>
+<input class="qb-search-input" id="qbSearchInput" oninput="filterQuickBooksView()" placeholder="Search QuickBooks tools" type="search"/>
+
 </div>
-<div class="qb-filter-row">
-<button class="qb-filter-chip active" data-qb-filter="all" onclick="setQuickBooksFilter(this,'all')" type="button">All</button>
-<button class="qb-filter-chip" data-qb-filter="money-in" onclick="setQuickBooksFilter(this,'money-in')" type="button">Money in</button>
-<button class="qb-filter-chip" data-qb-filter="money-out" onclick="setQuickBooksFilter(this,'money-out')" type="button">Money out</button>
-<button class="qb-filter-chip" data-qb-filter="review" onclick="setQuickBooksFilter(this,'review')" type="button">Needs review</button>
+
+</div><div class="qb-action-row"><div class="qb-top-actions">
+<button onclick="loadQuickBooksCompany()" type="button">Overview</button>
+<button onclick="loadQuickBooksAccounts()" type="button">Accounts</button>
+</div><details class="qb-tool-group">
+<summary>
+<span>Money in</span>
+<span class="qb-tool-count">2</span>
+</summary>
+<div class="qb-tool-group-body">
+<button onclick="loadOutstandingInvoices()" type="button">Outstanding invoices</button>
+<button onclick="loadRecentPayments()" type="button">Recent payments</button>
 </div>
-</div><div class="qb-action-row"><button data-qb-group="all" onclick="loadQuickBooksCompany()" type="button">Overview</button><button data-qb-group="all" onclick="loadQuickBooksAccounts()" type="button">Accounts</button><button class="qb-wide-action" data-qb-group="money-in" onclick="loadOutstandingInvoices()" type="button">Outstanding invoices</button><button class="qb-wide-action" data-qb-group="money-in" onclick="loadRecentPayments()" type="button">Recent payments</button><button class="qb-wide-action" data-qb-group="money-out" onclick="loadMonthlySpendSummary()" type="button">Monthly spend</button><button class="qb-wide-action" data-qb-group="money-out" onclick="loadVendorSpendBreakdown()" type="button">Vendor spend</button><button class="qb-wide-action" data-qb-group="review" onclick="loadUnusualExpenses()" type="button">Unusual expenses</button></div>
+</details><details class="qb-tool-group">
+<summary>
+<span>Money out</span>
+<span class="qb-tool-count">2</span>
+</summary>
+<div class="qb-tool-group-body">
+<button onclick="loadMonthlySpendSummary()" type="button">Monthly spend</button>
+<button onclick="loadVendorSpendBreakdown()" type="button">Vendor spend</button>
+</div>
+</details><details class="qb-tool-group">
+<summary>
+<span>Needs review</span>
+<span class="qb-tool-count">1</span>
+</summary>
+<div class="qb-tool-group-body">
+<button onclick="loadUnusualExpenses()" type="button">Unusual expenses</button>
+</div>
+</details></div>
 <div class="qb-data-output" id="quickbooksDataOutput">
 <div class="qb-empty-state">Your QuickBooks data will appear here.</div>
 </div>
@@ -3792,57 +3966,48 @@ function filterQuickBooksView(){
   const input=document.getElementById('qbSearchInput');
   const query=String(input?.value || '').trim().toLowerCase();
 
-  document.querySelectorAll('.qb-action-row button').forEach(btn=>{
-    const label=String(btn.textContent || '').trim().toLowerCase();
-    const group=btn.dataset.qbGroup || 'all';
+  document.querySelectorAll('.qb-tool-group').forEach(group=>{
+    const buttons=[...group.querySelectorAll('button')];
+    const matches=buttons.filter(btn=>
+      String(btn.textContent || '').toLowerCase().includes(query)
+    );
 
-    const matchesText=
-      !query ||
-      label.includes(query);
+    if(!query){
+      group.style.display='';
+      return;
+    }
 
-    const matchesFilter=
-      activeQuickBooksFilter==='all' ||
-      group===activeQuickBooksFilter ||
-      group==='all';
+    group.style.display=matches.length ? '' : 'none';
 
+    if(matches.length){
+      group.open=true;
+      buttons.forEach(btn=>{
+        btn.style.display=
+          String(btn.textContent || '').toLowerCase().includes(query)
+            ? ''
+            : 'none';
+      });
+    }
+  });
+
+  document.querySelectorAll('.qb-top-actions button').forEach(btn=>{
     btn.style.display=
-      matchesText && matchesFilter
+      !query ||
+      String(btn.textContent || '').toLowerCase().includes(query)
         ? ''
         : 'none';
   });
 
-  const visible=[
-    ...document.querySelectorAll('.qb-action-row button')
-  ].filter(btn=>btn.style.display!=='none');
-
-  const empty=document.getElementById('qbSearchEmpty');
-
-  if(!visible.length){
-    if(!empty){
-      const node=document.createElement('div');
-      node.id='qbSearchEmpty';
-      node.className='qb-search-empty';
-      node.textContent='No QuickBooks tools match your search.';
-      document.querySelector('.qb-action-row')?.appendChild(node);
-    }
-  }else if(empty){
-    empty.remove();
+  if(!query){
+    document.querySelectorAll('.qb-tool-group button').forEach(btn=>{
+      btn.style.display='';
+    });
   }
 }
 
 function clearQuickBooksSearch(){
   const input=document.getElementById('qbSearchInput');
   if(input)input.value='';
-
-  activeQuickBooksFilter='all';
-
-  document.querySelectorAll('.qb-filter-chip').forEach(chip=>{
-    chip.classList.toggle(
-      'active',
-      chip.dataset.qbFilter==='all'
-    );
-  });
-
   filterQuickBooksView();
 }
 
@@ -4326,7 +4491,15 @@ async function loadRecentPayments(){
     if(output){
       output.innerHTML=
         summary +
-        `<div class="qb-invoice-list">${cards}</div>`;
+        `<details class="qb-result-collapse">
+          <summary>
+            <span>Recent payment details</span>
+            <span class="qb-result-collapse-icon">+</span>
+          </summary>
+          <div class="qb-result-collapse-body">
+            <div class="qb-invoice-list">${cards}</div>
+          </div>
+        </details>`;
     }
   }catch(err){
     console.error(
@@ -4458,7 +4631,15 @@ async function loadOutstandingInvoices(){
 
     if(output){
       output.innerHTML=summary + `
-        <div class="qb-invoice-list">${cards}</div>
+        <details class="qb-result-collapse">
+          <summary>
+            <span>Outstanding invoice details</span>
+            <span class="qb-result-collapse-icon">+</span>
+          </summary>
+          <div class="qb-result-collapse-body">
+            <div class="qb-invoice-list">${cards}</div>
+          </div>
+        </details>
       `;
     }
   }catch(err){
