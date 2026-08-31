@@ -2368,6 +2368,86 @@ body.text-large{
   }
 }
 
+
+/* ===== GMAIL SEARCH + FILTERS ===== */
+.gmail-search-wrap{
+  margin-bottom:9px;
+}
+.gmail-search-row{
+  display:flex;
+  gap:6px;
+}
+.gmail-search-input{
+  min-width:0;
+  flex:1;
+  border:1px solid var(--border);
+  background:var(--surface2);
+  color:var(--ink);
+  border-radius:8px;
+  padding:8px 9px;
+  font-size:10px;
+  outline:none;
+}
+.gmail-search-input:focus{
+  border-color:rgba(238,185,62,.38);
+}
+.gmail-search-input::placeholder{
+  color:var(--faint);
+}
+.gmail-search-btn{
+  border:1px solid var(--border);
+  background:var(--surface3);
+  color:var(--ink);
+  border-radius:8px;
+  padding:8px 9px;
+  font-size:9px;
+  font-weight:700;
+}
+.gmail-filter-row{
+  display:flex;
+  gap:5px;
+  overflow-x:auto;
+  padding-top:7px;
+  scrollbar-width:none;
+}
+.gmail-filter-row::-webkit-scrollbar{
+  display:none;
+}
+.gmail-filter-chip{
+  flex:0 0 auto;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--muted);
+  border-radius:999px;
+  padding:5px 8px;
+  font-size:8px;
+  font-weight:700;
+}
+.gmail-filter-chip.active{
+  color:var(--gold);
+  border-color:rgba(238,185,62,.32);
+  background:rgba(238,185,62,.07);
+}
+.gmail-search-state{
+  font-size:8px;
+  color:var(--faint);
+  margin-top:6px;
+}
+@media(max-width:760px){
+  .gmail-search-input{
+    font-size:16px;
+    padding:10px 11px;
+  }
+  .gmail-search-btn{
+    font-size:11px;
+    padding:10px 12px;
+  }
+  .gmail-filter-chip{
+    font-size:10px;
+    padding:6px 9px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2410,10 +2490,22 @@ body.text-large{
 <button class="gmail-disconnect-btn" id="gmailDisconnectBtn" onclick="disconnectGmail()" style="display:none" type="button">Disconnect</button></div><div class="integration"><div class="int-icon">QB</div><div class="int-name">QuickBooks</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">S</div><div class="int-name">Stripe</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><div class="context-section gmail-recent-section" id="recentGmailSection" style="display:none">
 <div class="gmail-recent-head">
 <div class="context-label" style="margin-bottom:0">Recent Gmail</div>
-<button class="gmail-refresh-btn" onclick="loadRecentGmail(true)" type="button">Refresh</button>
+<button class="gmail-refresh-btn" onclick="loadRecentGmailWithQuery(buildGmailQuery())" type="button">Refresh</button>
 </div>
 <div class="gmail-recent-note">Choose an email to analyze with @fraud. Only the selected email is sent for AI analysis.</div>
-<div class="gmail-toolbar" id="gmailBulkToolbar">
+<div class="gmail-search-wrap" id="gmailSearchBar">
+<div class="gmail-search-row">
+<input class="gmail-search-input" id="gmailSearchInput" onkeydown="handleGmailSearchKey(event)" placeholder="Search sender or subject" type="search"/>
+<button class="gmail-search-btn" onclick="searchGmail()" type="button">Search</button>
+</div>
+<div class="gmail-filter-row">
+<button class="gmail-filter-chip active" data-gmail-filter="" onclick="applyGmailFilter(this,'')">Recent</button>
+<button class="gmail-filter-chip" data-gmail-filter="is:unread" onclick="applyGmailFilter(this,'is:unread')">Unread</button>
+<button class="gmail-filter-chip" data-gmail-filter="newer_than:7d" onclick="applyGmailFilter(this,'newer_than:7d')">7 days</button>
+<button class="gmail-filter-chip" data-gmail-filter="invoice OR receipt OR payment" onclick="applyGmailFilter(this,'invoice OR receipt OR payment')">Payments</button>
+<button class="gmail-filter-chip" data-gmail-filter="from:(noreply OR no-reply)" onclick="applyGmailFilter(this,'from:(noreply OR no-reply)')">Automated</button>
+</div>
+</div><div class="gmail-toolbar" id="gmailBulkToolbar">
 <label class="gmail-select-all">
 <input id="gmailSelectAll" onchange="toggleAllGmail(this.checked)" type="checkbox"/>
 <span>Select all</span>
@@ -3239,6 +3331,76 @@ async function analyzeSelectedGmail(){
   }
 }
 
+
+let activeGmailQuery='';
+
+function setActiveGmailFilter(query){
+  document.querySelectorAll('.gmail-filter-chip').forEach(btn=>{
+    btn.classList.toggle(
+      'active',
+      (btn.dataset.gmailFilter || '') === query
+    );
+  });
+}
+
+function buildGmailQuery(){
+  const input=document.getElementById('gmailSearchInput');
+  const search=String(input?.value || '').trim();
+
+  if(activeGmailQuery && search){
+    return `(${activeGmailQuery}) ${search}`;
+  }
+
+  return search || activeGmailQuery || '';
+}
+
+async function loadRecentGmailWithQuery(query=''){
+  const section=document.getElementById('recentGmailSection');
+  const list=document.getElementById('gmailMessageList');
+
+  if(!currentUser || !section)return;
+
+  section.style.display='';
+  if(list)list.innerHTML='<div class="gmail-empty">Loading email…</div>';
+
+  try{
+    const data=await gmailApi({
+      mode:'list',
+      maxResults:20,
+      query
+    });
+
+    recentGmailMessages=Array.isArray(data?.messages)
+      ? data.messages
+      : [];
+
+    selectedGmailIds.clear();
+    renderRecentGmail();
+  }catch(err){
+    console.error('Gmail search error:',err);
+    if(list){
+      list.innerHTML=`<div class="gmail-empty">${gmailEscape(err.message || 'Unable to search Gmail.')}</div>`;
+    }
+  }
+}
+
+async function searchGmail(){
+  await loadRecentGmailWithQuery(buildGmailQuery());
+}
+
+function handleGmailSearchKey(event){
+  if(event.key==='Enter'){
+    event.preventDefault();
+    searchGmail();
+  }
+}
+
+async function applyGmailFilter(button,query){
+  activeGmailQuery=query || '';
+  setActiveGmailFilter(activeGmailQuery);
+  await loadRecentGmailWithQuery(buildGmailQuery());
+}
+
 async function gmailApi(body){
   const headers=await gmailAuthHeaders();
 
@@ -3313,6 +3475,11 @@ function renderRecentGmail(){
 }
 
 async function loadRecentGmail(force=false){
+  if(activeGmailQuery || String(document.getElementById('gmailSearchInput')?.value || '').trim()){
+    await loadRecentGmailWithQuery(buildGmailQuery());
+    return;
+  }
+
   const section=document.getElementById('recentGmailSection');
   const list=document.getElementById('gmailMessageList');
 
@@ -3337,6 +3504,7 @@ async function loadRecentGmail(force=false){
       ? data.messages
       : [];
 
+    selectedGmailIds.clear();
     renderRecentGmail();
   }catch(err){
     console.error('Recent Gmail error:',err);
