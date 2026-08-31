@@ -2348,6 +2348,26 @@ body.text-large{
   }
 }
 
+
+/* ===== GMAIL DISCONNECT ===== */
+.gmail-disconnect-btn{
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--faint);
+  border-radius:7px;
+  padding:6px 8px;
+  font-size:9px;
+  font-weight:700;
+}
+.gmail-disconnect-btn:hover{
+  color:var(--ink);
+}
+@media(max-width:760px){
+  .gmail-disconnect-btn{
+    font-size:11px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2387,7 +2407,7 @@ body.text-large{
 <div class="gmail-connection-text" id="gmailConnectionText">Not connected</div>
 </div>
 <button class="gmail-connect-btn" id="gmailConnectBtn" onclick="connectGmail()" type="button">Connect</button>
-</div><div class="integration"><div class="int-icon">QB</div><div class="int-name">QuickBooks</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">S</div><div class="int-name">Stripe</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><div class="context-section gmail-recent-section" id="recentGmailSection" style="display:none">
+<button class="gmail-disconnect-btn" id="gmailDisconnectBtn" onclick="disconnectGmail()" style="display:none" type="button">Disconnect</button></div><div class="integration"><div class="int-icon">QB</div><div class="int-name">QuickBooks</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">S</div><div class="int-name">Stripe</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><div class="context-section gmail-recent-section" id="recentGmailSection" style="display:none">
 <div class="gmail-recent-head">
 <div class="context-label" style="margin-bottom:0">Recent Gmail</div>
 <button class="gmail-refresh-btn" onclick="loadRecentGmail(true)" type="button">Refresh</button>
@@ -2732,6 +2752,8 @@ async function loadGmailStatus(){
         btn.textContent='Connected';
         btn.classList.add('connected');
       }
+      const disconnectBtn=document.getElementById('gmailDisconnectBtn');
+      if(disconnectBtn)disconnectBtn.style.display='';
       await loadRecentGmail();
     }else{
       recentGmailMessages=[];
@@ -2742,10 +2764,92 @@ async function loadGmailStatus(){
         btn.textContent='Connect';
         btn.classList.remove('connected');
       }
+      const disconnectBtn=document.getElementById('gmailDisconnectBtn');
+      if(disconnectBtn)disconnectBtn.style.display='none';
     }
   }catch(err){
     console.error('Gmail status error:',err);
     if(textEl) textEl.textContent='Unable to check';
+  }
+}
+
+
+async function disconnectGmail(){
+  if(!currentUser)return;
+
+  const ok=confirm(
+    'Disconnect Gmail from FraudShield? FraudShield will stop accessing your Gmail until you reconnect.'
+  );
+
+  if(!ok)return;
+
+  const btn=document.getElementById('gmailDisconnectBtn');
+
+  try{
+    if(btn){
+      btn.disabled=true;
+      btn.textContent='Disconnecting…';
+    }
+
+    const headers=await gmailAuthHeaders();
+
+    const res=await fetch(
+      `${SUPABASE_URL}/functions/v1/gmail-disconnect`,
+      {
+        method:'POST',
+        headers,
+        body:'{}'
+      }
+    );
+
+    let data={};
+    try{
+      data=await res.json();
+    }catch{
+      data={};
+    }
+
+    if(!res.ok){
+      throw new Error(
+        data?.error ||
+        'Unable to disconnect Gmail.'
+      );
+    }
+
+    recentGmailMessages=[];
+    selectedGmailIds.clear();
+    reviewedGmailIds.clear();
+    gmailAnalysisStatus={};
+
+    const section=document.getElementById('recentGmailSection');
+    const textEl=document.getElementById('gmailConnectionText');
+    const connectBtn=document.getElementById('gmailConnectBtn');
+
+    if(section)section.style.display='none';
+
+    if(textEl){
+      textEl.textContent='Not connected';
+    }
+
+    if(connectBtn){
+      connectBtn.textContent='Connect';
+      connectBtn.classList.remove('connected');
+      connectBtn.style.display='';
+    }
+
+    if(btn){
+      btn.style.display='none';
+    }
+
+    alert('Gmail disconnected.');
+  }catch(err){
+    console.error('Gmail disconnect error:',err);
+    alert(`Could not disconnect Gmail: ${err.message}`);
+  }finally{
+    if(btn){
+      btn.disabled=false;
+      btn.textContent='Disconnect';
+    }
   }
 }
 
