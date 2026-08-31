@@ -3651,6 +3651,171 @@ async function loadQuickBooksCompany(){
 }
 
 
+
+async function loadRecentPayments(){
+  const output=document.getElementById(
+    'quickbooksDataOutput'
+  );
+
+  if(output){
+    output.textContent='Loading recent payments…';
+  }
+
+  try{
+    const data=await quickBooksApi(
+      'quickbooks-data',
+      {mode:'payments'}
+    );
+
+    const payments=
+      data?.data?.QueryResponse?.Payment || [];
+
+    const sorted=payments
+      .slice()
+      .sort((a,b)=>{
+        const aDate=new Date(a?.TxnDate || 0).getTime();
+        const bDate=new Date(b?.TxnDate || 0).getTime();
+        return bDate-aDate;
+      });
+
+    const recent=sorted.slice(0,20);
+
+    if(!recent.length){
+      if(output){
+        output.innerHTML=`
+          <div class="qb-empty-state">
+            No recent payments found.
+          </div>
+        `;
+      }
+      return;
+    }
+
+    const totalReceived=recent.reduce(
+      (sum,p)=>sum+Number(p?.TotalAmt || 0),
+      0
+    );
+
+    const customers=new Set(
+      recent
+        .map(p=>p?.CustomerRef?.name)
+        .filter(Boolean)
+    );
+
+    const summary=`
+      <div class="qb-invoice-summary">
+        <div>
+          <span>Received</span>
+          <strong>$${totalReceived.toFixed(2)}</strong>
+        </div>
+        <div>
+          <span>Payments</span>
+          <strong>${recent.length}</strong>
+        </div>
+        <div>
+          <span>Customers</span>
+          <strong>${customers.size}</strong>
+        </div>
+      </div>
+    `;
+
+    const cards=recent.map(payment=>{
+      const customer=
+        payment?.CustomerRef?.name ||
+        'Customer';
+
+      const date=
+        payment?.TxnDate ||
+        'No date';
+
+      const amount=
+        Number(
+          payment?.TotalAmt || 0
+        ).toFixed(2);
+
+      const ref=
+        payment?.PaymentRefNum ||
+        payment?.Id ||
+        '';
+
+      return `
+        <details class="qb-invoice-card">
+          <summary>
+            <div class="qb-invoice-main">
+              <div class="qb-invoice-customer">
+                ${gmailEscape(customer)}
+              </div>
+              <div class="qb-invoice-meta">
+                ${gmailEscape(date)}
+                ${ref ? ` · Ref ${gmailEscape(String(ref))}` : ''}
+              </div>
+            </div>
+            <div class="qb-invoice-amount">
+              $${gmailEscape(amount)}
+            </div>
+          </summary>
+
+          <div class="qb-invoice-body">
+            <div>
+              <span>Customer</span>
+              <strong>${gmailEscape(customer)}</strong>
+            </div>
+
+            <div>
+              <span>Date</span>
+              <strong>${gmailEscape(date)}</strong>
+            </div>
+
+            <div>
+              <span>Amount</span>
+              <strong>$${gmailEscape(amount)}</strong>
+            </div>
+
+            <button
+              type="button"
+              onclick="askAboutPayment('${gmailEscape(String(payment?.Id || ''))}')"
+            >
+              Ask @accounting
+            </button>
+          </div>
+        </details>
+      `;
+    }).join('');
+
+    if(output){
+      output.innerHTML=
+        summary +
+        `<div class="qb-invoice-list">${cards}</div>`;
+    }
+  }catch(err){
+    console.error(
+      'Recent payments error:',
+      err
+    );
+
+    if(output){
+      output.textContent=
+        err.message ||
+        'Unable to load recent payments.';
+    }
+  }
+}
+
+function askAboutPayment(paymentId){
+  const input=
+    document.getElementById('messageInput') ||
+    document.querySelector('textarea');
+
+  selectAgent('accounting');
+
+  if(input){
+    input.value=
+      `Tell me about QuickBooks payment ${paymentId}. Who paid, how much was received, and is there anything I should pay attention to?`;
+
+    input.focus();
+  }
+}
+
 async function loadOutstandingInvoices(){
   const output=document.getElementById(
     'quickbooksDataOutput'
