@@ -2933,8 +2933,17 @@ function renderGmailAnalysisResult(text){
     return;
   }
 
-  welcome.style.display='none';
-  messagesEl.style.display='flex';
+  const welcomeEl=document.getElementById('welcome');
+  const messagesContainer=document.getElementById('messages');
+  const chatAreaEl=document.getElementById('chatArea');
+
+  if(!messagesContainer){
+    renderMessage('ai',text,'fraud');
+    return;
+  }
+
+  if(welcomeEl)welcomeEl.style.display='none';
+  messagesContainer.style.display='flex';
 
   const msg=document.createElement('div');
   msg.className='msg ai';
@@ -2991,8 +3000,11 @@ function renderGmailAnalysisResult(text){
   bubble.appendChild(wrap);
   msg.appendChild(avatar);
   msg.appendChild(bubble);
-  messagesEl.appendChild(msg);
-  chatArea.scrollTop=chatArea.scrollHeight;
+  messagesContainer.appendChild(msg);
+
+  if(chatAreaEl){
+    chatAreaEl.scrollTop=chatAreaEl.scrollHeight;
+  }
 }
 
 async function callAIQuiet(hiddenMessage,displayMessage){
