@@ -2657,6 +2657,132 @@ body.text-large{
   .message.assistant .content td{padding:8px}
 }
 
+
+/* ===== ACCOUNTING COLLAPSIBLE UI ===== */
+.msg.ai .bubble .acct-answer{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:0;
+}
+.acct-intro{
+  padding:10px 11px;
+  border:1px solid var(--border);
+  border-radius:11px;
+  background:var(--surface2);
+  color:var(--ink);
+  font-size:10px;
+  line-height:1.55;
+}
+.acct-collapse-list{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.acct-collapse{
+  border:1px solid var(--border);
+  border-radius:11px;
+  background:var(--surface2);
+  overflow:hidden;
+}
+.acct-collapse summary{
+  list-style:none;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 11px;
+  cursor:pointer;
+  color:var(--ink);
+  font-size:10px;
+  font-weight:800;
+}
+.acct-collapse summary::-webkit-details-marker{
+  display:none;
+}
+.acct-chevron{
+  width:21px;
+  height:21px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  background:var(--surface);
+  color:var(--muted);
+  transition:transform .16s ease;
+}
+.acct-collapse[open] .acct-chevron{
+  transform:rotate(45deg);
+}
+.acct-collapse-body{
+  border-top:1px solid var(--border);
+  padding:10px 11px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.5;
+}
+.acct-collapse-body p{
+  margin:0 0 7px;
+}
+.acct-collapse-body p:last-child{
+  margin-bottom:0;
+}
+.acct-collapse-body ul{
+  margin:0;
+  padding-left:17px;
+}
+.acct-collapse-body li{
+  margin:5px 0;
+}
+.acct-table-wrap{
+  width:100%;
+  overflow-x:auto;
+  border:1px solid var(--border);
+  border-radius:8px;
+}
+.acct-table{
+  width:100%;
+  border-collapse:collapse;
+  white-space:nowrap;
+  font-size:9px;
+}
+.acct-table th,
+.acct-table td{
+  padding:7px 8px;
+  text-align:left;
+  border-bottom:1px solid var(--border);
+}
+.acct-table tr:last-child td{
+  border-bottom:0;
+}
+.acct-table th{
+  color:var(--ink);
+  background:var(--surface);
+  font-weight:800;
+}
+@media(max-width:760px){
+  .acct-intro{
+    padding:12px;
+    border-radius:13px;
+    font-size:12px;
+  }
+  .acct-collapse{
+    border-radius:13px;
+  }
+  .acct-collapse summary{
+    padding:12px;
+    font-size:12px;
+  }
+  .acct-collapse-body{
+    padding:11px 12px;
+    font-size:12px;
+  }
+  .acct-table{
+    font-size:11px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -4132,7 +4258,158 @@ async function saveMessage(role,content,agent){if(!currentUser||!currentChatId)r
 async function loadChat(id){if(!currentUser)return;currentChatId=id;conversationHistory=[];attachedFiles=[];renderAttachments();messages.innerHTML='';const {data,error}=await sb.from('messages').select('role,agent,content,created_at').eq('conversation_id',id).eq('user_id',currentUser.id).order('created_at',{ascending:true});if(error){alert('Could not load that conversation.');return}const rows=data||[];if(rows.length&&rows[0].agent)selectAgent(rows[0].agent);rows.forEach(m=>{conversationHistory.push({role:m.role,agent:m.agent||activeAgent,content:m.content});renderMessage(m.role==='assistant'?'ai':'user',m.content,m.agent||activeAgent)});if(!rows.length)showWelcome();renderHistory()}
 function newChat(){currentChatId=null;conversationHistory=[];attachedFiles=[];renderAttachments();messages.innerHTML='';showWelcome();renderHistory();chatInput.focus()}
 function showWelcome(){messages.style.display='none';welcome.style.display='block'}function showMessages(){welcome.style.display='none';messages.style.display='flex'}
-function renderMessage(role,content,agent){showMessages();const wrap=document.createElement('div');wrap.className='msg '+role;const actualAgent=agent||activeAgent;const pill=role==='ai'?`<div class="agent-pill">${escapeHtml(agentConfig[actualAgent]?.name||'FraudShield')}</div>`:'';wrap.innerHTML=`<div class="msg-avatar">${role==='ai'?(agentConfig[actualAgent]?.icon||'FS'):'U'}</div><div class="bubble">${pill}${escapeHtml(content)}</div>`;messages.appendChild(wrap);requestAnimationFrame(()=>chatArea.scrollTop=chatArea.scrollHeight)}
+
+function renderAccountingCompact(content){
+  const raw=String(content || '').trim();
+  if(!raw)return '';
+
+  const lines=raw.split(/\r?\n/);
+  const intro=[];
+  const sections=[];
+  let current=null;
+
+  const cleanHeading=(s)=>s
+    .replace(/^#{1,6}\s*/, '')
+    .replace(/^\*\*(.*?)\*\*:?\s*$/, '$1')
+    .replace(/:$/, '')
+    .trim();
+
+  const isHeading=(s)=>{
+    const t=s.trim();
+    return /^#{1,6}\s+/.test(t) ||
+      /^\*\*[^*]{2,90}\*\*:?\s*$/.test(t);
+  };
+
+  for(const line of lines){
+    if(isHeading(line)){
+      current={title:cleanHeading(line),body:[]};
+      sections.push(current);
+    }else if(current){
+      current.body.push(line);
+    }else{
+      intro.push(line);
+    }
+  }
+
+  // If there are no headings, keep it simple.
+  if(!sections.length){
+    return `<div class="acct-intro">${escapeHtml(raw).replace(/\n/g,'<br>')}</div>`;
+  }
+
+  const introText=intro.join('\n').trim();
+
+  const renderSimpleBody=(body)=>{
+    const bodyLines=body.split(/\r?\n/);
+    let html='';
+    let inList=false;
+    let tableRows=[];
+
+    const flushList=()=>{
+      if(inList){
+        html+='</ul>';
+        inList=false;
+      }
+    };
+
+    const flushTable=()=>{
+      if(!tableRows.length)return;
+      const rows=tableRows.filter(r=>r.trim() && !/^\|?\s*[-:]+/.test(r.replace(/\|/g,'')));
+      if(rows.length){
+        html+='<div class="acct-table-wrap"><table class="acct-table">';
+        rows.forEach((row,idx)=>{
+          const cells=row.split('|').map(c=>c.trim()).filter(Boolean);
+          html+=`<tr>${cells.map(c=>idx===0?`<th>${escapeHtml(c.replace(/\*\*/g,''))}</th>`:`<td>${escapeHtml(c.replace(/\*\*/g,''))}</td>`).join('')}</tr>`;
+        });
+        html+='</table></div>';
+      }
+      tableRows=[];
+    };
+
+    for(const rawLine of bodyLines){
+      const line=rawLine.trim();
+
+      if(line.startsWith('|')){
+        flushList();
+        tableRows.push(line);
+        continue;
+      }
+
+      flushTable();
+
+      if(/^[-*]\s+/.test(line)){
+        if(!inList){
+          html+='<ul>';
+          inList=true;
+        }
+        const item=line.replace(/^[-*]\s+/,'').replace(/\*\*(.*?)\*\*/g,'$1');
+        html+=`<li>${escapeHtml(item)}</li>`;
+        continue;
+      }
+
+      flushList();
+
+      if(!line){
+        continue;
+      }
+
+      const cleaned=line.replace(/\*\*(.*?)\*\*/g,'$1');
+      html+=`<p>${escapeHtml(cleaned)}</p>`;
+    }
+
+    flushList();
+    flushTable();
+    return html;
+  };
+
+  const cards=sections.map((section,index)=>{
+    const body=section.body.join('\n').trim();
+    if(!body)return '';
+
+    const open=index===0 ? ' open' : '';
+    return `
+      <details class="acct-collapse"${open}>
+        <summary>
+          <span>${escapeHtml(section.title)}</span>
+          <span class="acct-chevron">+</span>
+        </summary>
+        <div class="acct-collapse-body">${renderSimpleBody(body)}</div>
+      </details>`;
+  }).join('');
+
+  return `
+    <div class="acct-answer">
+      ${introText ? `<div class="acct-intro">${escapeHtml(introText).replace(/\n/g,'<br>')}</div>` : ''}
+      <div class="acct-collapse-list">${cards}</div>
+    </div>`;
+}
+
+function renderMessage(role,content,agent){
+  showMessages();
+
+  const wrap=document.createElement('div');
+  wrap.className='msg '+role;
+
+  const actualAgent=agent||activeAgent;
+
+  const pill=role==='ai'
+    ? `<div class="agent-pill">${escapeHtml(agentConfig[actualAgent]?.name||'FraudShield')}</div>`
+    : '';
+
+  const body=
+    role==='ai' && actualAgent==='accounting'
+      ? renderAccountingCompact(content)
+      : escapeHtml(content);
+
+  wrap.innerHTML=
+    `<div class="msg-avatar">${role==='ai'?(agentConfig[actualAgent]?.icon||'FS'):'U'}</div>` +
+    `<div class="bubble">${pill}${body}</div>`;
+
+  messages.appendChild(wrap);
+
+  requestAnimationFrame(
+    ()=>chatArea.scrollTop=chatArea.scrollHeight
+  );
+}
 function showTyping(){showMessages();const d=document.createElement('div');d.className='msg ai';d.id='typing';d.innerHTML=`<div class="msg-avatar">${agentConfig[activeAgent].icon}</div><div class="bubble"><div class="typing"><i></i><i></i><i></i></div></div>`;messages.appendChild(d)}function removeTyping(){document.getElementById('typing')?.remove()}
 async function handleFiles(e){
   const files=[...e.target.files];
