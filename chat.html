@@ -1450,6 +1450,139 @@ body.dark .plan-badge-chat.is-pro{
   color:var(--green);
 }
 
+
+/* ===== LAYOUT / SCROLL UX FIX ===== */
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:var(--bg);
+}
+.app{
+  height:100dvh;
+  min-height:0;
+  grid-template-columns:245px minmax(0,1fr) 300px;
+  overflow:hidden;
+}
+.sidebar,.main,.context{
+  min-height:0;
+  height:100dvh;
+}
+.sidebar{
+  background:var(--surface) !important;
+  overflow:hidden;
+}
+.history{
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+.main{
+  overflow:hidden;
+}
+.chat-area{
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  scroll-behavior:smooth;
+}
+.context{
+  background:var(--surface) !important;
+  overflow:hidden;
+}
+.context-scroll{
+  min-height:0;
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+.gmail-recent-section{
+  position:static !important;
+  top:auto !important;
+  z-index:auto !important;
+  background:transparent !important;
+  padding-bottom:0;
+}
+.gmail-message-list{
+  max-height:46vh;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding-right:3px;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+.gmail-email-card{
+  flex:0 0 auto;
+}
+.composer-wrap{
+  position:relative;
+  z-index:5;
+  background:var(--bg);
+  border-top:1px solid var(--border);
+}
+
+/* Clear, subtle scrollbars */
+.history,
+.chat-area,
+.context-scroll,
+.gmail-message-list{
+  scrollbar-width:thin;
+  scrollbar-color:var(--faint) transparent;
+}
+.history::-webkit-scrollbar,
+.chat-area::-webkit-scrollbar,
+.context-scroll::-webkit-scrollbar,
+.gmail-message-list::-webkit-scrollbar{
+  width:8px;
+}
+.history::-webkit-scrollbar-track,
+.chat-area::-webkit-scrollbar-track,
+.context-scroll::-webkit-scrollbar-track,
+.gmail-message-list::-webkit-scrollbar-track{
+  background:transparent;
+}
+.history::-webkit-scrollbar-thumb,
+.chat-area::-webkit-scrollbar-thumb,
+.context-scroll::-webkit-scrollbar-thumb,
+.gmail-message-list::-webkit-scrollbar-thumb{
+  background:var(--faint);
+  border-radius:999px;
+  border:2px solid transparent;
+  background-clip:padding-box;
+}
+
+/* Prevent the side columns from visually turning into black gutters */
+.sidebar:before,
+.context:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:var(--surface);
+  z-index:-1;
+}
+.sidebar,.context{position:relative;z-index:1}
+
+/* Better behavior on narrower laptops */
+@media(max-width:1180px){
+  .app{grid-template-columns:220px minmax(0,1fr) 270px}
+}
+@media(max-width:980px){
+  .app{grid-template-columns:210px minmax(0,1fr)}
+  .context{display:none}
+}
+@media(max-width:720px){
+  .app{display:block;height:100dvh}
+  .sidebar{display:none}
+  .main{height:100dvh}
+  .chat-area{padding:20px 14px}
+  .composer-wrap{padding:10px 12px 12px}
+}
+
 </style>
 </head>
 <body>
@@ -1492,7 +1625,7 @@ body.dark .plan-badge-chat.is-pro{
 </div><div class="integration"><div class="int-icon">QB</div><div class="int-name">QuickBooks</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">S</div><div class="int-name">Stripe</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><div class="context-section gmail-recent-section" id="recentGmailSection" style="display:none">
 <div class="gmail-recent-head">
 <div class="context-label" style="margin-bottom:0">Recent Gmail</div>
-<button class="gmail-refresh-btn" onclick="loadRecentGmail(true)" type="button">Refresh</button>
+<button class="gmail-refresh-btn" id="gmailToggleBtn" onclick="toggleGmailList()" type="button">Hide</button><button class="gmail-refresh-btn" onclick="loadRecentGmail(true)" type="button">Refresh</button>
 </div>
 <div class="gmail-recent-note">Choose an email to analyze with @fraud. Only the selected email is sent for AI analysis.</div>
 <div class="gmail-message-list" id="gmailMessageList">
@@ -1905,6 +2038,20 @@ function gmailEscape(value){
 function shortSender(value){
   const text=String(value || '').trim();
   return text || 'Unknown sender';
+}
+
+
+function toggleGmailList(){
+  const list=document.getElementById('gmailMessageList');
+  const note=document.querySelector('#recentGmailSection .gmail-recent-note');
+  const btn=document.getElementById('gmailToggleBtn');
+  if(!list || !btn)return;
+
+  const hidden=list.style.display==='none';
+
+  list.style.display=hidden?'':'none';
+  if(note)note.style.display=hidden?'':'none';
+  btn.textContent=hidden?'Hide':'Show';
 }
 
 async function gmailApi(body){
