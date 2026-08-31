@@ -2630,7 +2630,7 @@ body.text-large{
 <header class="topbar">
 <button aria-label="Open chat history" class="sidebar-toggle-btn" id="mobileSidebarOpen" onclick="setHistorySidebar(true)" type="button">☰</button>
 <div class="top-left"><div class="top-icon" id="topIcon">🛡</div><div><div class="top-name" id="topName">@fraud</div><div class="top-sub" id="topSub">Risk checks, vendor verification &amp; fraud questions</div></div></div><div class="top-actions"><span class="plan-badge-chat" id="planBadge" style="display:none">Basic</span><button class="small-btn" id="creditsBtn" onclick="openPricing()" style="display:none">10 credits</button><button class="small-btn" id="topUpBtn" onclick="openPricing()" style="display:none">Top up</button><button class="small-btn" id="textSizeBtn" onclick="cycleTextSize()" title="Change text size" type="button">Aa</button><button class="small-btn" id="themeBtn" onclick="toggleTheme()">☀ Light</button><button class="small-btn mobile-context" id="mobileContextOpen" onclick="setContextPanel(true)">Gmail</button><button class="small-btn signin" id="signinTop" onclick="signInGoogle()">Sign in</button></div></header>
-<div class="chat-area" id="chatArea"><div class="chat-inner"><div class="welcome" id="welcome"><div class="welcome-mark">FS</div><h1>What do you want to check?</h1><p>Use FraudShield for risk checks, finance questions, document review, and business paperwork readiness.</p><div class="starters"><button class="starter" onclick="startPrompt('fraud','@fraud Check this invoice before I pay it.')"><div class="starter-agent">@fraud</div><div class="starter-text">Check this invoice before I pay it.</div></button><button class="starter" onclick="startPrompt('fraud','@fraud What should I verify when a vendor changes bank details?')"><div class="starter-agent">@fraud</div><div class="starter-text">A vendor changed bank details. What should I verify?</div></button><button class="starter" onclick="startPrompt('accounting','@accounting Help me categorize this business expense.')"><div class="starter-agent">@accounting</div><div class="starter-text">Help me categorize a business expense.</div></button><button class="starter" onclick="startPrompt('accounting','@accounting Summarize the financial data I provide.')"><div class="starter-agent">@accounting</div><div class="starter-text">Summarize financial data I provide.</div></button><button class="starter" onclick="startPrompt('docs','@docs I want to open a business bank account. What paperwork should I gather?')"><div class="starter-agent">@docs</div><div class="starter-text">What paperwork should I gather for a business bank account?</div></button><button class="starter" onclick="startPrompt('docs','@docs Build me a checklist for a small-business loan application.')"><div class="starter-agent">@docs</div><div class="starter-text">Build a document checklist for a business loan.</div></button></div></div><div class="messages" id="messages"></div></div></div>
+<div class="chat-area" id="chatArea"><div class="chat-inner"><div class="welcome" id="welcome"><div class="welcome-mark">FS</div><h1>What do you want to check?</h1><p>Use FraudShield for risk checks, finance questions, document review, and business paperwork readiness.</p><div class="starters"><button class="starter" onclick="startPrompt('fraud','@fraud Check this invoice before I pay it.')"><div class="starter-agent">@fraud</div><div class="starter-text">Check this invoice before I pay it.</div></button><button class="starter" onclick="startPrompt('fraud','@fraud What should I verify when a vendor changes bank details?')"><div class="starter-agent">@fraud</div><div class="starter-text">A vendor changed bank details. What should I verify?</div></button><button class="starter" onclick="startPrompt('accounting','@accounting Where did most of my money go?')"><div class="starter-agent">@accounting</div><div class="starter-text">Where did most of my money go?</div></button><button class="starter" onclick="startPrompt('accounting','@accounting Which invoices are still outstanding?')"><div class="starter-agent">@accounting</div><div class="starter-text">Which invoices are still outstanding?</div></button><button class="starter" onclick="startPrompt('docs','@docs I want to open a business bank account. What paperwork should I gather?')"><div class="starter-agent">@docs</div><div class="starter-text">What paperwork should I gather for a business bank account?</div></button><button class="starter" onclick="startPrompt('docs','@docs Build me a checklist for a small-business loan application.')"><div class="starter-agent">@docs</div><div class="starter-text">Build a document checklist for a business loan.</div></button></div></div><div class="messages" id="messages"></div></div></div>
 <div class="composer-wrap"><div class="composer"><div class="attachments" id="attachments"></div><div class="compose-main"><input accept="image/*,.pdf,.txt,.csv,.json" class="file-input" id="fileInput" multiple="" onchange="handleFiles(event)" type="file"/><button class="icon-btn" onclick="document.getElementById('fileInput').click()" title="Attach file">＋</button><textarea class="chat-input" id="chatInput" oninput="autoResize(this)" onkeydown="handleKey(event)" placeholder="@fraud Check this invoice before I pay it..." rows="1"></textarea><button class="icon-btn send" id="sendBtn" onclick="sendMessage()">➤</button></div><div class="compose-bottom"><div class="active-agent" id="activeAgent">@fraud active</div><div class="hint">Enter to send · Shift+Enter for new line</div></div></div></div>
 </section>
 <aside class="context"><div class="context-head"><div class="context-head-title">Workspace context</div><button aria-label="Close Gmail panel" class="context-close-btn" id="mobileContextClose" onclick="setContextPanel(false)" type="button">×</button></div><div class="context-scroll"><div class="context-section"><div class="context-label">Active specialist</div><div class="context-card"><div class="context-title" id="contextAgentTitle">@fraud</div><div class="context-copy" id="contextAgentCopy">Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.</div></div></div><div class="context-section"><div class="context-label">Integrations</div><div class="integration gmail-integration" id="gmailIntegration">
@@ -2743,7 +2743,7 @@ const SUPABASE_URL='https://nivqhnqquwszwtsgupgx.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pdnFobnFxdXdzend0c2d1cGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1OTk3NDQsImV4cCI6MjA5NDE3NTc0NH0.IlaMbd-s4BjhUmazzvwJOc_F5f9BiJzcQ99agtuDaiA';
 let sb=null;try{sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON)}catch(e){}
 let activeAgent='fraud',attachedFiles=[],conversationHistory=[],isLoading=false,currentChatId=null,currentUser=null,conversations=[];
-const agentConfig={fraud:{icon:'🛡',name:'@fraud',sub:'Risk checks, vendor verification & fraud questions',copy:'Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.',placeholder:'@fraud Check this invoice before I pay it...',system:`You are @fraud inside FraudShield SMB, an AI business risk and fraud-prevention assistant for small businesses. Use only information actually provided by the user or supplied in attached text context. Never invent vendor history, connected systems, bank changes, invoices, transactions, or account activity. For risk reviews, structure the response as: Risk level: LOW, REVIEW, or HIGH; What I noticed; Why it matters; Recommended next step. For payment or bank-detail changes, recommend independent verification using a previously known contact method. Do not claim something is definitely fraudulent unless the supplied evidence establishes that. Be concise, conversational, and practical.`},accounting:{icon:'🧾',name:'@accounting',sub:'Finance questions, categorization & business summaries',copy:'Helps explain expenses, categorize transactions, summarize supplied financial data, and answer operational finance questions.',placeholder:'@accounting Help me understand this expense...',system:`You are @accounting inside FraudShield SMB, an AI financial-operations assistant for small businesses. Help users understand expenses, transaction categories, vendor spend, supplied financial data, cash-flow concepts, bookkeeping workflows, and operational finance questions. Use only data provided by the user or attached text context. Never pretend you can see QuickBooks, Stripe, bank, invoice, or vendor history unless that information is actually present. When categorizing an expense, give the likely category, reason, and what additional information could change the answer. Use only supplied numbers. This is informational assistance, not tax, audit, or professional accounting advice.`},docs:{icon:'📁',name:'@docs',sub:'Business paperwork, checklists & document readiness',copy:'Helps identify paperwork to gather, build checklists, explain documents, and spot missing items for common business tasks.',placeholder:'@docs What paperwork do I need for...',system:`You are @docs inside FraudShield SMB, a business paperwork and document-readiness assistant for small businesses. Help users understand what documents they may need to gather for common business activities such as opening business bank accounts, vendor onboarding, insurance applications, financing, grants, internal recordkeeping, and other operational processes. You may build document checklists, explain what documents are generally used for, review information the user provides, identify items that appear missing from a supplied checklist, and help organize paperwork into logical categories. Do not present yourself as a lawyer, government agency, bank, accountant, or compliance officer. Requirements vary by jurisdiction, institution, lender, insurer, and situation. State that exact requirements should be confirmed with the relevant organization when appropriate. Do not claim an uploaded document is legally valid, authentic, compliant, or sufficient unless the evidence supports that conclusion. Use only information supplied by the user or attached context. Never invent documents, registrations, licenses, approvals, or account information. Be practical, concise, and checklist-oriented.`}};
+const agentConfig={fraud:{icon:'🛡',name:'@fraud',sub:'Risk checks, vendor verification & fraud questions',copy:'Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.',placeholder:'@fraud Check this invoice before I pay it...',system:`You are @fraud inside FraudShield SMB, an AI business risk and fraud-prevention assistant for small businesses. Use only information actually provided by the user or supplied in attached text context. Never invent vendor history, connected systems, bank changes, invoices, transactions, or account activity. For risk reviews, structure the response as: Risk level: LOW, REVIEW, or HIGH; What I noticed; Why it matters; Recommended next step. For payment or bank-detail changes, recommend independent verification using a previously known contact method. Do not claim something is definitely fraudulent unless the supplied evidence establishes that. Be concise, conversational, and practical.`},accounting:{icon:'🧾',name:'@accounting',sub:'QuickBooks insights, expenses & cash flow',copy:'Uses connected QuickBooks data to explain spending, invoices, balances, and operational finance questions.',placeholder:'@accounting Help me understand this expense...',system:`You are @accounting inside FraudShield SMB, an AI financial-operations assistant for small businesses. Help users understand expenses, transaction categories, vendor spend, supplied financial data, cash-flow concepts, bookkeeping workflows, invoices, payments, and operational finance questions. Use only data actually supplied in the conversation, attachments, or a clearly labeled CONNECTED QUICKBOOKS CONTEXT block. Never invent transactions, balances, vendors, invoices, payments, or account activity. If connected QuickBooks context is present, use it directly and say when the available data is insufficient for a conclusion. When categorizing an expense, give the likely category, reason, and what additional information could change the answer. Use only supplied numbers. This is informational assistance, not tax, audit, or professional accounting advice.`},docs:{icon:'📁',name:'@docs',sub:'Business paperwork, checklists & document readiness',copy:'Helps identify paperwork to gather, build checklists, explain documents, and spot missing items for common business tasks.',placeholder:'@docs What paperwork do I need for...',system:`You are @docs inside FraudShield SMB, a business paperwork and document-readiness assistant for small businesses. Help users understand what documents they may need to gather for common business activities such as opening business bank accounts, vendor onboarding, insurance applications, financing, grants, internal recordkeeping, and other operational processes. You may build document checklists, explain what documents are generally used for, review information the user provides, identify items that appear missing from a supplied checklist, and help organize paperwork into logical categories. Do not present yourself as a lawyer, government agency, bank, accountant, or compliance officer. Requirements vary by jurisdiction, institution, lender, insurer, and situation. State that exact requirements should be confirmed with the relevant organization when appropriate. Do not claim an uploaded document is legally valid, authentic, compliant, or sufficient unless the evidence supports that conclusion. Use only information supplied by the user or attached context. Never invent documents, registrations, licenses, approvals, or account information. Be practical, concise, and checklist-oriented.`}};
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function selectAgent(agent){activeAgent=agentConfig[agent]?agent:'fraud';document.querySelectorAll('.agent').forEach(x=>x.classList.toggle('active',x.dataset.agent===activeAgent));const c=agentConfig[activeAgent];topIcon.textContent=c.icon;topName.textContent=c.name;topSub.textContent=c.sub;activeAgentEl().textContent=c.name+' active';chatInput.placeholder=c.placeholder;contextAgentTitle.textContent=c.name;contextAgentCopy.textContent=c.copy}
 function activeAgentEl(){return document.getElementById('activeAgent')}
@@ -4511,6 +4511,130 @@ function setGmailAnalysisProgress(show,text='Analyzing selected emails…'){
   if(box)box.classList.toggle('show',!!show);
 }
 
+
+function qbCompactAccount(a){
+  return {
+    id:a?.Id || null,
+    name:a?.Name || null,
+    type:a?.AccountType || null,
+    subtype:a?.AccountSubType || null,
+    balance:a?.CurrentBalance ?? null,
+    active:a?.Active ?? null
+  };
+}
+
+function qbCompactPurchase(p){
+  return {
+    id:p?.Id || null,
+    date:p?.TxnDate || null,
+    total:p?.TotalAmt ?? null,
+    payment_type:p?.PaymentType || null,
+    vendor:p?.EntityRef?.name || null,
+    account:p?.AccountRef?.name || null,
+    memo:p?.PrivateNote || null
+  };
+}
+
+function qbCompactInvoice(i){
+  return {
+    id:i?.Id || null,
+    date:i?.TxnDate || null,
+    due_date:i?.DueDate || null,
+    customer:i?.CustomerRef?.name || null,
+    total:i?.TotalAmt ?? null,
+    balance:i?.Balance ?? null,
+    doc_number:i?.DocNumber || null
+  };
+}
+
+function qbCompactPayment(p){
+  return {
+    id:p?.Id || null,
+    date:p?.TxnDate || null,
+    customer:p?.CustomerRef?.name || null,
+    total:p?.TotalAmt ?? null,
+    payment_ref:p?.PaymentRefNum || null
+  };
+}
+
+async function buildQuickBooksAccountingContext(message){
+  if(activeAgent!=='accounting' || !currentUser){
+    return '';
+  }
+
+  const text=String(message || '').toLowerCase();
+
+  try{
+    // Always fetch accounts because they provide useful balance/context.
+    const requests=[
+      quickBooksApi('quickbooks-data',{mode:'accounts'})
+    ];
+
+    // Pull only the financial objects most likely to answer the user's question.
+    const wantsInvoices=/invoice|receivable|owed|outstanding|customer|due/.test(text);
+    const wantsPayments=/payment|paid|received|income|revenue|cash in/.test(text);
+    const wantsExpenses=/expense|spend|spent|purchase|vendor|money go|cash out|transaction|cost/.test(text);
+
+    if(wantsInvoices || (!wantsPayments && !wantsExpenses)){
+      requests.push(quickBooksApi('quickbooks-data',{mode:'invoices'}));
+    }
+
+    if(wantsPayments || (!wantsInvoices && !wantsExpenses)){
+      requests.push(quickBooksApi('quickbooks-data',{mode:'payments'}));
+    }
+
+    if(wantsExpenses || (!wantsInvoices && !wantsPayments)){
+      requests.push(quickBooksApi('quickbooks-data',{mode:'expenses'}));
+    }
+
+    const settled=await Promise.allSettled(requests);
+
+    const successful=settled
+      .filter(r=>r.status==='fulfilled')
+      .map(r=>r.value);
+
+    if(!successful.length){
+      return '';
+    }
+
+    const context={
+      source:'Connected QuickBooks Online sandbox company',
+      generated_at:new Date().toISOString(),
+      accounts:[],
+      purchases:[],
+      invoices:[],
+      payments:[]
+    };
+
+    for(const result of successful){
+      const mode=result?.mode;
+      const qr=result?.data?.QueryResponse || {};
+
+      if(mode==='accounts'){
+        context.accounts=(qr.Account || []).slice(0,100).map(qbCompactAccount);
+      }else if(mode==='expenses' || mode==='purchases'){
+        context.purchases=(qr.Purchase || []).slice(0,100).map(qbCompactPurchase);
+      }else if(mode==='invoices'){
+        context.invoices=(qr.Invoice || []).slice(0,100).map(qbCompactInvoice);
+      }else if(mode==='payments'){
+        context.payments=(qr.Payment || []).slice(0,100).map(qbCompactPayment);
+      }
+    }
+
+    return `
+
+CONNECTED QUICKBOOKS CONTEXT
+The following JSON comes from the signed-in user's connected QuickBooks company. Treat it as private business data supplied for this request. Use only values present here. Do not invent missing data.
+
+${JSON.stringify(context)}
+
+END CONNECTED QUICKBOOKS CONTEXT`;
+  }catch(err){
+    console.warn('QuickBooks accounting context unavailable:',err);
+    return '';
+  }
+}
+
 async function callAI(message){
   const agent=activeAgent;
 
@@ -4536,9 +4660,30 @@ async function callAI(message){
     content:m.content
   }));
 
+  const currentContent=await buildCurrentUserContent(message);
+
+  if(agent==='accounting'){
+    const qbContext=await buildQuickBooksAccountingContext(message);
+
+    if(qbContext){
+      if(Array.isArray(currentContent)){
+        const firstText=currentContent.find(block=>block?.type==='text');
+
+        if(firstText){
+          firstText.text=String(firstText.text || '') + qbContext;
+        }else{
+          currentContent.unshift({
+            type:'text',
+            text:message + qbContext
+          });
+        }
+      }
+    }
+  }
+
   apiMessages[apiMessages.length-1]={
     role:'user',
-    content:await buildCurrentUserContent(message)
+    content:currentContent
   };
 
   const {data:{session}}=sb
