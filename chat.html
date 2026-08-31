@@ -5397,17 +5397,15 @@ function shouldRouteToAccounting(message){
 }
 
 async function sendMessage(){
-  const draftText=String(input?.value || '').trim();
+  let msg=chatInput.value.trim();
+  if(!msg||isLoading)return;
 
   if(
     activeAgent!=='accounting' &&
-    shouldRouteToAccounting(draftText)
+    shouldRouteToAccounting(msg)
   ){
     selectAgent('accounting');
   }
-
-  let msg=chatInput.value.trim();
-  if(!msg||isLoading)return;
 
   if(currentUser){
     const currentCredits=parseInt(document.getElementById('creditsBtn')?.textContent||'',10);
