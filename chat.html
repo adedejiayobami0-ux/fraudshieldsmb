@@ -4677,14 +4677,27 @@ async function callAI(message){
             text:message + qbContext
           });
         }
+      }else{
+        apiMessages[apiMessages.length-1]={
+          role:'user',
+          content:String(currentContent || message) + qbContext
+        };
       }
     }
   }
 
-  apiMessages[apiMessages.length-1]={
-    role:'user',
-    content:currentContent
-  };
+  if(
+    !(
+      agent==='accounting' &&
+      typeof apiMessages[apiMessages.length-1]?.content==='string' &&
+      apiMessages[apiMessages.length-1].content.includes('CONNECTED QUICKBOOKS CONTEXT')
+    )
+  ){
+    apiMessages[apiMessages.length-1]={
+      role:'user',
+      content:currentContent
+    };
+  }
 
   const {data:{session}}=sb
     ? await sb.auth.getSession()
