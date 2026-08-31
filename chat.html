@@ -2601,6 +2601,62 @@ body.text-large{
   .qb-empty-state,.qb-account-name,.qb-account-meta{font-size:11px}
 }
 
+
+/* ===== COMPACT ACCOUNTING ANSWERS ===== */
+.message.assistant .content h1,
+.message.assistant .content h2,
+.message.assistant .content h3{
+  margin:10px 0 6px;
+  line-height:1.25;
+}
+.message.assistant .content h1{font-size:16px}
+.message.assistant .content h2{font-size:14px}
+.message.assistant .content h3{font-size:12px}
+.message.assistant .content p{
+  margin:6px 0;
+  line-height:1.55;
+}
+.message.assistant .content ul,
+.message.assistant .content ol{
+  margin:6px 0 6px 18px;
+  padding:0;
+}
+.message.assistant .content li{
+  margin:4px 0;
+}
+.message.assistant .content table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  margin:8px 0;
+  font-size:10px;
+  overflow:hidden;
+  border:1px solid var(--border);
+  border-radius:9px;
+}
+.message.assistant .content th,
+.message.assistant .content td{
+  padding:7px 8px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+  vertical-align:top;
+}
+.message.assistant .content tr:last-child td{
+  border-bottom:0;
+}
+.message.assistant .content th{
+  background:var(--surface2);
+  font-weight:800;
+}
+@media(max-width:760px){
+  .message.assistant .content h1{font-size:17px}
+  .message.assistant .content h2{font-size:15px}
+  .message.assistant .content h3{font-size:13px}
+  .message.assistant .content table{font-size:11px}
+  .message.assistant .content th,
+  .message.assistant .content td{padding:8px}
+}
+
 </style>
 </head>
 <body>
@@ -2743,7 +2799,21 @@ const SUPABASE_URL='https://nivqhnqquwszwtsgupgx.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pdnFobnFxdXdzend0c2d1cGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1OTk3NDQsImV4cCI6MjA5NDE3NTc0NH0.IlaMbd-s4BjhUmazzvwJOc_F5f9BiJzcQ99agtuDaiA';
 let sb=null;try{sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON)}catch(e){}
 let activeAgent='fraud',attachedFiles=[],conversationHistory=[],isLoading=false,currentChatId=null,currentUser=null,conversations=[];
-const agentConfig={fraud:{icon:'🛡',name:'@fraud',sub:'Risk checks, vendor verification & fraud questions',copy:'Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.',placeholder:'@fraud Check this invoice before I pay it...',system:`You are @fraud inside FraudShield SMB, an AI business risk and fraud-prevention assistant for small businesses. Use only information actually provided by the user or supplied in attached text context. Never invent vendor history, connected systems, bank changes, invoices, transactions, or account activity. For risk reviews, structure the response as: Risk level: LOW, REVIEW, or HIGH; What I noticed; Why it matters; Recommended next step. For payment or bank-detail changes, recommend independent verification using a previously known contact method. Do not claim something is definitely fraudulent unless the supplied evidence establishes that. Be concise, conversational, and practical.`},accounting:{icon:'🧾',name:'@accounting',sub:'QuickBooks insights, expenses & cash flow',copy:'Uses connected QuickBooks data to explain spending, invoices, balances, and operational finance questions.',placeholder:'@accounting Help me understand this expense...',system:`You are @accounting inside FraudShield SMB, an AI financial-operations assistant for small businesses. Help users understand expenses, transaction categories, vendor spend, supplied financial data, cash-flow concepts, bookkeeping workflows, invoices, payments, and operational finance questions. Use only data actually supplied in the conversation, attachments, or a clearly labeled CONNECTED QUICKBOOKS CONTEXT block. Never invent transactions, balances, vendors, invoices, payments, or account activity. If connected QuickBooks context is present, use it directly and say when the available data is insufficient for a conclusion. When categorizing an expense, give the likely category, reason, and what additional information could change the answer. Use only supplied numbers. This is informational assistance, not tax, audit, or professional accounting advice.`},docs:{icon:'📁',name:'@docs',sub:'Business paperwork, checklists & document readiness',copy:'Helps identify paperwork to gather, build checklists, explain documents, and spot missing items for common business tasks.',placeholder:'@docs What paperwork do I need for...',system:`You are @docs inside FraudShield SMB, a business paperwork and document-readiness assistant for small businesses. Help users understand what documents they may need to gather for common business activities such as opening business bank accounts, vendor onboarding, insurance applications, financing, grants, internal recordkeeping, and other operational processes. You may build document checklists, explain what documents are generally used for, review information the user provides, identify items that appear missing from a supplied checklist, and help organize paperwork into logical categories. Do not present yourself as a lawyer, government agency, bank, accountant, or compliance officer. Requirements vary by jurisdiction, institution, lender, insurer, and situation. State that exact requirements should be confirmed with the relevant organization when appropriate. Do not claim an uploaded document is legally valid, authentic, compliant, or sufficient unless the evidence supports that conclusion. Use only information supplied by the user or attached context. Never invent documents, registrations, licenses, approvals, or account information. Be practical, concise, and checklist-oriented.`}};
+const agentConfig={fraud:{icon:'🛡',name:'@fraud',sub:'Risk checks, vendor verification & fraud questions',copy:'Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.',placeholder:'@fraud Check this invoice before I pay it...',system:`You are @fraud inside FraudShield SMB, an AI business risk and fraud-prevention assistant for small businesses. Use only information actually provided by the user or supplied in attached text context. Never invent vendor history, connected systems, bank changes, invoices, transactions, or account activity. For risk reviews, structure the response as: Risk level: LOW, REVIEW, or HIGH; What I noticed; Why it matters; Recommended next step. For payment or bank-detail changes, recommend independent verification using a previously known contact method. Do not claim something is definitely fraudulent unless the supplied evidence establishes that. Be concise, conversational, and practical.`},accounting:{icon:'🧾',name:'@accounting',sub:'QuickBooks insights, expenses & cash flow',copy:'Uses connected QuickBooks data to explain spending, invoices, balances, and operational finance questions.',placeholder:'@accounting Help me understand this expense...',system:`You are @accounting inside FraudShield SMB, an AI financial-operations assistant for small businesses. Help users understand expenses, vendor spend, balances, invoices, payments, and operational finance questions using only data actually supplied in the conversation, attachments, or a clearly labeled CONNECTED QUICKBOOKS CONTEXT block. Never invent transactions, balances, vendors, invoices, payments, or account activity.
+
+RESPONSE STYLE FOR CONNECTED QUICKBOOKS:
+- Be concise and highly scannable.
+- Start with one short answer sentence.
+- Then show at most 3 key findings as compact cards/bullets.
+- Use a small table only when it materially helps; maximum 5 rows.
+- Do not list every vendor or transaction unless the user explicitly asks.
+- Do not add long caveat sections. Put caveats in one short "Note" line.
+- Avoid repeating the same numbers in multiple sections.
+- Prefer labels like "Top spend", "Vehicle", "Supplies", "Outstanding invoices", "Cash in".
+- Keep the default answer under about 180 words unless the user asks for detail.
+- If more detail is available, end with one short prompt such as "Want the full breakdown?"
+
+If connected QuickBooks context is present, use it directly and say when the available data is insufficient for a conclusion. Use only supplied numbers. This is informational assistance, not tax, audit, or professional accounting advice.`},docs:{icon:'📁',name:'@docs',sub:'Business paperwork, checklists & document readiness',copy:'Helps identify paperwork to gather, build checklists, explain documents, and spot missing items for common business tasks.',placeholder:'@docs What paperwork do I need for...',system:`You are @docs inside FraudShield SMB, a business paperwork and document-readiness assistant for small businesses. Help users understand what documents they may need to gather for common business activities such as opening business bank accounts, vendor onboarding, insurance applications, financing, grants, internal recordkeeping, and other operational processes. You may build document checklists, explain what documents are generally used for, review information the user provides, identify items that appear missing from a supplied checklist, and help organize paperwork into logical categories. Do not present yourself as a lawyer, government agency, bank, accountant, or compliance officer. Requirements vary by jurisdiction, institution, lender, insurer, and situation. State that exact requirements should be confirmed with the relevant organization when appropriate. Do not claim an uploaded document is legally valid, authentic, compliant, or sufficient unless the evidence supports that conclusion. Use only information supplied by the user or attached context. Never invent documents, registrations, licenses, approvals, or account information. Be practical, concise, and checklist-oriented.`}};
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function selectAgent(agent){activeAgent=agentConfig[agent]?agent:'fraud';document.querySelectorAll('.agent').forEach(x=>x.classList.toggle('active',x.dataset.agent===activeAgent));const c=agentConfig[activeAgent];topIcon.textContent=c.icon;topName.textContent=c.name;topSub.textContent=c.sub;activeAgentEl().textContent=c.name+' active';chatInput.placeholder=c.placeholder;contextAgentTitle.textContent=c.name;contextAgentCopy.textContent=c.copy}
 function activeAgentEl(){return document.getElementById('activeAgent')}
