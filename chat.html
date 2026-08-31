@@ -4,15 +4,15 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
-<meta content="#0B0E11" name="theme-color">
+<meta content="#0B0E11" name="theme-color"/>
 <title>FraudShield Workspace</title>
-<meta content="FraudShield Workspace — AI business protection and operations for small businesses." name="description"/>
+<meta content="FraudShield Workspace — AI business protection and operations for small businesses." name="description">
 <link href="/icon-192.png" rel="icon" type="image/png"/>
 <link href="/manifest.json" rel="manifest"/>
 <link href="/icons/icon-192.png" rel="apple-touch-icon"/>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
@@ -1306,8 +1306,38 @@ body.dark .plan-badge-chat.is-pro{
   #planBadge{flex:0 0 auto!important}
 }
 
+
+/* ===== GMAIL INTEGRATION ===== */
+.gmail-integration{align-items:center}
+.gmail-int-copy{min-width:0;flex:1}
+.gmail-connection-text{
+  font-size:8px;
+  color:var(--faint);
+  margin-top:2px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:150px;
+}
+.gmail-connect-btn{
+  border:1px solid var(--border);
+  background:var(--surface3);
+  color:var(--ink);
+  border-radius:7px;
+  padding:6px 8px;
+  font-size:9px;
+  font-weight:700;
+}
+.gmail-connect-btn:hover{border-color:rgba(238,185,62,.35)}
+.gmail-connect-btn.connected{
+  color:var(--green);
+  border-color:rgba(61,214,140,.28);
+  background:rgba(61,214,140,.06);
+}
+.gmail-connect-btn:disabled{opacity:.65;cursor:default}
+
 </style>
-</link></meta></head>
+</meta></head>
 <body>
 <div class="payment-success-toast" id="paymentSuccessToast" style="display:none">
 <div class="payment-success-icon">✓</div>
@@ -1338,7 +1368,14 @@ body.dark .plan-badge-chat.is-pro{
 <div class="chat-area" id="chatArea"><div class="chat-inner"><div class="welcome" id="welcome"><div class="welcome-mark">FS</div><h1>What do you want to check?</h1><p>Use FraudShield for risk checks, finance questions, document review, and business paperwork readiness.</p><div class="starters"><button class="starter" onclick="startPrompt('fraud','@fraud Check this invoice before I pay it.')"><div class="starter-agent">@fraud</div><div class="starter-text">Check this invoice before I pay it.</div></button><button class="starter" onclick="startPrompt('fraud','@fraud What should I verify when a vendor changes bank details?')"><div class="starter-agent">@fraud</div><div class="starter-text">A vendor changed bank details. What should I verify?</div></button><button class="starter" onclick="startPrompt('accounting','@accounting Help me categorize this business expense.')"><div class="starter-agent">@accounting</div><div class="starter-text">Help me categorize a business expense.</div></button><button class="starter" onclick="startPrompt('accounting','@accounting Summarize the financial data I provide.')"><div class="starter-agent">@accounting</div><div class="starter-text">Summarize financial data I provide.</div></button><button class="starter" onclick="startPrompt('docs','@docs I want to open a business bank account. What paperwork should I gather?')"><div class="starter-agent">@docs</div><div class="starter-text">What paperwork should I gather for a business bank account?</div></button><button class="starter" onclick="startPrompt('docs','@docs Build me a checklist for a small-business loan application.')"><div class="starter-agent">@docs</div><div class="starter-text">Build a document checklist for a business loan.</div></button></div></div><div class="messages" id="messages"></div></div></div>
 <div class="composer-wrap"><div class="composer"><div class="attachments" id="attachments"></div><div class="compose-main"><input accept="image/*,.pdf,.txt,.csv,.json" class="file-input" id="fileInput" multiple="" onchange="handleFiles(event)" type="file"/><button class="icon-btn" onclick="document.getElementById('fileInput').click()" title="Attach file">＋</button><textarea class="chat-input" id="chatInput" oninput="autoResize(this)" onkeydown="handleKey(event)" placeholder="@fraud Check this invoice before I pay it..." rows="1"></textarea><button class="icon-btn send" id="sendBtn" onclick="sendMessage()">➤</button></div><div class="compose-bottom"><div class="active-agent" id="activeAgent">@fraud active</div><div class="hint">Enter to send · Shift+Enter for new line</div></div></div></div>
 </section>
-<aside class="context"><div class="context-head">Workspace context</div><div class="context-scroll"><div class="context-section"><div class="context-label">Active specialist</div><div class="context-card"><div class="context-title" id="contextAgentTitle">@fraud</div><div class="context-copy" id="contextAgentCopy">Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.</div></div></div><div class="context-section"><div class="context-label">Integrations</div><div class="integration"><div class="int-icon">✉</div><div class="int-name">Gmail</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">QB</div><div class="int-name">QuickBooks</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">S</div><div class="int-name">Stripe</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><div class="context-section"><div class="context-label">Attached context</div><div class="context-card"><div class="context-title" id="fileCount">No files attached</div><div class="context-copy">Text, CSV, and JSON can be read immediately. Other file types are uploaded securely but need document parsing in the next backend step.</div></div></div><div class="disclaimer">FraudShield provides decision support, not guarantees. Verify high-risk payment changes independently. Accounting responses are informational and are not tax or professional accounting advice.</div></div></aside>
+<aside class="context"><div class="context-head">Workspace context</div><div class="context-scroll"><div class="context-section"><div class="context-label">Active specialist</div><div class="context-card"><div class="context-title" id="contextAgentTitle">@fraud</div><div class="context-copy" id="contextAgentCopy">Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.</div></div></div><div class="context-section"><div class="context-label">Integrations</div><div class="integration"><div class="int-icon">✉</div><div class="int-name">Gmail</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">QB</div><div class="int-name">QuickBooks</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">S</div><div class="int-name">Stripe</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div><div class="integration gmail-integration" id="gmailIntegration">
+<div class="int-icon">✉</div>
+<div class="gmail-int-copy">
+<div class="int-name">Gmail</div>
+<div class="gmail-connection-text" id="gmailConnectionText">Not connected</div>
+</div>
+<button class="gmail-connect-btn" id="gmailConnectBtn" onclick="connectGmail()" type="button">Connect</button>
+</div></div><div class="context-section"><div class="context-label">Attached context</div><div class="context-card"><div class="context-title" id="fileCount">No files attached</div><div class="context-copy">Text, CSV, and JSON can be read immediately. Other file types are uploaded securely but need document parsing in the next backend step.</div></div></div><div class="disclaimer">FraudShield provides decision support, not guarantees. Verify high-risk payment changes independently. Accounting responses are informational and are not tax or professional accounting advice.</div></div></aside>
 </div>
 <div class="pricing-overlay" id="pricingOverlay" onclick="if(event.target===this)closePricing()"><div class="pricing-modal"><div class="pricing-head"><div><div class="pricing-title" id="pricingTitle">FraudShield credits</div><div class="pricing-sub" id="pricingSub">Start with 10 free credits. Top up when you need more, or move to Pro for a larger monthly allowance and future integrations.</div></div><button class="close-modal" onclick="closePricing()">✕</button></div>
 <div class="billing-summary" id="billingSummary" style="display:none">
@@ -1412,10 +1449,12 @@ async function checkAuth(){
     // Load both saved chats AND the user's credit balance.
     await Promise.all([
       loadConversationList(),
-      loadCreditBalance()
+      loadCreditBalance(),
+      loadGmailStatus()
     ]);
 
     await handlePaymentReturn();
+    await handleGmailReturn();
   }else{
     const planBadge=document.getElementById('planBadge');
     if(planBadge) planBadge.style.display='none';
@@ -1598,6 +1637,122 @@ async function handlePaymentReturn(){
   window.history.replaceState({},document.title,cleanUrl);
 
   setTimeout(dismissPaymentToast,6000);
+}
+
+
+async function gmailAuthHeaders(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session?.access_token) throw new Error('Please sign in first.');
+  return {
+    'Content-Type':'application/json',
+    'Authorization':`Bearer ${session.access_token}`
+  };
+}
+
+async function loadGmailStatus(){
+  const textEl=document.getElementById('gmailConnectionText');
+  const btn=document.getElementById('gmailConnectBtn');
+
+  if(!currentUser){
+    if(textEl) textEl.textContent='Sign in to connect';
+    if(btn){
+      btn.textContent='Connect';
+      btn.classList.remove('connected');
+    }
+    return;
+  }
+
+  try{
+    const headers=await gmailAuthHeaders();
+    const res=await fetch(`${SUPABASE_URL}/functions/v1/gmail-status`,{
+      method:'GET',
+      headers
+    });
+    const data=await res.json();
+
+    if(res.ok && data?.connected){
+      if(textEl) textEl.textContent=data.email || 'Connected';
+      if(btn){
+        btn.textContent='Connected';
+        btn.classList.add('connected');
+      }
+    }else{
+      if(textEl) textEl.textContent='Not connected';
+      if(btn){
+        btn.textContent='Connect';
+        btn.classList.remove('connected');
+      }
+    }
+  }catch(err){
+    console.error('Gmail status error:',err);
+    if(textEl) textEl.textContent='Unable to check';
+  }
+}
+
+async function connectGmail(){
+  if(!currentUser){
+    alert('Please sign in before connecting Gmail.');
+    return;
+  }
+
+  const btn=document.getElementById('gmailConnectBtn');
+  const original=btn?.textContent || 'Connect';
+
+  try{
+    if(btn){
+      btn.disabled=true;
+      btn.textContent='Opening…';
+    }
+
+    const headers=await gmailAuthHeaders();
+    const res=await fetch(`${SUPABASE_URL}/functions/v1/gmail-oauth-start`,{
+      method:'POST',
+      headers,
+      body:'{}'
+    });
+
+    const data=await res.json();
+
+    if(!res.ok){
+      throw new Error(data?.error || 'Unable to start Gmail connection.');
+    }
+
+    if(!data?.url){
+      throw new Error('Google authorization URL was not returned.');
+    }
+
+    window.location.href=data.url;
+  }catch(err){
+    console.error('Gmail connect error:',err);
+    alert(`Could not connect Gmail: ${err.message}`);
+    if(btn){
+      btn.disabled=false;
+      btn.textContent=original;
+    }
+  }
+}
+
+async function handleGmailReturn(){
+  const params=new URLSearchParams(window.location.search);
+  const gmail=params.get('gmail');
+
+  if(!gmail) return;
+
+  if(gmail==='connected'){
+    await loadGmailStatus();
+    alert('Gmail connected successfully. @fraud can now use your connected Gmail when we enable email analysis.');
+  }else{
+    const messages={
+      error:'Google connection could not be completed.',
+      missing:'Google returned an incomplete authorization response.',
+      invalid_state:'The Gmail connection request could not be verified. Please try again.',
+      expired:'The Gmail connection request expired. Please try again.'
+    };
+    alert(messages[gmail] || 'Gmail connection could not be completed.');
+  }
+
+  const cleanUrl=window.location.pathname;
+  window.history.replaceState({},document.title,cleanUrl);
 }
 
 async function startCheckout(packageKey){
