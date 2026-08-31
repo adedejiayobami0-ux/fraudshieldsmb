@@ -2797,7 +2797,24 @@ body.text-large{
 <script>
 const SUPABASE_URL='https://nivqhnqquwszwtsgupgx.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pdnFobnFxdXdzend0c2d1cGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1OTk3NDQsImV4cCI6MjA5NDE3NTc0NH0.IlaMbd-s4BjhUmazzvwJOc_F5f9BiJzcQ99agtuDaiA';
-let sb=null;try{sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON)}catch(e){}
+let sb=null;
+try{
+  sb=supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON,
+    {
+      auth:{
+        persistSession:true,
+        autoRefreshToken:true,
+        detectSessionInUrl:true,
+        storage:window.localStorage,
+        storageKey:'fraudshield-auth'
+      }
+    }
+  );
+}catch(e){
+  console.error('Supabase client init failed:',e);
+}
 let activeAgent='fraud',attachedFiles=[],conversationHistory=[],isLoading=false,currentChatId=null,currentUser=null,conversations=[];
 const agentConfig={fraud:{icon:'🛡',name:'@fraud',sub:'Risk checks, vendor verification & fraud questions',copy:'Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.',placeholder:'@fraud Check this invoice before I pay it...',system:`You are @fraud inside FraudShield SMB, an AI business risk and fraud-prevention assistant for small businesses. Use only information actually provided by the user or supplied in attached text context. Never invent vendor history, connected systems, bank changes, invoices, transactions, or account activity. For risk reviews, structure the response as: Risk level: LOW, REVIEW, or HIGH; What I noticed; Why it matters; Recommended next step. For payment or bank-detail changes, recommend independent verification using a previously known contact method. Do not claim something is definitely fraudulent unless the supplied evidence establishes that. Be concise, conversational, and practical.`},accounting:{icon:'🧾',name:'@accounting',sub:'QuickBooks insights, expenses & cash flow',copy:'Uses connected QuickBooks data to explain spending, invoices, balances, and operational finance questions.',placeholder:'@accounting Help me understand this expense...',system:`You are @accounting inside FraudShield SMB, an AI financial-operations assistant for small businesses. Help users understand expenses, vendor spend, balances, invoices, payments, and operational finance questions using only data actually supplied in the conversation, attachments, or a clearly labeled CONNECTED QUICKBOOKS CONTEXT block. Never invent transactions, balances, vendors, invoices, payments, or account activity.
 
@@ -5049,7 +5066,25 @@ window.addEventListener('resize',()=>{
 });
 
 let dark=localStorage.getItem('fs_theme')!=='light';function applyTheme(){document.body.classList.toggle('light',!dark);themeBtn.textContent=dark?'☀ Light':'☾ Dark'}function toggleTheme(){dark=!dark;localStorage.setItem('fs_theme',dark?'dark':'light');applyTheme()}
-applyTheme();selectAgent('fraud');checkAuth();if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+applyTheme();selectAgent('fraud');
+
+if(sb){
+  sb.auth.onAuthStateChange((event,session)=>{
+    currentUser=session?.user || null;
+
+    if(event==='SIGNED_OUT'){
+      currentUser=null;
+    }
+
+    // Keep the UI synchronized after OAuth return, refresh-token rotation,
+    // tab restore, or browser refresh.
+    setTimeout(()=>{
+      checkAuth();
+    },0);
+  });
+}
+
+checkAuth();if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 </script>
 <div class="mobile-history-overlay" id="mobileHistoryOverlay" onclick="closeMobileHistory()"></div>
 <aside class="mobile-history-drawer" id="mobileHistoryDrawer">
