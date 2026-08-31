@@ -2075,19 +2075,42 @@ async function handlePaymentReturn(){
     toast.style.display='flex';
   }
 
-  // Give the Stripe webhook a moment, then refresh billing state.
-  for(const delay of [300,1200,2500]){
+  // Stripe webhooks can arrive a few seconds after checkout returns.
+  // Always reload the authoritative balance from profiles.
+  for(const delay of [250,1000,2500,5000]){
     await new Promise(resolve=>setTimeout(resolve,delay));
     await loadCreditBalance();
   }
 
-  // Clean the Stripe query params without reloading the page.
   const cleanUrl=window.location.pathname;
   window.history.replaceState({},document.title,cleanUrl);
 
   setTimeout(dismissPaymentToast,6000);
 }
 
+
+
+let lastCreditRefreshAt=0;
+
+async function refreshCreditsFromAccount(force=false){
+  if(!currentUser||!sb)return;
+
+  const now=Date.now();
+  if(!force && now-lastCreditRefreshAt<1500)return;
+
+  lastCreditRefreshAt=now;
+  await loadCreditBalance();
+}
+
+window.addEventListener('focus',()=>{
+  refreshCreditsFromAccount();
+});
+
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'){
+    refreshCreditsFromAccount();
+  }
+});
 
 async function gmailAuthHeaders(){
   const {data:{session}}=await sb.auth.getSession();
@@ -2397,8 +2420,8 @@ async function analyzeSelectedGmail(){
     setGmailAnalysisProgress(false);
 
     if(err.code==='INSUFFICIENT_CREDITS'){
-      setCreditBalance(0);
-      renderMessage('ai','You’re out of FraudShield credits. Top up or upgrade to continue.',activeAgent);
+      await loadCreditBalance();
+      renderMessage('ai','Your credit balance may have changed. I refreshed it from your account.',activeAgent);
       openPricing('out');
     }else{
       renderMessage('ai','I could not finish the email analysis: '+err.message,activeAgent);
@@ -3045,7 +3068,11 @@ async function callAIQuiet(hiddenMessage,displayMessage){
   const data=await res.json();
 
   if(data?.fraudshield?.credits_remaining!==undefined){
-    setCreditBalance(data.fraudshield.credits_remaining);
+    const serverBalance=Number(data.fraudshield.credits_remaining);
+    if(Number.isFinite(serverBalance) && serverBalance>=0){
+      setCreditBalance(serverBalance);
+    }
+    setTimeout(()=>refreshCreditsFromAccount(true),700);
   }
 
   const reply=
@@ -3150,7 +3177,11 @@ async function callAI(message){
   const data=await res.json();
 
   if(data?.fraudshield?.credits_remaining!==undefined){
-    setCreditBalance(data.fraudshield.credits_remaining);
+    const serverBalance=Number(data.fraudshield.credits_remaining);
+    if(Number.isFinite(serverBalance) && serverBalance>=0){
+      setCreditBalance(serverBalance);
+    }
+    setTimeout(()=>refreshCreditsFromAccount(true),700);
   }
 
   const reply=
@@ -3214,8 +3245,8 @@ async function sendMessage(){
     removeTyping();
 
     if(e.code==='INSUFFICIENT_CREDITS'){
-      setCreditBalance(0);
-      renderMessage('ai','You’re out of FraudShield credits. Top up or upgrade to continue.',activeAgent);
+      await loadCreditBalance();
+      renderMessage('ai','Your credit balance may have changed. I refreshed it from your account.',activeAgent);
       openPricing('out');
     }else if(e.code==='SIGN_IN_REQUIRED'){
       renderMessage('ai','Sign in to claim your free FraudShield credits and continue.',activeAgent);
