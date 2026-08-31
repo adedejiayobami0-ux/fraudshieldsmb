@@ -1646,6 +1646,33 @@ html,body{
   color:var(--faint);
 }
 
+
+/* ===== QUIET GMAIL ANALYSIS UX ===== */
+.gmail-analysis-progress{
+  display:none;
+  align-items:center;
+  gap:8px;
+  padding:9px 10px;
+  margin-bottom:8px;
+  border:1px solid rgba(238,185,62,.18);
+  border-radius:8px;
+  background:rgba(238,185,62,.05);
+  color:var(--muted);
+  font-size:9px;
+}
+.gmail-analysis-progress.show{display:flex}
+.gmail-analysis-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--gold);
+  animation:gmailPulse .9s ease-in-out infinite alternate;
+}
+@keyframes gmailPulse{
+  from{opacity:.35;transform:scale(.8)}
+  to{opacity:1;transform:scale(1.15)}
+}
+
 </style>
 </head>
 <body>
@@ -1700,6 +1727,9 @@ html,body{
 <span class="gmail-selected-count" id="gmailSelectedCount">0 selected</span>
 <button class="gmail-bulk-btn" disabled="" id="gmailBulkAnalyzeBtn" onclick="analyzeSelectedGmail()" type="button">Analyze selected</button>
 </div>
+</div><div class="gmail-analysis-progress" id="gmailAnalysisProgress">
+<span class="gmail-analysis-dot"></span>
+<span id="gmailAnalysisProgressText">Analyzing selected emails…</span>
 </div><div class="gmail-message-list" id="gmailMessageList">
 <div class="gmail-empty">Loading recent email…</div>
 </div>
@@ -2205,14 +2235,24 @@ ${formatted}`;
 async function analyzeSelectedGmail(){
   const selected=recentGmailMessages.filter(m=>selectedGmailIds.has(m.id));
   if(!selected.length)return;
+  if(isLoading)return;
 
   const btn=document.getElementById('gmailBulkAnalyzeBtn');
-  if(btn){
-    btn.disabled=true;
-    btn.textContent='Analyzing…';
-  }
 
   try{
+    isLoading=true;
+    sendBtn.disabled=true;
+
+    if(btn){
+      btn.disabled=true;
+      btn.textContent='Analyzing…';
+    }
+
+    setGmailAnalysisProgress(
+      true,
+      `Analyzing ${selected.length} selected email${selected.length===1?'':'s'}…`
+    );
+
     selectAgent('fraud');
 
     const emails=[];
@@ -2230,25 +2270,50 @@ async function analyzeSelectedGmail(){
       throw new Error('Could not load the selected emails.');
     }
 
-    chatInput.value=buildBulkGmailPrompt(emails);
-    autoResize(chatInput);
+    const hiddenPrompt=buildBulkGmailPrompt(emails);
+    const displayMessage=
+      emails.length===1
+        ? 'Analyzing 1 selected email…'
+        : `Analyzing ${emails.length} selected emails…`;
 
     selectedGmailIds.clear();
     renderRecentGmail();
 
-    await sendMessage();
+    // Show only the clean status in the conversation.
+    renderMessage('user',displayMessage,'fraud');
+    showTyping();
+
+    const {reply,agent}=await callAIQuiet(hiddenPrompt,displayMessage);
+
+    removeTyping();
+    renderMessage('ai',reply,agent);
+
+    setGmailAnalysisProgress(false);
 
     const section=document.getElementById('recentGmailSection');
     if(section)section.style.display='';
   }catch(err){
     console.error('Bulk Gmail analysis error:',err);
-    alert(`Could not analyze selected emails: ${err.message}`);
+    removeTyping();
+    setGmailAnalysisProgress(false);
+
+    if(err.code==='INSUFFICIENT_CREDITS'){
+      setCreditBalance(0);
+      renderMessage('ai','You’re out of FraudShield credits. Top up or upgrade to continue.',activeAgent);
+      openPricing('out');
+    }else{
+      renderMessage('ai','I could not finish the email analysis: '+err.message,activeAgent);
+    }
   }finally{
+    isLoading=false;
+    sendBtn.disabled=false;
+
     const freshBtn=document.getElementById('gmailBulkAnalyzeBtn');
     if(freshBtn){
       freshBtn.textContent='Analyze selected';
       freshBtn.disabled=selectedGmailIds.size===0;
     }
+
     renderRecentGmail();
   }
 }
@@ -2374,26 +2439,41 @@ async function loadRecentGmail(force=false){
 
 async function analyzeGmailMessage(index){
   const item=recentGmailMessages[index];
-  if(!item?.id)return;
+  if(!item?.id || isLoading)return;
 
   try{
+    isLoading=true;
+    sendBtn.disabled=true;
+
     selectAgent('fraud');
+    setGmailAnalysisProgress(true,'Analyzing email…');
 
     const email=await prepareGmailForAnalysis(item);
-
-    chatInput.value=buildBulkGmailPrompt([email]);
-    autoResize(chatInput);
+    const hiddenPrompt=buildBulkGmailPrompt([email]);
+    const displayMessage=`Analyzing email: ${email.subject || '(No subject)'}…`;
 
     renderRecentGmail();
-    await sendMessage();
+    renderMessage('user',displayMessage,'fraud');
+    showTyping();
+
+    const {reply,agent}=await callAIQuiet(hiddenPrompt,displayMessage);
+
+    removeTyping();
+    renderMessage('ai',reply,agent);
+    setGmailAnalysisProgress(false);
 
     const section=document.getElementById('recentGmailSection');
     if(section)section.style.display='';
   }catch(err){
     console.error('Analyze Gmail error:',err);
     gmailAnalysisStatus[item.id]='error';
+    removeTyping();
+    setGmailAnalysisProgress(false);
     renderRecentGmail();
-    alert(`Could not analyze this email: ${err.message}`);
+    renderMessage('ai','I could not finish the email analysis: '+err.message,activeAgent);
+  }finally{
+    isLoading=false;
+    sendBtn.disabled=false;
   }
 }
 
@@ -2683,6 +2763,111 @@ async function buildCurrentUserContent(message){
   }
 
   return blocks.length===1 ? blocks[0].text : blocks;
+}
+
+
+async function callAIQuiet(hiddenMessage,displayMessage){
+  const agent=activeAgent;
+
+  if(currentUser&&!currentChatId){
+    await createConversation(displayMessage.slice(0,60)||'Email analysis');
+  }
+
+  conversationHistory.push({
+    role:'user',
+    content:displayMessage,
+    agent
+  });
+
+  if(currentUser){
+    await saveMessage('user',displayMessage,agent);
+  }
+
+  const apiMessages=conversationHistory.map(m=>({
+    role:m.role,
+    content:m.content
+  }));
+
+  // Only the AI receives the full Gmail content.
+  // The visible conversation keeps a short, clean status message.
+  apiMessages[apiMessages.length-1]={
+    role:'user',
+    content:hiddenMessage
+  };
+
+  const {data:{session}}=sb
+    ? await sb.auth.getSession()
+    : {data:{session:null}};
+
+  const bearer=session?.access_token||SUPABASE_ANON;
+
+  const res=await fetch(`${SUPABASE_URL}/functions/v1/smooth-endpoint`,{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':`Bearer ${bearer}`
+    },
+    body:JSON.stringify({
+      system:agentConfig[agent].system,
+      messages:apiMessages
+    })
+  });
+
+  if(!res.ok){
+    let errorData=null;
+    let raw='';
+    try{
+      raw=await res.text();
+      errorData=JSON.parse(raw);
+    }catch(e){}
+
+    if(res.status===402||errorData?.code==='INSUFFICIENT_CREDITS'){
+      const err=new Error(errorData?.error||'You are out of FraudShield credits.');
+      err.code='INSUFFICIENT_CREDITS';
+      throw err;
+    }
+
+    if(res.status===401||errorData?.code==='SIGN_IN_REQUIRED'){
+      const err=new Error(errorData?.error||'Sign in to continue.');
+      err.code='SIGN_IN_REQUIRED';
+      throw err;
+    }
+
+    throw new Error(errorData?.error||`Request failed (${res.status})`);
+  }
+
+  const data=await res.json();
+
+  if(data?.fraudshield?.credits_remaining!==undefined){
+    setCreditBalance(data.fraudshield.credits_remaining);
+  }
+
+  const reply=
+    data.content?.find?.(block=>block.type==='text')?.text ||
+    data.content?.[0]?.text ||
+    data.text ||
+    data.message ||
+    'I could not process that request right now.';
+
+  conversationHistory.push({
+    role:'assistant',
+    content:reply,
+    agent
+  });
+
+  if(currentUser){
+    await saveMessage('assistant',reply,agent);
+    await loadConversationList();
+  }
+
+  return {reply,agent};
+}
+
+function setGmailAnalysisProgress(show,text='Analyzing selected emails…'){
+  const box=document.getElementById('gmailAnalysisProgress');
+  const label=document.getElementById('gmailAnalysisProgressText');
+  if(label)label.textContent=text;
+  if(box)box.classList.toggle('show',!!show);
 }
 
 async function callAI(message){
