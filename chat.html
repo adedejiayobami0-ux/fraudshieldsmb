@@ -3651,6 +3651,184 @@ body.text-large{
   .qb-reconnect-notice button{font-size:9px}
 }
 
+
+/* ===== REQUIRED TOTP MFA ===== */
+.mfa-modal-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.68);
+  backdrop-filter:blur(6px);
+}
+.mfa-modal{
+  width:min(440px,100%);
+  max-height:90vh;
+  overflow:auto;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:var(--surface);
+  padding:18px;
+  box-shadow:0 24px 80px rgba(0,0,0,.35);
+}
+.mfa-modal-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:14px;
+}
+.mfa-eyebrow{
+  font-size:8px;
+  font-weight:850;
+  letter-spacing:.09em;
+  color:var(--faint);
+}
+.mfa-modal h2{
+  margin:3px 0 0;
+  font-size:17px;
+  line-height:1.25;
+}
+.mfa-modal h3{
+  margin:8px 0 6px;
+  font-size:15px;
+  text-align:center;
+}
+.mfa-close{
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  font-size:22px;
+  cursor:pointer;
+}
+.mfa-copy{
+  margin:0 0 14px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.55;
+}
+.mfa-qr-wrap{
+  display:flex;
+  justify-content:center;
+  margin:12px 0;
+}
+.mfa-qr{
+  width:190px;
+  height:190px;
+  padding:10px;
+  border-radius:14px;
+  background:#fff;
+}
+.mfa-secret-wrap{
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:9px 10px;
+  margin:10px 0 14px;
+}
+.mfa-secret-wrap span{
+  display:block;
+  font-size:8px;
+  color:var(--faint);
+}
+.mfa-secret-wrap code{
+  display:block;
+  margin-top:4px;
+  word-break:break-all;
+  font-size:9px;
+  color:var(--ink);
+}
+.mfa-label{
+  display:block;
+  margin:0 0 5px;
+  font-size:9px;
+  font-weight:800;
+  color:var(--ink);
+}
+.mfa-code{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:var(--surface2);
+  color:var(--ink);
+  padding:11px 12px;
+  font-size:16px;
+  letter-spacing:.18em;
+  text-align:center;
+  outline:none;
+}
+.mfa-code:focus{
+  border-color:var(--ink);
+}
+.mfa-error{
+  min-height:17px;
+  padding-top:5px;
+  font-size:9px;
+  color:var(--muted);
+}
+.mfa-primary,
+.mfa-secondary{
+  width:100%;
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:9px;
+  font-weight:850;
+  cursor:pointer;
+}
+.mfa-primary{
+  border:0;
+  background:var(--ink);
+  color:var(--bg);
+}
+.mfa-secondary{
+  margin-top:7px;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--ink);
+}
+.mfa-primary:disabled,
+.mfa-secondary:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+.mfa-footnote{
+  margin:10px 0 0;
+  color:var(--faint);
+  font-size:8px;
+  line-height:1.45;
+}
+.mfa-enabled-icon{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  margin:6px auto 0;
+  border-radius:999px;
+  border:1px solid var(--border);
+  font-size:18px;
+  font-weight:900;
+}
+@media(max-width:760px){
+  .mfa-copy{font-size:11px}
+  .mfa-label,.mfa-primary,.mfa-secondary{font-size:10px}
+  .mfa-footnote,.mfa-secret-wrap span{font-size:9px}
+  .mfa-secret-wrap code{font-size:10px}
+}
+
+
+.mfa-optional-badge{
+  display:inline-flex;
+  margin-top:6px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:3px 7px;
+  color:var(--muted);
+  font-size:8px;
+  font-weight:800;
+}
+
 </style>
 </head>
 <body>
@@ -3674,7 +3852,7 @@ body.text-large{
 <button class="agent" data-agent="docs" onclick="selectAgent('docs')"><div class="agent-icon">📁</div><div><div class="agent-code">@docs</div><div>Paperwork &amp; readiness</div></div></button>
 </div>
 <div class="side-label">Recent</div><div class="history" id="history"></div>
-<div class="side-bottom"><div id="guestBox"><button class="new-chat" onclick="signInGoogle()" style="margin:0;width:100%;text-align:center">Sign in to save history</button></div><div class="user-row" id="userRow" style="display:none"><div class="avatar" id="userInitial">U</div><div class="user-info"><div class="user-email" id="userEmail"></div><button class="user-action" onclick="signOut()">Sign out</button></div></div></div>
+<div class="side-bottom"><div id="guestBox"><button class="new-chat" onclick="signInGoogle()" style="margin:0;width:100%;text-align:center">Sign in to save history</button></div><div class="user-row" id="userRow" style="display:none"><div class="avatar" id="userInitial">U</div><div class="user-info"><div class="user-email" id="userEmail"></div><button class="user-action" id="mfaSettingsBtn" onclick="openMfaSettings()">Security · MFA</button><button class="user-action" onclick="signOut()">Sign out</button></div></div></div>
 </aside>
 <section class="main">
 <header class="topbar">
@@ -3703,11 +3881,11 @@ body.text-large{
     Disconnect
   </button></div>
 <div class="qb-reconnect-notice" id="quickbooksReconnectNotice" style="display:none">
-  <div>
-    <strong>QuickBooks needs to be reconnected</strong>
-    <span>Your authorization expired or was revoked. Reconnect to continue syncing your business data.</span>
-  </div>
-  <button type="button" onclick="connectQuickBooks()">Reconnect</button>
+<div>
+<strong>QuickBooks needs to be reconnected</strong>
+<span>Your authorization expired or was revoked. Reconnect to continue syncing your business data.</span>
+</div>
+<button onclick="connectQuickBooks()" type="button">Reconnect</button>
 </div>
 <div class="integration-row stripe-row-clean" id="stripeIntegration">
 <div class="stripe-row-main">
@@ -3948,6 +4126,231 @@ If connected QuickBooks, Stripe, or unified business context is present, use it 
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function selectAgent(agent){activeAgent=agentConfig[agent]?agent:'fraud';document.querySelectorAll('.agent').forEach(x=>x.classList.toggle('active',x.dataset.agent===activeAgent));const c=agentConfig[activeAgent];topIcon.textContent=c.icon;topName.textContent=c.name;topSub.textContent=c.sub;activeAgentEl().textContent=c.name+' active';chatInput.placeholder=c.placeholder;contextAgentTitle.textContent=c.name;contextAgentCopy.textContent=c.copy}
 function activeAgentEl(){return document.getElementById('activeAgent')}
+
+// ===== REQUIRED TOTP MFA =====
+let mfaEnrollFactorId=null;
+let mfaChallengeFactorId=null;
+let mfaIsGate=false;
+
+function mfaShowView(view){
+  ['mfaSetupView','mfaChallengeView','mfaEnabledView'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.style.display=id===view?'':'none';
+  });
+}
+
+function openMfaModal(required=false){
+  const modal=document.getElementById('mfaModal');
+  const closeBtn=document.getElementById('mfaCloseBtn');
+
+  mfaIsGate=Boolean(required);
+
+  if(modal)modal.style.display='flex';
+  if(closeBtn)closeBtn.style.display=required?'none':'';
+}
+
+function closeMfaModal(){
+  if(mfaIsGate)return;
+  const modal=document.getElementById('mfaModal');
+  if(modal)modal.style.display='none';
+}
+
+async function getVerifiedTotpFactors(){
+  const {data,error}=await sb.auth.mfa.listFactors();
+
+  if(error)throw error;
+
+  return (data?.totp||[]).filter(
+    factor=>factor?.status==='verified'
+  );
+}
+
+async function beginMfaEnrollment(required=false){
+  openMfaModal(required);
+  mfaShowView('mfaSetupView');
+
+  const errEl=document.getElementById('mfaSetupError');
+  const codeEl=document.getElementById('mfaSetupCode');
+
+  if(errEl)errEl.textContent='';
+  if(codeEl)codeEl.value='';
+
+  const {data,error}=await sb.auth.mfa.enroll({
+    factorType:'totp',
+    friendlyName:'FraudShield authenticator'
+  });
+
+  if(error){
+    if(errEl)errEl.textContent=error.message;
+    return;
+  }
+
+  mfaEnrollFactorId=data.id;
+
+  const qr=document.getElementById('mfaQrImage');
+  const secret=document.getElementById('mfaSecret');
+
+  if(qr){
+    const svg=data?.totp?.qr_code||'';
+    qr.src=`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  }
+
+  if(secret){
+    secret.textContent=data?.totp?.secret||'';
+  }
+
+  setTimeout(()=>codeEl?.focus(),100);
+}
+
+async function verifyMfaEnrollment(){
+  const codeEl=document.getElementById('mfaSetupCode');
+  const errEl=document.getElementById('mfaSetupError');
+  const btn=document.getElementById('mfaEnableBtn');
+
+  const code=String(codeEl?.value||'').replace(/\D/g,'');
+
+  if(code.length!==6){
+    if(errEl)errEl.textContent='Enter the 6-digit code from your authenticator app.';
+    return;
+  }
+
+  if(!mfaEnrollFactorId){
+    if(errEl)errEl.textContent='Start MFA setup again.';
+    return;
+  }
+
+  try{
+    if(btn){
+      btn.disabled=true;
+      btn.textContent='Verifying…';
+    }
+
+    const {data,error}=await sb.auth.mfa.challengeAndVerify({
+      factorId:mfaEnrollFactorId,
+      code
+    });
+
+    if(error)throw error;
+
+    mfaEnrollFactorId=null;
+    mfaIsGate=false;
+
+    const closeBtn=document.getElementById('mfaCloseBtn');
+    if(closeBtn)closeBtn.style.display='';
+
+    mfaShowView('mfaEnabledView');
+
+    // Session is now AAL2; reload protected data with the refreshed JWT.
+    await checkAuth();
+  }catch(err){
+    if(errEl)errEl.textContent=err?.message||'That code could not be verified.';
+  }finally{
+    if(btn){
+      btn.disabled=false;
+      btn.textContent='Enable MFA';
+    }
+  }
+}
+
+async function beginMfaChallenge(factorId,required=false){
+  mfaChallengeFactorId=factorId;
+
+  openMfaModal(required);
+  mfaShowView('mfaChallengeView');
+
+  const errEl=document.getElementById('mfaChallengeError');
+  const codeEl=document.getElementById('mfaChallengeCode');
+
+  if(errEl)errEl.textContent='';
+  if(codeEl){
+    codeEl.value='';
+    setTimeout(()=>codeEl.focus(),100);
+  }
+}
+
+async function verifyMfaChallenge(){
+  const codeEl=document.getElementById('mfaChallengeCode');
+  const errEl=document.getElementById('mfaChallengeError');
+  const btn=document.getElementById('mfaVerifyBtn');
+
+  const code=String(codeEl?.value||'').replace(/\D/g,'');
+
+  if(code.length!==6){
+    if(errEl)errEl.textContent='Enter the 6-digit code from your authenticator app.';
+    return;
+  }
+
+  if(!mfaChallengeFactorId){
+    if(errEl)errEl.textContent='No authenticator factor is available.';
+    return;
+  }
+
+  try{
+    if(btn){
+      btn.disabled=true;
+      btn.textContent='Verifying…';
+    }
+
+    const {data,error}=await sb.auth.mfa.challengeAndVerify({
+      factorId:mfaChallengeFactorId,
+      code
+    });
+
+    if(error)throw error;
+
+    mfaChallengeFactorId=null;
+    mfaIsGate=false;
+
+    const modal=document.getElementById('mfaModal');
+    if(modal)modal.style.display='none';
+
+    await checkAuth();
+  }catch(err){
+    if(errEl)errEl.textContent=err?.message||'That code could not be verified.';
+  }finally{
+    if(btn){
+      btn.disabled=false;
+      btn.textContent='Verify and continue';
+    }
+  }
+}
+
+async function enforceMfaForCurrentSession(){
+  // MFA is optional in the beta. This helper remains for compatibility
+  // but never blocks access to the app.
+  return true;
+}
+
+async function openMfaSettings(){
+  if(!currentUser)return;
+
+  try{
+    const {data:aal,error}=await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+    if(error)throw error;
+
+    const factors=await getVerifiedTotpFactors();
+
+    if(aal?.currentLevel==='aal2' && factors.length){
+      openMfaModal(false);
+      mfaShowView('mfaEnabledView');
+      return;
+    }
+
+    if(factors.length){
+      await beginMfaChallenge(factors[0].id,false);
+    }else{
+      await beginMfaEnrollment(false);
+    }
+  }catch(err){
+    alert(`Could not open MFA settings: ${err.message}`);
+  }
+}
+
+async function startAdditionalMfaEnrollment(){
+  await beginMfaEnrollment(false);
+}
+
+
 async function signInGoogle(){if(!sb)return alert('Sign-in is temporarily unavailable.');await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://www.fraudshieldsmb.com/chat.html'}})}
 async function signOut(){if(sb)await sb.auth.signOut();location.reload()}
 async function checkAuth(){
@@ -3971,7 +4374,7 @@ async function checkAuth(){
     userEmail.textContent=email;
     userInitial.textContent=(email[0]||'U').toUpperCase();
 
-    // Load both saved chats AND the user's credit balance.
+    // MFA is optional. Users can enable it from Security · MFA.
     await Promise.all([
       loadConversationList(),
       loadCreditBalance(),
@@ -3983,7 +4386,6 @@ async function checkAuth(){
     await handlePaymentReturn();
     await handleGmailReturn();
 
-    // Build a quiet cross-source snapshot after the integration status checks finish.
     setTimeout(()=>refreshBusinessPulse(false),450);
   }else{
     const planBadge=document.getElementById('planBadge');
@@ -8729,5 +9131,62 @@ document.addEventListener('keydown',function(event){
 })();
 
 </script>
-</body>
+<div class="mfa-modal-backdrop" id="mfaModal" style="display:none">
+<div aria-labelledby="mfaTitle" aria-modal="true" class="mfa-modal" role="dialog">
+<div class="mfa-modal-head">
+<div>
+<div class="mfa-eyebrow">ACCOUNT SECURITY</div>
+<h2 id="mfaTitle">Multi-factor authentication</h2><span class="mfa-optional-badge">Optional</span>
+</div>
+<button class="mfa-close" id="mfaCloseBtn" onclick="closeMfaModal()" type="button">×</button>
+</div>
+<div id="mfaSetupView" style="display:none">
+<p class="mfa-copy">
+        Add an authenticator app as an optional second step for stronger account security.
+        Scan the QR code using Google Authenticator, Microsoft Authenticator, Authy,
+        1Password, or another TOTP app.
+      </p>
+<div class="mfa-qr-wrap">
+<img alt="Authenticator QR code" class="mfa-qr" id="mfaQrImage"/>
+</div>
+<div class="mfa-secret-wrap">
+<span>Can't scan it?</span>
+<code id="mfaSecret"></code>
+</div>
+<label class="mfa-label" for="mfaSetupCode">Enter the 6-digit code</label>
+<input autocomplete="one-time-code" class="mfa-code" id="mfaSetupCode" inputmode="numeric" maxlength="6" placeholder="000000"/>
+<div class="mfa-error" id="mfaSetupError"></div>
+<button class="mfa-primary" id="mfaEnableBtn" onclick="verifyMfaEnrollment()" type="button">
+        Enable MFA
+      </button>
+<p class="mfa-footnote">
+        MFA is optional. Add a backup authenticator factor after setup if you want additional recovery protection.
+      </p>
+</div>
+<div id="mfaChallengeView" style="display:none">
+<p class="mfa-copy">
+        Enter the 6-digit code from your authenticator app to verify this session.
+      </p>
+<label class="mfa-label" for="mfaChallengeCode">Authentication code</label>
+<input autocomplete="one-time-code" class="mfa-code" id="mfaChallengeCode" inputmode="numeric" maxlength="6" placeholder="000000"/>
+<div class="mfa-error" id="mfaChallengeError"></div>
+<button class="mfa-primary" id="mfaVerifyBtn" onclick="verifyMfaChallenge()" type="button">
+        Verify and continue
+      </button>
+</div>
+<div id="mfaEnabledView" style="display:none">
+<div class="mfa-enabled-icon">✓</div>
+<h3>MFA is enabled</h3>
+<p class="mfa-copy">
+        Multi-factor authentication is enabled for your account.
+      </p>
+<button class="mfa-secondary" onclick="startAdditionalMfaEnrollment()" type="button">
+        Add backup authenticator
+      </button>
+<button class="mfa-secondary" onclick="closeMfaModal()" type="button">
+        Done
+      </button>
+</div>
+</div>
+</div></body>
 </html>
