@@ -3192,6 +3192,39 @@ body.text-large{
   }
 }
 
+
+/* ===== STRIPE CONNECTED WORKSPACE ===== */
+.stripe-row-clean{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px!important;border:1px solid var(--border)!important;background:var(--surface2)!important;border-radius:12px!important}
+.stripe-row-main{display:flex;align-items:center;gap:10px;min-width:0}
+.stripe-logo-clean{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#635bff;color:#fff;font-size:13px;font-weight:800;flex:0 0 auto}
+.stripe-row-copy{min-width:0}.stripe-row-name{font-size:11px;font-weight:800;color:var(--ink)}.stripe-row-status{margin-top:2px;font-size:9px;color:var(--muted)}
+.stripe-connect-clean{border:1px solid var(--border);background:var(--surface);color:var(--ink);border-radius:8px;padding:7px 10px;font-size:9px;font-weight:700}
+.stripe-connect-clean.connected{color:#635bff;border-color:rgba(99,91,255,.22);background:rgba(99,91,255,.06)}
+.stripe-data-section-clean{margin-top:10px}.stripe-card-clean{border:1px solid var(--border);background:var(--surface2);border-radius:12px;padding:12px}
+.stripe-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.stripe-eyebrow{font-size:8px;color:var(--faint);letter-spacing:.08em}
+.stripe-account-name{margin-top:3px;font-size:12px;font-weight:800;color:var(--ink)}.stripe-account-sub{margin-top:3px;font-size:8px;color:var(--muted);line-height:1.45}
+.stripe-live-pill{border:1px solid rgba(99,91,255,.22);background:rgba(99,91,255,.07);color:#635bff;border-radius:999px;padding:4px 7px;font-size:8px;font-weight:800}
+.stripe-search-wrap{margin-top:10px}.stripe-search-input{width:100%;border:1px solid var(--border);background:var(--surface);color:var(--ink);border-radius:8px;padding:8px 9px;font-size:9px;outline:none}
+.stripe-tool-list{display:flex;flex-direction:column;gap:7px;margin-top:8px}.stripe-top-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stripe-top-actions button,.stripe-tool-group-body button{width:100%;border:1px solid var(--border);background:var(--surface);color:var(--ink);border-radius:9px;padding:9px 10px;font-size:9px;font-weight:700}
+.stripe-tool-group{border:1px solid var(--border);background:var(--surface);border-radius:10px;overflow:hidden}
+.stripe-tool-group summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px;cursor:pointer;font-size:10px;font-weight:800;color:var(--ink)}
+.stripe-tool-group summary::-webkit-details-marker{display:none}.stripe-tool-count{min-width:22px;height:22px;display:grid;place-items:center;border:1px solid var(--border);border-radius:999px;background:var(--surface2);color:var(--muted);font-size:8px}
+.stripe-tool-group-body{display:flex;flex-direction:column;gap:6px;padding:8px;border-top:1px solid var(--border);background:var(--surface2)}
+.stripe-data-output{margin-top:9px}.stripe-empty-state{border:1px dashed var(--border);border-radius:9px;padding:10px;text-align:center;font-size:9px;color:var(--faint)}.stripe-soft-note{margin-top:8px}
+.stripe-metric-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.stripe-metric-summary>div{border:1px solid var(--border);background:var(--surface);border-radius:9px;padding:8px;min-width:0}
+.stripe-metric-summary span{display:block;font-size:8px;color:var(--faint)}.stripe-metric-summary strong{display:block;margin-top:3px;font-size:10px;color:var(--ink);overflow-wrap:anywhere}
+.stripe-result-collapse{margin-top:8px;border:1px solid var(--border);background:var(--surface2);border-radius:10px;overflow:hidden}
+.stripe-result-collapse summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;padding:10px;font-size:10px;font-weight:800;color:var(--ink)}
+.stripe-result-collapse summary::-webkit-details-marker{display:none}.stripe-result-collapse-icon{width:22px;height:22px;border:1px solid var(--border);background:var(--surface);border-radius:7px;display:grid;place-items:center;color:var(--muted);font-size:13px;transition:transform .16s ease}
+.stripe-result-collapse[open] .stripe-result-collapse-icon{transform:rotate(45deg)}.stripe-result-collapse-body{border-top:1px solid var(--border);padding:8px}.stripe-result-list{display:flex;flex-direction:column;gap:6px}
+.stripe-item-card{border:1px solid var(--border);background:var(--surface);border-radius:9px;overflow:hidden}.stripe-item-card summary{list-style:none;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:9px 10px;cursor:pointer}
+.stripe-item-card summary::-webkit-details-marker{display:none}.stripe-item-main{min-width:0}.stripe-item-title{font-size:10px;font-weight:800;color:var(--ink)}.stripe-item-meta{margin-top:2px;font-size:8px;color:var(--muted)}
+.stripe-item-amount{font-size:10px;font-weight:800;color:var(--ink);white-space:nowrap}.stripe-item-body{border-top:1px solid var(--border);padding:9px 10px 10px}
+.stripe-item-body>div{display:flex;justify-content:space-between;gap:10px;margin-bottom:5px;font-size:9px;color:var(--muted)}.stripe-item-body strong{color:var(--ink);text-align:right;overflow-wrap:anywhere}
+.stripe-item-body button{width:100%;margin-top:5px;border:1px solid var(--border);background:var(--surface2);color:var(--ink);border-radius:7px;padding:7px 8px;font-size:9px;font-weight:700}
+@media(max-width:760px){.stripe-row-clean{padding:13px!important;border-radius:14px!important}.stripe-logo-clean{width:34px;height:34px;border-radius:10px;font-size:14px}.stripe-row-name{font-size:13px}.stripe-row-status{font-size:11px}.stripe-connect-clean{font-size:11px;padding:8px 11px}.stripe-card-clean{padding:13px;border-radius:14px}.stripe-eyebrow,.stripe-live-pill{font-size:10px}.stripe-account-name{font-size:14px}.stripe-account-sub{font-size:10px}.stripe-search-input{font-size:16px;padding:10px 11px}.stripe-top-actions button,.stripe-tool-group-body button{font-size:12px;padding:11px 12px}.stripe-tool-group summary{padding:12px;font-size:12px}.stripe-metric-summary span{font-size:10px}.stripe-metric-summary strong{font-size:12px}.stripe-result-collapse summary{font-size:12px;padding:12px}.stripe-item-title{font-size:12px}.stripe-item-meta{font-size:10px}.stripe-item-amount{font-size:12px}.stripe-item-body>div{font-size:11px}.stripe-item-body button{font-size:11px;padding:8px}}
+
 </style>
 </head>
 <body>
@@ -3240,7 +3273,16 @@ body.text-large{
 </div>
 </div>
 <button class="qb-connect-clean" id="quickbooksConnectBtn" onclick="connectQuickBooks()" type="button">Connect</button>
-</div><div class="integration"><div class="int-icon">S</div><div class="int-name">Stripe</div><div class="status soon">SOON</div></div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><div class="qb-data-section-clean" id="quickbooksDataSection" style="display:none">
+</div><div class="integration-row stripe-row-clean" id="stripeIntegration">
+<div class="stripe-row-main">
+<div class="stripe-logo-clean">S</div>
+<div class="stripe-row-copy">
+<div class="stripe-row-name">Stripe</div>
+<div class="stripe-row-status" id="stripeConnectionText">Not connected</div>
+</div>
+</div>
+<button class="stripe-connect-clean" id="stripeConnectBtn" onclick="connectStripe()" type="button">Connect</button>
+</div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><div class="qb-data-section-clean" id="quickbooksDataSection" style="display:none">
 <div class="qb-card-clean">
 <div class="qb-card-top">
 <div>
@@ -3290,6 +3332,43 @@ body.text-large{
 </details></div>
 <div class="qb-data-output" id="quickbooksDataOutput">
 <div class="qb-empty-state">Your QuickBooks data will appear here.</div>
+</div>
+</div>
+</div><div class="stripe-data-section-clean" id="stripeDataSection" style="display:none">
+<div class="stripe-card-clean">
+<div class="stripe-card-top">
+<div>
+<div class="stripe-eyebrow">CONNECTED PAYMENTS</div>
+<div class="stripe-account-name" id="stripeAccountName">Stripe account</div>
+<div class="stripe-account-sub" id="stripeAccountSub">Payment activity</div>
+</div>
+<span class="stripe-live-pill" id="stripeLivePill">Live</span>
+</div>
+<div class="stripe-search-wrap">
+<input class="stripe-search-input" id="stripeSearchInput" oninput="filterStripeTools()" placeholder="Search Stripe tools" type="search"/>
+</div>
+<div class="stripe-tool-list">
+<div class="stripe-top-actions">
+<button onclick="loadStripeBalance()" type="button">Balance</button>
+<button onclick="loadStripeRecentPayments()" type="button">Payments</button>
+</div>
+<details class="stripe-tool-group">
+<summary><span>Money movement</span><span class="stripe-tool-count">2</span></summary>
+<div class="stripe-tool-group-body">
+<button onclick="loadStripeRefunds()" type="button">Refunds</button>
+<button onclick="loadStripePaymentIntents()" type="button">Payment intents</button>
+</div>
+</details>
+<details class="stripe-tool-group">
+<summary><span>Needs review</span><span class="stripe-tool-count">2</span></summary>
+<div class="stripe-tool-group-body">
+<button onclick="loadStripeFailedPayments()" type="button">Failed payments</button>
+<button onclick="loadStripeDisputes()" type="button">Disputes</button>
+</div>
+</details>
+</div>
+<div class="stripe-data-output" id="stripeDataOutput">
+<div class="stripe-empty-state">Choose a Stripe view.</div>
 </div>
 </div>
 </div><div class="context-section gmail-recent-section" id="recentGmailSection" style="display:none">
@@ -3431,7 +3510,8 @@ async function checkAuth(){
       loadConversationList(),
       loadCreditBalance(),
       loadGmailStatus(),
-      loadQuickBooksStatus()
+      loadQuickBooksStatus(),
+      loadStripeStatus()
     ]);
 
     await handlePaymentReturn();
@@ -3781,6 +3861,445 @@ async function disconnectGmail(){
   }
 }
 
+
+
+async function stripeAuthHeaders(){
+  let {data:{session}}=await sb.auth.getSession();
+  if(!session?.access_token){
+    const refreshed=await sb.auth.refreshSession();
+    session=refreshed?.data?.session || null;
+  }
+  if(!session?.access_token)throw new Error('Please sign in again.');
+  return {
+    'Content-Type':'application/json',
+    'Authorization':`Bearer ${session.access_token}`,
+    'apikey':SUPABASE_ANON
+  };
+}
+
+async function stripeApi(path,body={}){
+  const res=await fetch(`${SUPABASE_URL}/functions/v1/${path}`,{
+    method:'POST',
+    headers:await stripeAuthHeaders(),
+    body:JSON.stringify(body)
+  });
+  let data={};
+  try{data=await res.json()}catch{}
+  if(!res.ok){
+    const err=new Error(data?.error || 'Stripe request failed.');
+    err.data=data;
+    throw err;
+  }
+  return data;
+}
+
+async function connectStripe(){
+  try{
+    const data=await stripeApi('stripe-connect-start',{});
+    if(!data?.url)throw new Error('Stripe onboarding URL was not returned.');
+    window.location.href=data.url;
+  }catch(err){
+    console.error('Stripe connect error:',err);
+    alert(`Could not connect Stripe: ${err.message}`);
+  }
+}
+
+async function loadStripeStatus(){
+  if(!currentUser)return;
+  const textEl=document.getElementById('stripeConnectionText');
+  const btn=document.getElementById('stripeConnectBtn');
+  const section=document.getElementById('stripeDataSection');
+  const accountName=document.getElementById('stripeAccountName');
+  const accountSub=document.getElementById('stripeAccountSub');
+  const livePill=document.getElementById('stripeLivePill');
+
+  try{
+    const data=await stripeApi('stripe-status',{});
+    if(!data?.connected)throw new Error('Not connected');
+
+    const ready=Boolean(data?.onboarding_complete);
+    if(textEl)textEl.textContent=ready?'Connected':'Finish setup';
+    if(btn){
+      btn.textContent=ready?'Connected':'Continue';
+      btn.classList.toggle('connected',ready);
+    }
+    if(accountName)accountName.textContent=data?.business_name || 'Stripe account';
+    if(accountSub){
+      const states=[];
+      states.push(data?.charges_enabled?'Charges on':'Charges pending');
+      states.push(data?.payouts_enabled?'Payouts on':'Payouts pending');
+      if(Number(data?.requirements_due||0)>0){
+        states.push(`${data.requirements_due} requirement${Number(data.requirements_due)===1?'':'s'} due`);
+      }
+      accountSub.textContent=states.join(' · ');
+    }
+    if(livePill)livePill.textContent=ready?'Live':'Setup';
+    if(section)section.style.display='';
+    if(ready)await loadStripeBalance();
+  }catch(err){
+    if(textEl)textEl.textContent='Not connected';
+    if(btn){btn.textContent='Connect';btn.classList.remove('connected')}
+    if(section)section.style.display='none';
+  }
+}
+
+function stripeMoney(amount,currency='usd'){
+  return new Intl.NumberFormat(undefined,{
+    style:'currency',
+    currency:String(currency||'usd').toUpperCase()
+  }).format(Number(amount||0)/100);
+}
+
+function stripeDate(unix){
+  return unix
+    ? new Date(Number(unix)*1000).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})
+    : 'Unknown date';
+}
+
+function stripeCustomerLabel(item){
+  return item?.billing_details?.name ||
+    item?.receipt_email ||
+    item?.billing_details?.email ||
+    item?.customer ||
+    'Customer';
+}
+
+function renderStripeMetricSummary(metrics){
+  return `<div class="stripe-metric-summary">${
+    metrics.map(m=>`<div><span>${gmailEscape(String(m.label||''))}</span><strong>${gmailEscape(String(m.value||'—'))}</strong></div>`).join('')
+  }</div>`;
+}
+
+function renderStripeCollapsible(title,cards){
+  return `<details class="stripe-result-collapse">
+    <summary><span>${gmailEscape(title)}</span><span class="stripe-result-collapse-icon">+</span></summary>
+    <div class="stripe-result-collapse-body"><div class="stripe-result-list">${cards}</div></div>
+  </details>`;
+}
+
+async function loadStripeBalance(){
+  const output=document.getElementById('stripeDataOutput');
+  if(output)output.textContent='Loading Stripe balance…';
+  try{
+    const data=await stripeApi('stripe-data',{mode:'balance'});
+    const balance=data?.data || {};
+    const available=Array.isArray(balance?.available)?balance.available:[];
+    const pending=Array.isArray(balance?.pending)?balance.pending:[];
+    const availableTotal=available.reduce((s,b)=>s+Number(b?.amount||0),0);
+    const pendingTotal=pending.reduce((s,b)=>s+Number(b?.amount||0),0);
+    const currency=available?.[0]?.currency || pending?.[0]?.currency || 'usd';
+    if(output)output.innerHTML=
+      renderStripeMetricSummary([
+        {label:'Available',value:stripeMoney(availableTotal,currency)},
+        {label:'Pending',value:stripeMoney(pendingTotal,currency)}
+      ]) +
+      `<div class="stripe-empty-state stripe-soft-note">Balance data comes from the connected Stripe account.</div>`;
+  }catch(err){
+    if(output)output.textContent=err.message || 'Unable to load Stripe balance.';
+  }
+}
+
+async function loadStripeRecentPayments(){
+  const output=document.getElementById('stripeDataOutput');
+  if(output)output.textContent='Loading recent payments…';
+  try{
+    const data=await stripeApi('stripe-data',{mode:'payments',limit:50});
+    const charges=Array.isArray(data?.data?.data)?data.data.data:[];
+    const succeeded=charges.filter(c=>c?.paid && c?.status==='succeeded');
+    const total=succeeded.reduce((s,c)=>s+Number(c?.amount||0),0);
+    const currency=succeeded?.[0]?.currency || charges?.[0]?.currency || 'usd';
+
+    const cards=charges.slice(0,20).map(c=>`
+      <details class="stripe-item-card">
+        <summary>
+          <div class="stripe-item-main">
+            <div class="stripe-item-title">${gmailEscape(stripeCustomerLabel(c))}</div>
+            <div class="stripe-item-meta">${gmailEscape(stripeDate(c?.created))} · ${gmailEscape(c?.status||'unknown')}</div>
+          </div>
+          <div class="stripe-item-amount">${stripeMoney(c?.amount,c?.currency)}</div>
+        </summary>
+        <div class="stripe-item-body">
+          <div><span>Status</span><strong>${gmailEscape(c?.status||'Unknown')}</strong></div>
+          <div><span>Email</span><strong>${gmailEscape(c?.receipt_email||c?.billing_details?.email||'None')}</strong></div>
+          <div><span>Description</span><strong>${gmailEscape(c?.description||'None')}</strong></div>
+          <button type="button" onclick="askAboutStripePayment('${gmailEscape(String(c?.id||''))}')">Ask @accounting</button>
+        </div>
+      </details>`).join('');
+
+    if(output)output.innerHTML=
+      renderStripeMetricSummary([
+        {label:'Received',value:stripeMoney(total,currency)},
+        {label:'Successful',value:String(succeeded.length)},
+        {label:'Shown',value:String(charges.length)}
+      ]) +
+      renderStripeCollapsible('Recent payment details',cards || '<div class="stripe-empty-state">No payments found.</div>');
+  }catch(err){
+    if(output)output.textContent=err.message || 'Unable to load Stripe payments.';
+  }
+}
+
+async function loadStripeFailedPayments(){
+  const output=document.getElementById('stripeDataOutput');
+  if(output)output.textContent='Loading failed payments…';
+  try{
+    const data=await stripeApi('stripe-data',{mode:'failed_payments',limit:100});
+    const failed=Array.isArray(data?.data?.data)?data.data.data:[];
+    const cards=failed.slice(0,20).map(c=>`
+      <details class="stripe-item-card">
+        <summary>
+          <div class="stripe-item-main">
+            <div class="stripe-item-title">${gmailEscape(stripeCustomerLabel(c))}</div>
+            <div class="stripe-item-meta">${gmailEscape(stripeDate(c?.created))} · ${gmailEscape(c?.failure_code||'Failed')}</div>
+          </div>
+          <div class="stripe-item-amount">${stripeMoney(c?.amount,c?.currency)}</div>
+        </summary>
+        <div class="stripe-item-body">
+          <div><span>Failure</span><strong>${gmailEscape(c?.failure_message||c?.failure_code||'Unknown')}</strong></div>
+          <button type="button" onclick="askAboutStripePayment('${gmailEscape(String(c?.id||''))}')">Ask @accounting</button>
+        </div>
+      </details>`).join('');
+    if(output)output.innerHTML=
+      renderStripeMetricSummary([{label:'Failed',value:String(failed.length)}]) +
+      renderStripeCollapsible('Failed payment details',cards || '<div class="stripe-empty-state">No failed payments found.</div>');
+  }catch(err){
+    if(output)output.textContent=err.message || 'Unable to load failed payments.';
+  }
+}
+
+async function loadStripeRefunds(){
+  const output=document.getElementById('stripeDataOutput');
+  if(output)output.textContent='Loading refunds…';
+  try{
+    const data=await stripeApi('stripe-data',{mode:'refunds',limit:50});
+    const refunds=Array.isArray(data?.data?.data)?data.data.data:[];
+    const total=refunds.reduce((s,r)=>s+Number(r?.amount||0),0);
+    const currency=refunds?.[0]?.currency || 'usd';
+    const cards=refunds.slice(0,20).map(r=>`
+      <details class="stripe-item-card">
+        <summary>
+          <div class="stripe-item-main">
+            <div class="stripe-item-title">Refund</div>
+            <div class="stripe-item-meta">${gmailEscape(stripeDate(r?.created))} · ${gmailEscape(r?.status||'unknown')}</div>
+          </div>
+          <div class="stripe-item-amount">${stripeMoney(r?.amount,r?.currency)}</div>
+        </summary>
+        <div class="stripe-item-body">
+          <div><span>Reason</span><strong>${gmailEscape(r?.reason||'Not specified')}</strong></div>
+          <div><span>Charge</span><strong>${gmailEscape(String(r?.charge||'Unknown'))}</strong></div>
+        </div>
+      </details>`).join('');
+    if(output)output.innerHTML=
+      renderStripeMetricSummary([
+        {label:'Refunded',value:stripeMoney(total,currency)},
+        {label:'Refunds',value:String(refunds.length)}
+      ]) +
+      renderStripeCollapsible('Refund details',cards || '<div class="stripe-empty-state">No refunds found.</div>');
+  }catch(err){
+    if(output)output.textContent=err.message || 'Unable to load refunds.';
+  }
+}
+
+async function loadStripeDisputes(){
+  const output=document.getElementById('stripeDataOutput');
+  if(output)output.textContent='Loading disputes…';
+  try{
+    const data=await stripeApi('stripe-data',{mode:'disputes',limit:50});
+    const disputes=Array.isArray(data?.data?.data)?data.data.data:[];
+    const open=disputes.filter(d=>!['won','lost'].includes(String(d?.status||'').toLowerCase()));
+    const cards=disputes.slice(0,20).map(d=>`
+      <details class="stripe-item-card">
+        <summary>
+          <div class="stripe-item-main">
+            <div class="stripe-item-title">${gmailEscape(d?.reason||'Dispute')}</div>
+            <div class="stripe-item-meta">${gmailEscape(stripeDate(d?.created))} · ${gmailEscape(d?.status||'unknown')}</div>
+          </div>
+          <div class="stripe-item-amount">${stripeMoney(d?.amount,d?.currency)}</div>
+        </summary>
+        <div class="stripe-item-body">
+          <div><span>Status</span><strong>${gmailEscape(d?.status||'Unknown')}</strong></div>
+          <div><span>Reason</span><strong>${gmailEscape(d?.reason||'Unknown')}</strong></div>
+        </div>
+      </details>`).join('');
+    if(output)output.innerHTML=
+      renderStripeMetricSummary([
+        {label:'Open',value:String(open.length)},
+        {label:'Total disputes',value:String(disputes.length)}
+      ]) +
+      renderStripeCollapsible('Dispute details',cards || '<div class="stripe-empty-state">No disputes found.</div>');
+  }catch(err){
+    if(output)output.textContent=err.message || 'Unable to load disputes.';
+  }
+}
+
+async function loadStripePaymentIntents(){
+  const output=document.getElementById('stripeDataOutput');
+  if(output)output.textContent='Loading payment intents…';
+  try{
+    const data=await stripeApi('stripe-data',{mode:'payment_intents',limit:50});
+    const intents=Array.isArray(data?.data?.data)?data.data.data:[];
+    const cards=intents.slice(0,20).map(pi=>`
+      <details class="stripe-item-card">
+        <summary>
+          <div class="stripe-item-main">
+            <div class="stripe-item-title">${gmailEscape(pi?.description||'Payment intent')}</div>
+            <div class="stripe-item-meta">${gmailEscape(stripeDate(pi?.created))} · ${gmailEscape(pi?.status||'unknown')}</div>
+          </div>
+          <div class="stripe-item-amount">${stripeMoney(pi?.amount,pi?.currency)}</div>
+        </summary>
+        <div class="stripe-item-body">
+          <div><span>Status</span><strong>${gmailEscape(pi?.status||'Unknown')}</strong></div>
+          <div><span>Customer</span><strong>${gmailEscape(String(pi?.customer||'None'))}</strong></div>
+        </div>
+      </details>`).join('');
+    if(output)output.innerHTML=
+      renderStripeMetricSummary([{label:'Payment intents',value:String(intents.length)}]) +
+      renderStripeCollapsible('Payment intent details',cards || '<div class="stripe-empty-state">No payment intents found.</div>');
+  }catch(err){
+    if(output)output.textContent=err.message || 'Unable to load payment intents.';
+  }
+}
+
+function askAboutStripePayment(paymentId){
+  selectAgent('accounting');
+  if(chatInput){
+    chatInput.value=`Review Stripe payment ${paymentId}. Summarize the payment, status, and anything I should pay attention to.`;
+    chatInput.focus();
+  }
+}
+
+function filterStripeTools(){
+  const query=String(document.getElementById('stripeSearchInput')?.value||'').trim().toLowerCase();
+
+  document.querySelectorAll('.stripe-tool-group').forEach(group=>{
+    const buttons=[...group.querySelectorAll('button')];
+    const matches=buttons.filter(btn=>String(btn.textContent||'').toLowerCase().includes(query));
+
+    if(!query){
+      group.style.display='';
+      buttons.forEach(btn=>btn.style.display='');
+      return;
+    }
+
+    group.style.display=matches.length?'':'none';
+
+    if(matches.length){
+      group.open=true;
+      buttons.forEach(btn=>{
+        btn.style.display=String(btn.textContent||'').toLowerCase().includes(query)?'':'none';
+      });
+    }
+  });
+
+  document.querySelectorAll('.stripe-top-actions button').forEach(btn=>{
+    btn.style.display=!query || String(btn.textContent||'').toLowerCase().includes(query)?'':'none';
+  });
+}
+
+function compactStripeCharge(c){
+  return {
+    id:c?.id||null,
+    created:c?.created||null,
+    amount:c?.amount??null,
+    currency:c?.currency||null,
+    paid:c?.paid??null,
+    status:c?.status||null,
+    failure_code:c?.failure_code||null,
+    failure_message:c?.failure_message||null,
+    customer:c?.customer||null,
+    email:c?.billing_details?.email||c?.receipt_email||null,
+    name:c?.billing_details?.name||null,
+    description:c?.description||null,
+    refunded:c?.refunded??null
+  };
+}
+
+function compactStripeRefund(r){
+  return {
+    id:r?.id||null,
+    created:r?.created||null,
+    amount:r?.amount??null,
+    currency:r?.currency||null,
+    status:r?.status||null,
+    reason:r?.reason||null,
+    charge:r?.charge||null
+  };
+}
+
+function compactStripeDispute(d){
+  return {
+    id:d?.id||null,
+    created:d?.created||null,
+    amount:d?.amount??null,
+    currency:d?.currency||null,
+    status:d?.status||null,
+    reason:d?.reason||null,
+    charge:d?.charge||null
+  };
+}
+
+async function buildStripeAccountingContext(message){
+  if(activeAgent!=='accounting' || !currentUser)return '';
+
+  const text=String(message||'').toLowerCase();
+  const stripeIntent=/stripe|payment|payments|refund|refunds|dispute|disputes|charge|charges|failed payment|balance|payout|revenue|money in|cash in/i.test(text);
+  if(!stripeIntent)return '';
+
+  try{
+    const requests=[];
+    if(/refund/.test(text))requests.push(stripeApi('stripe-data',{mode:'refunds',limit:50}));
+    if(/dispute|chargeback/.test(text))requests.push(stripeApi('stripe-data',{mode:'disputes',limit:50}));
+    if(/fail/.test(text))requests.push(stripeApi('stripe-data',{mode:'failed_payments',limit:100}));
+    if(/balance|available|pending/.test(text))requests.push(stripeApi('stripe-data',{mode:'balance'}));
+
+    if(!requests.length){
+      requests.push(
+        stripeApi('stripe-data',{mode:'payments',limit:50}),
+        stripeApi('stripe-data',{mode:'refunds',limit:25}),
+        stripeApi('stripe-data',{mode:'disputes',limit:25})
+      );
+    }
+
+    const settled=await Promise.allSettled(requests);
+    const context={
+      source:'Connected Stripe account',
+      generated_at:new Date().toISOString(),
+      payments:[],
+      refunds:[],
+      disputes:[],
+      balance:null
+    };
+
+    for(const item of settled){
+      if(item.status!=='fulfilled')continue;
+      const result=item.value;
+
+      if(result?.mode==='payments' || result?.mode==='failed_payments'){
+        context.payments=(Array.isArray(result?.data?.data)?result.data.data:[]).slice(0,50).map(compactStripeCharge);
+      }
+      if(result?.mode==='refunds'){
+        context.refunds=(Array.isArray(result?.data?.data)?result.data.data:[]).slice(0,25).map(compactStripeRefund);
+      }
+      if(result?.mode==='disputes'){
+        context.disputes=(Array.isArray(result?.data?.data)?result.data.data:[]).slice(0,25).map(compactStripeDispute);
+      }
+      if(result?.mode==='balance'){
+        context.balance=result?.data||null;
+      }
+    }
+
+    return `
+
+CONNECTED STRIPE CONTEXT
+The following JSON comes from the signed-in user's connected Stripe account. Treat it as private business data supplied for this request. Stripe amount values are in the smallest currency unit (for USD, cents). Use only values present here.
+
+${JSON.stringify(context)}
+
+END CONNECTED STRIPE CONTEXT`;
+  }catch(err){
+    console.warn('Stripe accounting context unavailable:',err);
+    return '';
+  }
+}
 
 async function quickBooksAuthHeaders(){
   let {
@@ -6273,24 +6792,33 @@ async function callAI(message){
   const currentContent=await buildCurrentUserContent(message);
 
   if(agent==='accounting'){
-    const qbContext=await buildQuickBooksAccountingContext(message);
+    const [qbContext,stripeContext]=await Promise.all([
+      buildQuickBooksAccountingContext(message),
+      buildStripeAccountingContext(message)
+    ]);
 
-    if(qbContext){
+    const connectedContext=
+      String(qbContext || '') +
+      String(stripeContext || '');
+
+    if(connectedContext){
       if(Array.isArray(currentContent)){
         const firstText=currentContent.find(block=>block?.type==='text');
 
         if(firstText){
-          firstText.text=String(firstText.text || '') + qbContext;
+          firstText.text=
+            String(firstText.text || '') +
+            connectedContext;
         }else{
           currentContent.unshift({
             type:'text',
-            text:message + qbContext
+            text:message + connectedContext
           });
         }
       }else{
         apiMessages[apiMessages.length-1]={
           role:'user',
-          content:String(currentContent || message) + qbContext
+          content:String(currentContent || message) + connectedContext
         };
       }
     }
@@ -6300,7 +6828,10 @@ async function callAI(message){
     !(
       agent==='accounting' &&
       typeof apiMessages[apiMessages.length-1]?.content==='string' &&
-      apiMessages[apiMessages.length-1].content.includes('CONNECTED QUICKBOOKS CONTEXT')
+      (
+        apiMessages[apiMessages.length-1].content.includes('CONNECTED QUICKBOOKS CONTEXT') ||
+        apiMessages[apiMessages.length-1].content.includes('CONNECTED STRIPE CONTEXT')
+      )
     )
   ){
     apiMessages[apiMessages.length-1]={
@@ -6386,7 +6917,7 @@ function shouldRouteToAccounting(message){
 
   if(!text)return false;
 
-  return /(^|\b)(quickbooks|invoice|invoices|outstanding invoice|receivable|accounts receivable|accounts payable|expense|expenses|spend|spending|vendor spend|payment|payments|paid|cash flow|cashflow|balance|balances|revenue|income|profit|loss|p&l|bookkeeping|accounting)(\b|$)/i.test(text);
+  return /(^|\b)(quickbooks|stripe|invoice|invoices|outstanding invoice|receivable|accounts receivable|accounts payable|expense|expenses|spend|spending|vendor spend|payment|payments|paid|failed payment|refund|refunds|dispute|disputes|chargeback|cash flow|cashflow|balance|balances|revenue|income|profit|loss|p&l|bookkeeping|accounting)(\b|$)/i.test(text);
 }
 
 async function sendMessage(){
@@ -6876,6 +7407,36 @@ document.addEventListener('keydown',function(event){
     window.history.replaceState({},'',next);
   }catch(err){
     console.error('QuickBooks callback handling error:',err);
+  }
+})();
+
+</script>
+<script>
+
+(function handleStripeConnectReturn(){
+  try{
+    const params=new URLSearchParams(window.location.search);
+    const stripe=params.get('stripe');
+    if(!stripe)return;
+
+    if(stripe==='connected'){
+      setTimeout(()=>loadStripeStatus(),300);
+    }
+
+    if(stripe==='refresh'){
+      setTimeout(()=>connectStripe(),300);
+    }
+
+    params.delete('stripe');
+
+    const next=
+      window.location.pathname +
+      (params.toString()?`?${params.toString()}`:'') +
+      window.location.hash;
+
+    window.history.replaceState({},'',next);
+  }catch(err){
+    console.error('Stripe return handling error:',err);
   }
 })();
 
