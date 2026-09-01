@@ -3334,6 +3334,141 @@ body.text-large{
   }
 }
 
+
+/* ===== UNIFIED BUSINESS PULSE ===== */
+.business-pulse-section{
+  border-top:1px solid var(--line);
+  padding-top:13px;
+}
+.business-pulse-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.business-pulse-sub{
+  margin-top:3px;
+  font-size:9px;
+  color:var(--faint);
+}
+.business-pulse-refresh{
+  border:1px solid var(--line);
+  background:transparent;
+  color:var(--muted);
+  border-radius:8px;
+  padding:5px 8px;
+  font-size:9px;
+  font-weight:700;
+  cursor:pointer;
+}
+.business-pulse-refresh:hover{color:var(--ink)}
+.business-pulse-refresh:disabled{opacity:.5;cursor:not-allowed}
+.business-pulse-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+  margin-top:10px;
+}
+.business-pulse-metric{
+  min-width:0;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:8px;
+  background:var(--paper);
+}
+.business-pulse-metric span{
+  display:block;
+  color:var(--faint);
+  font-size:8px;
+  line-height:1.2;
+}
+.business-pulse-metric strong{
+  display:block;
+  margin-top:4px;
+  font-size:12px;
+  color:var(--ink);
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.business-pulse-status{
+  margin-top:9px;
+  font-size:9px;
+  line-height:1.45;
+  color:var(--muted);
+}
+.business-pulse-details{
+  margin-top:8px;
+  border-top:1px solid var(--line);
+  padding-top:8px;
+}
+.business-pulse-details summary{
+  cursor:pointer;
+  font-size:9px;
+  font-weight:800;
+  color:var(--ink);
+  list-style:none;
+}
+.business-pulse-details summary::-webkit-details-marker{display:none}
+.business-pulse-findings{
+  display:grid;
+  gap:6px;
+  margin-top:7px;
+}
+.business-pulse-finding{
+  border:1px solid var(--line);
+  border-radius:9px;
+  padding:7px 8px;
+  background:var(--paper);
+}
+.business-pulse-finding.review{border-left:3px solid currentColor}
+.business-pulse-finding strong{
+  display:block;
+  font-size:9px;
+  line-height:1.35;
+  color:var(--ink);
+}
+.business-pulse-finding span{
+  display:block;
+  margin-top:2px;
+  font-size:8px;
+  line-height:1.4;
+  color:var(--muted);
+}
+.business-pulse-empty{
+  font-size:9px;
+  color:var(--faint);
+  padding:3px 0;
+}
+.business-pulse-actions{
+  display:grid;
+  gap:5px;
+  margin-top:8px;
+}
+.business-pulse-actions button{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:transparent;
+  color:var(--ink);
+  padding:7px 8px;
+  text-align:left;
+  font-size:8px;
+  font-weight:750;
+  cursor:pointer;
+}
+.business-pulse-actions button:hover{background:var(--paper)}
+@media(max-width:760px){
+  .business-pulse-sub,
+  .business-pulse-refresh,
+  .business-pulse-status,
+  .business-pulse-details summary,
+  .business-pulse-actions button,
+  .business-pulse-finding strong{font-size:10px}
+  .business-pulse-finding span,
+  .business-pulse-metric span{font-size:9px}
+  .business-pulse-metric strong{font-size:13px}
+}
+
 </style>
 </head>
 <body>
@@ -3393,7 +3528,40 @@ body.text-large{
 </div>
 </div>
 <button class="stripe-connect-clean" id="stripeConnectBtn" onclick="connectStripe()" type="button">Connect</button>
-<button class="stripe-disconnect-clean" id="stripeDisconnectBtn" onclick="disconnectStripe()" style="display:none" type="button">Disconnect</button></div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><details class="integration-collapse" id="quickbooksDataSectionCollapse"><summary><span class="integration-collapse-title">QuickBooks</span><span class="integration-collapse-badge">Books</span></summary><div class="integration-collapse-body"><div class="qb-data-section-clean" id="quickbooksDataSection" style="display:none">
+<button class="stripe-disconnect-clean" id="stripeDisconnectBtn" onclick="disconnectStripe()" style="display:none" type="button">Disconnect</button></div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><div class="context-section business-pulse-section" id="businessPulseSection">
+<div class="business-pulse-head">
+<div>
+<div class="context-label">Business pulse</div>
+<div class="business-pulse-sub">QuickBooks + Stripe + Gmail</div>
+</div>
+<button class="business-pulse-refresh" id="businessPulseRefreshBtn" onclick="refreshBusinessPulse(true)" type="button">Refresh</button>
+</div>
+<div class="business-pulse-grid">
+<div class="business-pulse-metric">
+<span>Needs review</span>
+<strong id="businessPulseReviewCount">—</strong>
+</div>
+<div class="business-pulse-metric">
+<span>Open invoices</span>
+<strong id="businessPulseInvoiceCount">—</strong>
+</div>
+<div class="business-pulse-metric">
+<span>Stripe received</span>
+<strong id="businessPulseStripeTotal">—</strong>
+</div>
+</div>
+<div class="business-pulse-status" id="businessPulseStatus">Connect your business tools to see a unified view.</div>
+<details class="business-pulse-details" id="businessPulseDetails">
+<summary>What needs attention</summary>
+<div class="business-pulse-findings" id="businessPulseFindings">
+<div class="business-pulse-empty">No review items loaded yet.</div>
+</div>
+</details>
+<div class="business-pulse-actions">
+<button onclick="askBusinessPulse()" type="button">Ask what needs attention</button>
+<button onclick="askBusinessReconciliation()" type="button">Check cross-source mismatches</button>
+</div>
+</div><details class="integration-collapse" id="quickbooksDataSectionCollapse"><summary><span class="integration-collapse-title">QuickBooks</span><span class="integration-collapse-badge">Books</span></summary><div class="integration-collapse-body"><div class="qb-data-section-clean" id="quickbooksDataSection" style="display:none">
 <div class="qb-card-clean">
 <div class="qb-card-top">
 <div>
@@ -3402,7 +3570,6 @@ body.text-large{
 </div>
 <div class="qb-card-status-actions">
 <span class="qb-live-pill">Live</span>
-
 </div>
 </div>
 <div class="qb-search-wrap" id="qbSearchBar">
@@ -3573,7 +3740,7 @@ try{
   console.error('Supabase client init failed:',e);
 }
 let activeAgent='fraud',attachedFiles=[],conversationHistory=[],isLoading=false,currentChatId=null,currentUser=null,conversations=[];
-const agentConfig={fraud:{icon:'🛡',name:'@fraud',sub:'Risk checks, vendor verification & fraud questions',copy:'Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.',placeholder:'@fraud Check this invoice before I pay it...',system:`You are @fraud inside FraudShield SMB, an AI business risk and fraud-prevention assistant for small businesses. Use only information actually provided by the user or supplied in attached text context. Never invent vendor history, connected systems, bank changes, invoices, transactions, or account activity. For risk reviews, structure the response as: Risk level: LOW, REVIEW, or HIGH; What I noticed; Why it matters; Recommended next step. For payment or bank-detail changes, recommend independent verification using a previously known contact method. Do not claim something is definitely fraudulent unless the supplied evidence establishes that. Be concise, conversational, and practical.`},accounting:{icon:'🧾',name:'@accounting',sub:'QuickBooks insights, expenses & cash flow',copy:'Uses connected QuickBooks data to explain spending, invoices, balances, and operational finance questions.',placeholder:'@accounting Help me understand this expense...',system:`You are @accounting inside FraudShield SMB, an AI financial-operations assistant for small businesses. Help users understand expenses, vendor spend, balances, invoices, payments, and operational finance questions using only data actually supplied in the conversation, attachments, or a clearly labeled CONNECTED QUICKBOOKS CONTEXT block. Never invent transactions, balances, vendors, invoices, payments, or account activity.
+const agentConfig={fraud:{icon:'🛡',name:'@fraud',sub:'Risk checks, vendor verification & fraud questions',copy:'Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.',placeholder:'@fraud Check this invoice before I pay it...',system:`You are @fraud inside FraudShield SMB, an AI business risk and fraud-prevention assistant for small businesses. Use only information actually provided by the user or supplied in attached text context. Never invent vendor history, connected systems, bank changes, invoices, transactions, or account activity. For risk reviews, structure the response as: Risk level: LOW, REVIEW, or HIGH; What I noticed; Why it matters; Recommended next step. For payment or bank-detail changes, recommend independent verification using a previously known contact method. Do not claim something is definitely fraudulent unless the supplied evidence establishes that. If a CONNECTED BUSINESS CONTEXT block is present, you may use its QuickBooks, Stripe, and Gmail records together, but treat its findings as review signals rather than proof of fraud or accounting error. Be concise, conversational, and practical.`},accounting:{icon:'🧾',name:'@accounting',sub:'QuickBooks insights, expenses & cash flow',copy:'Uses connected QuickBooks data to explain spending, invoices, balances, and operational finance questions.',placeholder:'@accounting Help me understand this expense...',system:`You are @accounting inside FraudShield SMB, an AI financial-operations assistant for small businesses. Help users understand expenses, vendor spend, balances, invoices, payments, and operational finance questions using only data actually supplied in the conversation, attachments, or clearly labeled CONNECTED QUICKBOOKS CONTEXT, CONNECTED STRIPE CONTEXT, or CONNECTED BUSINESS CONTEXT blocks. Never invent transactions, balances, vendors, invoices, payments, or account activity.
 
 RESPONSE STYLE FOR CONNECTED QUICKBOOKS:
 - Be concise and highly scannable.
@@ -3587,7 +3754,7 @@ RESPONSE STYLE FOR CONNECTED QUICKBOOKS:
 - Keep the default answer under about 180 words unless the user asks for detail.
 - If more detail is available, end with one short prompt such as "Want the full breakdown?"
 
-If connected QuickBooks context is present, use it directly and say when the available data is insufficient for a conclusion. Use only supplied numbers. This is informational assistance, not tax, audit, or professional accounting advice.`},docs:{icon:'📁',name:'@docs',sub:'Business paperwork, checklists & document readiness',copy:'Helps identify paperwork to gather, build checklists, explain documents, and spot missing items for common business tasks.',placeholder:'@docs What paperwork do I need for...',system:`You are @docs inside FraudShield SMB, a business paperwork and document-readiness assistant for small businesses. Help users understand what documents they may need to gather for common business activities such as opening business bank accounts, vendor onboarding, insurance applications, financing, grants, internal recordkeeping, and other operational processes. You may build document checklists, explain what documents are generally used for, review information the user provides, identify items that appear missing from a supplied checklist, and help organize paperwork into logical categories. Do not present yourself as a lawyer, government agency, bank, accountant, or compliance officer. Requirements vary by jurisdiction, institution, lender, insurer, and situation. State that exact requirements should be confirmed with the relevant organization when appropriate. Do not claim an uploaded document is legally valid, authentic, compliant, or sufficient unless the evidence supports that conclusion. Use only information supplied by the user or attached context. Never invent documents, registrations, licenses, approvals, or account information. Be practical, concise, and checklist-oriented.`}};
+If connected QuickBooks, Stripe, or unified business context is present, use it directly and say when the available data is insufficient for a conclusion. For cross-source findings, clearly distinguish exact source records from heuristic review signals. Never label a payment as missing, fraudulent, duplicated, or incorrectly recorded solely because the heuristic did not find a match. Use only supplied numbers. This is informational assistance, not tax, audit, or professional accounting advice.`},docs:{icon:'📁',name:'@docs',sub:'Business paperwork, checklists & document readiness',copy:'Helps identify paperwork to gather, build checklists, explain documents, and spot missing items for common business tasks.',placeholder:'@docs What paperwork do I need for...',system:`You are @docs inside FraudShield SMB, a business paperwork and document-readiness assistant for small businesses. Help users understand what documents they may need to gather for common business activities such as opening business bank accounts, vendor onboarding, insurance applications, financing, grants, internal recordkeeping, and other operational processes. You may build document checklists, explain what documents are generally used for, review information the user provides, identify items that appear missing from a supplied checklist, and help organize paperwork into logical categories. Do not present yourself as a lawyer, government agency, bank, accountant, or compliance officer. Requirements vary by jurisdiction, institution, lender, insurer, and situation. State that exact requirements should be confirmed with the relevant organization when appropriate. Do not claim an uploaded document is legally valid, authentic, compliant, or sufficient unless the evidence supports that conclusion. Use only information supplied by the user or attached context. Never invent documents, registrations, licenses, approvals, or account information. Be practical, concise, and checklist-oriented.`}};
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function selectAgent(agent){activeAgent=agentConfig[agent]?agent:'fraud';document.querySelectorAll('.agent').forEach(x=>x.classList.toggle('active',x.dataset.agent===activeAgent));const c=agentConfig[activeAgent];topIcon.textContent=c.icon;topName.textContent=c.name;topSub.textContent=c.sub;activeAgentEl().textContent=c.name+' active';chatInput.placeholder=c.placeholder;contextAgentTitle.textContent=c.name;contextAgentCopy.textContent=c.copy}
 function activeAgentEl(){return document.getElementById('activeAgent')}
@@ -3625,6 +3792,9 @@ async function checkAuth(){
 
     await handlePaymentReturn();
     await handleGmailReturn();
+
+    // Build a quiet cross-source snapshot after the integration status checks finish.
+    setTimeout(()=>refreshBusinessPulse(false),450);
   }else{
     const planBadge=document.getElementById('planBadge');
     if(planBadge) planBadge.style.display='none';
@@ -4065,6 +4235,8 @@ async function disconnectStripe(){
       collapse.open=false;
     }
 
+    businessSnapshotCache={data:null,ts:0};
+    renderBusinessPulse({connected_sources:{},metrics:{review_count:0,open_invoice_count:0,stripe_received:0},findings:[],generated_at:new Date().toISOString()});
     alert('Stripe disconnected.');
   }catch(err){
     console.error('Stripe disconnect error:',err);
@@ -4603,6 +4775,8 @@ async function disconnectQuickBooks(){
       section.style.display='none';
     }
 
+    businessSnapshotCache={data:null,ts:0};
+    renderBusinessPulse({connected_sources:{},metrics:{review_count:0,open_invoice_count:0,stripe_received:0},findings:[],generated_at:new Date().toISOString()});
     alert('QuickBooks disconnected.');
   }catch(err){
     console.error(
@@ -6888,6 +7062,498 @@ function qbCompactPayment(p){
   };
 }
 
+
+// ===== UNIFIED BUSINESS CONTEXT + PULSE =====
+let businessSnapshotCache={
+  data:null,
+  ts:0
+};
+
+function businessNormalizeName(value){
+  return String(value||'')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g,' ')
+    .trim();
+}
+
+function businessMoney(amount,currency='USD'){
+  const n=Number(amount||0);
+  try{
+    return new Intl.NumberFormat(undefined,{
+      style:'currency',
+      currency:String(currency||'USD').toUpperCase(),
+      maximumFractionDigits:2
+    }).format(n);
+  }catch{
+    return `$${n.toFixed(2)}`;
+  }
+}
+
+function businessDateMs(value){
+  if(!value)return null;
+  if(typeof value==='number'){
+    return value>20000000000 ? value : value*1000;
+  }
+  const parsed=new Date(value).getTime();
+  return Number.isFinite(parsed)?parsed:null;
+}
+
+function businessSameWindow(a,b,days=3){
+  const am=businessDateMs(a);
+  const bm=businessDateMs(b);
+  if(!am || !bm)return false;
+  return Math.abs(am-bm)<=days*86400000;
+}
+
+function businessMedian(values){
+  const nums=values
+    .map(Number)
+    .filter(n=>Number.isFinite(n)&&n>=0)
+    .sort((a,b)=>a-b);
+  if(!nums.length)return 0;
+  const mid=Math.floor(nums.length/2);
+  return nums.length%2 ? nums[mid] : (nums[mid-1]+nums[mid])/2;
+}
+
+function compactBusinessGmail(message){
+  return {
+    id:message?.id||null,
+    from:message?.from||null,
+    subject:message?.subject||null,
+    snippet:message?.snippet||null,
+    date:message?.date||message?.internalDate||null,
+    unread:message?.unread??null
+  };
+}
+
+function makeBusinessFinding(kind,title,detail,action,source='Cross-source'){
+  return {kind,title,detail,action,source};
+}
+
+async function collectBusinessSnapshot(force=false){
+  if(!currentUser)return null;
+
+  if(
+    !force &&
+    businessSnapshotCache.data &&
+    Date.now()-businessSnapshotCache.ts < 120000
+  ){
+    return businessSnapshotCache.data;
+  }
+
+  const requestMap=[
+    ['qb_accounts',()=>quickBooksApi('quickbooks-data',{mode:'accounts'})],
+    ['qb_invoices',()=>quickBooksApi('quickbooks-data',{mode:'invoices'})],
+    ['qb_payments',()=>quickBooksApi('quickbooks-data',{mode:'payments'})],
+    ['qb_expenses',()=>quickBooksApi('quickbooks-data',{mode:'expenses'})],
+    ['stripe_payments',()=>stripeApi('stripe-data',{mode:'payments',limit:100})],
+    ['stripe_failed',()=>stripeApi('stripe-data',{mode:'failed_payments',limit:100})],
+    ['stripe_refunds',()=>stripeApi('stripe-data',{mode:'refunds',limit:50})],
+    ['stripe_disputes',()=>stripeApi('stripe-data',{mode:'disputes',limit:50})],
+    ['stripe_balance',()=>stripeApi('stripe-data',{mode:'balance'})],
+    ['gmail_recent',()=>gmailApi({mode:'list',maxResults:20})]
+  ];
+
+  const settled=await Promise.allSettled(
+    requestMap.map(([,fn])=>fn())
+  );
+
+  const resultByKey={};
+  settled.forEach((result,index)=>{
+    resultByKey[requestMap[index][0]]=
+      result.status==='fulfilled'
+        ? result.value
+        : null;
+  });
+
+  const qbAccountsRaw=
+    resultByKey.qb_accounts?.data?.QueryResponse?.Account || [];
+  const qbInvoicesRaw=
+    resultByKey.qb_invoices?.data?.QueryResponse?.Invoice || [];
+  const qbPaymentsRaw=
+    resultByKey.qb_payments?.data?.QueryResponse?.Payment || [];
+  const qbExpensesRaw=
+    resultByKey.qb_expenses?.data?.QueryResponse?.Purchase || [];
+
+  const stripePaymentsRaw=
+    Array.isArray(resultByKey.stripe_payments?.data?.data)
+      ? resultByKey.stripe_payments.data.data
+      : [];
+  const stripeFailedRaw=
+    Array.isArray(resultByKey.stripe_failed?.data?.data)
+      ? resultByKey.stripe_failed.data.data
+      : [];
+  const stripeRefundsRaw=
+    Array.isArray(resultByKey.stripe_refunds?.data?.data)
+      ? resultByKey.stripe_refunds.data.data
+      : [];
+  const stripeDisputesRaw=
+    Array.isArray(resultByKey.stripe_disputes?.data?.data)
+      ? resultByKey.stripe_disputes.data.data
+      : [];
+
+  const gmailRaw=
+    Array.isArray(resultByKey.gmail_recent?.messages)
+      ? resultByKey.gmail_recent.messages
+      : [];
+
+  const snapshot={
+    generated_at:new Date().toISOString(),
+    connected_sources:{
+      quickbooks:Boolean(
+        resultByKey.qb_accounts ||
+        resultByKey.qb_invoices ||
+        resultByKey.qb_payments ||
+        resultByKey.qb_expenses
+      ),
+      stripe:Boolean(
+        resultByKey.stripe_payments ||
+        resultByKey.stripe_balance ||
+        resultByKey.stripe_refunds ||
+        resultByKey.stripe_disputes
+      ),
+      gmail:Boolean(resultByKey.gmail_recent)
+    },
+    quickbooks:{
+      accounts:qbAccountsRaw.slice(0,100).map(qbCompactAccount),
+      invoices:qbInvoicesRaw.slice(0,100).map(qbCompactInvoice),
+      payments:qbPaymentsRaw.slice(0,100).map(qbCompactPayment),
+      purchases:qbExpensesRaw.slice(0,100).map(qbCompactPurchase)
+    },
+    stripe:{
+      payments:stripePaymentsRaw.slice(0,100).map(compactStripeCharge),
+      failed_payments:stripeFailedRaw.slice(0,100).map(compactStripeCharge),
+      refunds:stripeRefundsRaw.slice(0,50).map(compactStripeRefund),
+      disputes:stripeDisputesRaw.slice(0,50).map(compactStripeDispute),
+      balance:resultByKey.stripe_balance?.data||null
+    },
+    gmail:{
+      recent:gmailRaw.slice(0,20).map(compactBusinessGmail)
+    },
+    findings:[],
+    recommendations:[],
+    metrics:{}
+  };
+
+  const now=Date.now();
+  const openInvoices=snapshot.quickbooks.invoices.filter(i=>Number(i.balance||0)>0);
+  const overdueInvoices=openInvoices.filter(i=>{
+    const due=businessDateMs(i.due_date);
+    return due && due<now;
+  });
+
+  const successfulStripe=snapshot.stripe.payments.filter(p=>
+    p?.paid===true &&
+    !p?.failure_code &&
+    String(p?.status||'').toLowerCase()!=='failed'
+  );
+
+  const stripeReceived=successfulStripe.reduce(
+    (sum,p)=>sum+(Number(p.amount||0)/100),
+    0
+  );
+
+  const openInvoiceTotal=openInvoices.reduce(
+    (sum,i)=>sum+Number(i.balance||0),
+    0
+  );
+
+  if(overdueInvoices.length){
+    const overdueTotal=overdueInvoices.reduce(
+      (sum,i)=>sum+Number(i.balance||0),
+      0
+    );
+
+    snapshot.findings.push(
+      makeBusinessFinding(
+        'review',
+        `${overdueInvoices.length} overdue invoice${overdueInvoices.length===1?'':'s'}`,
+        `${businessMoney(overdueTotal)} remains overdue in QuickBooks.`,
+        'Follow up on the oldest or highest-balance invoice first.',
+        'QuickBooks'
+      )
+    );
+  }
+
+  if(snapshot.stripe.disputes.length){
+    const disputeTotal=snapshot.stripe.disputes.reduce(
+      (sum,d)=>sum+(Number(d.amount||0)/100),
+      0
+    );
+
+    snapshot.findings.push(
+      makeBusinessFinding(
+        'review',
+        `${snapshot.stripe.disputes.length} Stripe dispute${snapshot.stripe.disputes.length===1?'':'s'}`,
+        `${businessMoney(disputeTotal)} is represented in the connected dispute records.`,
+        'Review dispute deadlines and supporting evidence in Stripe.',
+        'Stripe'
+      )
+    );
+  }
+
+  if(snapshot.stripe.failed_payments.length){
+    snapshot.findings.push(
+      makeBusinessFinding(
+        'review',
+        `${snapshot.stripe.failed_payments.length} failed Stripe payment${snapshot.stripe.failed_payments.length===1?'':'s'}`,
+        'Recent failed payment attempts may need customer follow-up or payment-method review.',
+        'Review failure reasons before retrying or contacting customers.',
+        'Stripe'
+      )
+    );
+  }
+
+  // Cross-source reconciliation heuristic:
+  // a successful Stripe charge is "possibly unmatched" only when no QuickBooks
+  // payment has the same amount within a 3-day window. This is a review signal,
+  // never a definitive accounting conclusion.
+  const possibleUnmatchedStripe=successfulStripe.filter(sp=>{
+    const dollars=Number(sp.amount||0)/100;
+
+    return !snapshot.quickbooks.payments.some(qp=>{
+      const sameAmount=Math.abs(Number(qp.total||0)-dollars)<0.01;
+      const closeDate=businessSameWindow(sp.created,qp.date,3);
+      return sameAmount && closeDate;
+    });
+  });
+
+  if(possibleUnmatchedStripe.length){
+    const total=possibleUnmatchedStripe.reduce(
+      (sum,p)=>sum+(Number(p.amount||0)/100),
+      0
+    );
+
+    snapshot.findings.push(
+      makeBusinessFinding(
+        'review',
+        `${possibleUnmatchedStripe.length} Stripe payment${possibleUnmatchedStripe.length===1?'':'s'} may need reconciliation`,
+        `${businessMoney(total)} did not find an exact same-amount QuickBooks payment within ±3 days.`,
+        'Compare the Stripe charges with QuickBooks deposits/payments before treating them as missing.',
+        'Stripe + QuickBooks'
+      )
+    );
+  }
+
+  // Expense-size heuristic based only on the user's connected QuickBooks sample.
+  const purchaseAmounts=snapshot.quickbooks.purchases
+    .map(p=>Number(p.total||0))
+    .filter(n=>n>0);
+
+  const medianExpense=businessMedian(purchaseAmounts);
+
+  const unusuallyLargeExpenses=
+    purchaseAmounts.length>=4 && medianExpense>0
+      ? snapshot.quickbooks.purchases.filter(
+          p=>Number(p.total||0)>=Math.max(medianExpense*2.5,medianExpense+250)
+        )
+      : [];
+
+  if(unusuallyLargeExpenses.length){
+    const top=unusuallyLargeExpenses
+      .slice()
+      .sort((a,b)=>Number(b.total||0)-Number(a.total||0))[0];
+
+    snapshot.findings.push(
+      makeBusinessFinding(
+        'review',
+        `${unusuallyLargeExpenses.length} unusually large expense${unusuallyLargeExpenses.length===1?'':'s'}`,
+        `${top?.vendor||'A recent purchase'} includes ${businessMoney(top?.total||0)}, materially above the recent median expense of ${businessMoney(medianExpense)}.`,
+        'Confirm the vendor, purpose, and supporting receipt before closing the books.',
+        'QuickBooks'
+      )
+    );
+  }
+
+  const financialEmailPattern=
+    /\b(invoice|payment|paid|wire|bank|banking|account change|routing|refund|chargeback|overdue|past due|urgent|immediately|gift card|password|verify|verification)\b/i;
+
+  const reviewEmails=snapshot.gmail.recent.filter(m=>
+    financialEmailPattern.test(
+      `${m.subject||''} ${m.snippet||''}`
+    )
+  );
+
+  if(reviewEmails.length){
+    snapshot.findings.push(
+      makeBusinessFinding(
+        'review',
+        `${reviewEmails.length} recent financial or urgent email${reviewEmails.length===1?'':'s'} to review`,
+        reviewEmails.slice(0,2).map(m=>m.subject||'(No subject)').join(' · '),
+        'For payment-detail or bank-change requests, verify through a previously known contact method.',
+        'Gmail'
+      )
+    );
+  }
+
+  snapshot.recommendations=snapshot.findings
+    .map(f=>f.action)
+    .filter(Boolean)
+    .slice(0,5);
+
+  if(!snapshot.recommendations.length){
+    snapshot.recommendations.push(
+      'No immediate review signal was found in the data currently available. Keep integrations connected and refresh after new activity.'
+    );
+  }
+
+  snapshot.metrics={
+    review_count:snapshot.findings.length,
+    open_invoice_count:openInvoices.length,
+    open_invoice_total:openInvoiceTotal,
+    overdue_invoice_count:overdueInvoices.length,
+    stripe_successful_payment_count:successfulStripe.length,
+    stripe_received:stripeReceived,
+    possible_unmatched_stripe_count:possibleUnmatchedStripe.length,
+    unusual_expense_count:unusuallyLargeExpenses.length,
+    review_email_count:reviewEmails.length
+  };
+
+  businessSnapshotCache={
+    data:snapshot,
+    ts:Date.now()
+  };
+
+  return snapshot;
+}
+
+function renderBusinessPulse(snapshot){
+  const reviewEl=document.getElementById('businessPulseReviewCount');
+  const invoiceEl=document.getElementById('businessPulseInvoiceCount');
+  const stripeEl=document.getElementById('businessPulseStripeTotal');
+  const statusEl=document.getElementById('businessPulseStatus');
+  const findingsEl=document.getElementById('businessPulseFindings');
+  const detailsEl=document.getElementById('businessPulseDetails');
+
+  if(!snapshot){
+    if(statusEl)statusEl.textContent='Unable to load business data.';
+    return;
+  }
+
+  if(reviewEl)reviewEl.textContent=String(snapshot.metrics?.review_count??0);
+  if(invoiceEl)invoiceEl.textContent=String(snapshot.metrics?.open_invoice_count??0);
+  if(stripeEl)stripeEl.textContent=businessMoney(snapshot.metrics?.stripe_received||0);
+
+  const connected=Object.entries(snapshot.connected_sources||{})
+    .filter(([,value])=>value)
+    .map(([key])=>key==='quickbooks'?'QuickBooks':key==='stripe'?'Stripe':'Gmail');
+
+  if(statusEl){
+    statusEl.textContent=connected.length
+      ? `Live view from ${connected.join(', ')} · refreshed ${new Date(snapshot.generated_at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}`
+      : 'Connect Gmail, QuickBooks, or Stripe to build your business pulse.';
+  }
+
+  if(findingsEl){
+    if(!snapshot.findings?.length){
+      findingsEl.innerHTML='<div class="business-pulse-empty">No immediate review signals found in the currently available data.</div>';
+    }else{
+      findingsEl.innerHTML=snapshot.findings.slice(0,6).map(f=>`
+        <div class="business-pulse-finding ${gmailEscape(f.kind||'review')}">
+          <strong>${gmailEscape(f.title||'Review item')}</strong>
+          <span>${gmailEscape(f.detail||'')}</span>
+          <span><b>Next:</b> ${gmailEscape(f.action||'Review the source record.')}</span>
+        </div>
+      `).join('');
+    }
+  }
+
+  if(detailsEl && snapshot.findings?.length){
+    detailsEl.open=false;
+  }
+}
+
+async function refreshBusinessPulse(force=false){
+  if(!currentUser)return;
+
+  const btn=document.getElementById('businessPulseRefreshBtn');
+  const statusEl=document.getElementById('businessPulseStatus');
+
+  try{
+    if(btn){
+      btn.disabled=true;
+      btn.textContent='Refreshing…';
+    }
+    if(statusEl)statusEl.textContent='Checking QuickBooks, Stripe, and Gmail…';
+
+    const snapshot=await collectBusinessSnapshot(force);
+    renderBusinessPulse(snapshot);
+  }catch(err){
+    console.error('Business pulse error:',err);
+    if(statusEl)statusEl.textContent='Could not refresh the unified business view.';
+  }finally{
+    if(btn){
+      btn.disabled=false;
+      btn.textContent='Refresh';
+    }
+  }
+}
+
+function shouldUseUnifiedBusinessContext(message){
+  const text=String(message||'').toLowerCase();
+
+  return /\b(today|needs?\s+attention|what\s+should\s+i\s+review|business\s+summary|business\s+health|across|cross[- ]source|reconcile|reconciliation|mismatch|missing|unmatched|unusual|anomaly|anomalies|suspicious|overall|everything|this\s+week|recent\s+activity|open\s+invoice|overdue|failed\s+payment|dispute|chargeback)\b/i.test(text);
+}
+
+async function buildUnifiedBusinessContext(message,force=false){
+  if(!currentUser || !shouldUseUnifiedBusinessContext(message))return '';
+
+  try{
+    const snapshot=await collectBusinessSnapshot(force);
+
+    if(!snapshot)return '';
+
+    const compact={
+      generated_at:snapshot.generated_at,
+      connected_sources:snapshot.connected_sources,
+      metrics:snapshot.metrics,
+      findings:snapshot.findings.slice(0,8),
+      recommendations:snapshot.recommendations.slice(0,5),
+      quickbooks:{
+        accounts:snapshot.quickbooks.accounts.slice(0,30),
+        invoices:snapshot.quickbooks.invoices.slice(0,40),
+        payments:snapshot.quickbooks.payments.slice(0,40),
+        purchases:snapshot.quickbooks.purchases.slice(0,40)
+      },
+      stripe:{
+        payments:snapshot.stripe.payments.slice(0,40),
+        failed_payments:snapshot.stripe.failed_payments.slice(0,30),
+        refunds:snapshot.stripe.refunds.slice(0,20),
+        disputes:snapshot.stripe.disputes.slice(0,20),
+        balance:snapshot.stripe.balance
+      },
+      gmail:{
+        recent:snapshot.gmail.recent.slice(0,15)
+      }
+    };
+
+    return `
+
+CONNECTED BUSINESS CONTEXT
+This JSON is a private, cross-source snapshot assembled from the signed-in user's connected QuickBooks, Stripe, and Gmail data. Use only the values actually present. "findings" are heuristic review signals, not determinations of fraud, accounting errors, or missing funds. A Stripe-vs-QuickBooks mismatch only means an exact same-amount payment was not found within a 3-day window and must be verified against source records.
+
+${JSON.stringify(compact)}
+
+END CONNECTED BUSINESS CONTEXT`;
+  }catch(err){
+    console.warn('Unified business context unavailable:',err);
+    return '';
+  }
+}
+
+function askBusinessPulse(){
+  selectAgent('accounting');
+  chatInput.value='What needs my attention across my business today? Use my connected QuickBooks, Stripe, and Gmail data. Give me the top priorities and the next action for each.';
+  sendMessage();
+}
+
+function askBusinessReconciliation(){
+  selectAgent('accounting');
+  chatInput.value='Check for cross-source mismatches between Stripe and QuickBooks and flag anything I should reconcile. Treat matches as review signals, not definitive accounting errors.';
+  sendMessage();
+}
+
+
 async function buildQuickBooksAccountingContext(message){
   if(activeAgent!=='accounting' || !currentUser){
     return '';
@@ -6993,49 +7659,53 @@ async function callAI(message){
 
   const currentContent=await buildCurrentUserContent(message);
 
+  let connectedContext='';
+
   if(agent==='accounting'){
-    const [qbContext,stripeContext]=await Promise.all([
-      buildQuickBooksAccountingContext(message),
-      buildStripeAccountingContext(message)
-    ]);
+    const useUnified=shouldUseUnifiedBusinessContext(message);
 
-    const connectedContext=
-      String(qbContext || '') +
-      String(stripeContext || '');
+    if(useUnified){
+      connectedContext=await buildUnifiedBusinessContext(message);
+    }else{
+      const [qbContext,stripeContext]=await Promise.all([
+        buildQuickBooksAccountingContext(message),
+        buildStripeAccountingContext(message)
+      ]);
 
-    if(connectedContext){
-      if(Array.isArray(currentContent)){
-        const firstText=currentContent.find(block=>block?.type==='text');
-
-        if(firstText){
-          firstText.text=
-            String(firstText.text || '') +
-            connectedContext;
-        }else{
-          currentContent.unshift({
-            type:'text',
-            text:message + connectedContext
-          });
-        }
-      }else{
-        apiMessages[apiMessages.length-1]={
-          role:'user',
-          content:String(currentContent || message) + connectedContext
-        };
-      }
+      connectedContext=
+        String(qbContext || '') +
+        String(stripeContext || '');
     }
+  }else if(agent==='fraud' && shouldUseUnifiedBusinessContext(message)){
+    connectedContext=await buildUnifiedBusinessContext(message);
   }
 
-  if(
-    !(
-      agent==='accounting' &&
-      typeof apiMessages[apiMessages.length-1]?.content==='string' &&
-      (
-        apiMessages[apiMessages.length-1].content.includes('CONNECTED QUICKBOOKS CONTEXT') ||
-        apiMessages[apiMessages.length-1].content.includes('CONNECTED STRIPE CONTEXT')
-      )
-    )
-  ){
+  if(connectedContext){
+    if(Array.isArray(currentContent)){
+      const firstText=currentContent.find(block=>block?.type==='text');
+
+      if(firstText){
+        firstText.text=
+          String(firstText.text || '') +
+          connectedContext;
+      }else{
+        currentContent.unshift({
+          type:'text',
+          text:message + connectedContext
+        });
+      }
+
+      apiMessages[apiMessages.length-1]={
+        role:'user',
+        content:currentContent
+      };
+    }else{
+      apiMessages[apiMessages.length-1]={
+        role:'user',
+        content:String(currentContent || message) + connectedContext
+      };
+    }
+  }else{
     apiMessages[apiMessages.length-1]={
       role:'user',
       content:currentContent
@@ -7119,7 +7789,7 @@ function shouldRouteToAccounting(message){
 
   if(!text)return false;
 
-  return /(^|\b)(quickbooks|stripe|invoice|invoices|outstanding invoice|receivable|accounts receivable|accounts payable|expense|expenses|spend|spending|vendor spend|payment|payments|paid|failed payment|refund|refunds|dispute|disputes|chargeback|cash flow|cashflow|balance|balances|revenue|income|profit|loss|p&l|bookkeeping|accounting)(\b|$)/i.test(text);
+  return /(^|\b)(quickbooks|stripe|invoice|invoices|outstanding invoice|receivable|accounts receivable|accounts payable|expense|expenses|spend|spending|vendor spend|payment|payments|paid|failed payment|refund|refunds|dispute|disputes|chargeback|cash flow|cashflow|balance|balances|revenue|income|profit|loss|p&l|bookkeeping|accounting|reconcile|reconciliation|mismatch|unmatched|needs attention|business summary|business health|overall business|what should i review|cross-source|cross source)(\b|$)/i.test(text);
 }
 
 async function sendMessage(){
