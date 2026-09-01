@@ -3275,6 +3275,36 @@ body.text-large{
   .integration-collapse-body{padding:9px}
 }
 
+
+/* ===== STRIPE DISCONNECT ===== */
+.stripe-card-status-actions{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex:0 0 auto;
+}
+.stripe-disconnect-link{
+  border:0;
+  background:transparent;
+  color:var(--faint);
+  padding:4px 0;
+  font-size:8px;
+  font-weight:700;
+  cursor:pointer;
+}
+.stripe-disconnect-link:hover{
+  color:var(--ink);
+}
+.stripe-disconnect-link:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+@media(max-width:760px){
+  .stripe-disconnect-link{
+    font-size:10px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -3392,7 +3422,7 @@ body.text-large{
 <div class="stripe-account-name" id="stripeAccountName">Stripe account</div>
 <div class="stripe-account-sub" id="stripeAccountSub">Payment activity</div>
 </div>
-<span class="stripe-live-pill" id="stripeLivePill">Live</span>
+<div class="stripe-card-status-actions"><span class="stripe-live-pill" id="stripeLivePill">Live</span><button class="stripe-disconnect-link" id="stripeDisconnectBtn" onclick="disconnectStripe()" type="button">Disconnect</button></div>
 </div>
 <div class="stripe-search-wrap">
 <input class="stripe-search-input" id="stripeSearchInput" oninput="filterStripeTools()" placeholder="Search Stripe tools" type="search"/>
@@ -3948,6 +3978,73 @@ async function stripeApi(path,body={}){
     throw err;
   }
   return data;
+}
+
+
+async function disconnectStripe(){
+  if(!currentUser)return;
+
+  const ok=confirm(
+    'Disconnect Stripe from FraudShield? FraudShield will stop reading this Stripe account until you reconnect.'
+  );
+
+  if(!ok)return;
+
+  const btn=document.getElementById('stripeDisconnectBtn');
+
+  try{
+    if(btn){
+      btn.disabled=true;
+      btn.textContent='Disconnecting…';
+    }
+
+    const data=await stripeApi(
+      'stripe-disconnect',
+      {}
+    );
+
+    if(!data?.disconnected){
+      throw new Error(
+        data?.error ||
+        'Unable to disconnect Stripe.'
+      );
+    }
+
+    const textEl=document.getElementById('stripeConnectionText');
+    const connectBtn=document.getElementById('stripeConnectBtn');
+    const section=document.getElementById('stripeDataSection');
+    const collapse=document.getElementById('stripeDataSectionCollapse');
+
+    if(textEl){
+      textEl.textContent='Not connected';
+    }
+
+    if(connectBtn){
+      connectBtn.textContent='Connect';
+      connectBtn.classList.remove('connected');
+    }
+
+    if(section){
+      section.style.display='none';
+    }
+
+    if(collapse){
+      collapse.open=false;
+    }
+
+    alert('Stripe disconnected.');
+  }catch(err){
+    console.error('Stripe disconnect error:',err);
+
+    alert(
+      `Could not disconnect Stripe: ${err.message}`
+    );
+  }finally{
+    if(btn){
+      btn.disabled=false;
+      btn.textContent='Disconnect';
+    }
+  }
 }
 
 async function connectStripe(){
