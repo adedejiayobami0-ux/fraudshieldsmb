@@ -1,21 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    (async function () {
-      try {
-        const sbCheck = supabase.createClient(
-          "https://nivqhnqquwszwtsgupgx.supabase.co",
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pdnFobnFxdXdzend0c2d1cGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1OTk3NDQsImV4cCI6MjA5NDE3NTc0NH0.IlaMbd-s4BjhUmazzvwJOc_F5f9BiJzcQ99agtuDaiA"
-        );
-        const { data: { session } } = await sbCheck.auth.getSession();
-        if (session) window.location.replace("/dashboard");
-      } catch (e) {}
-    })();
-  </script>
-
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9Y43MHPFQN"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9Y43MHPFQN"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
