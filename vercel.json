@@ -3,8 +3,18 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/chat",
+      "destination": "/",
+      "permanent": false
+    },
+    {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "fraudshieldsmb.com" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "fraudshieldsmb.com"
+        }
+      ],
       "destination": "https://www.fraudshieldsmb.com/:path*",
       "permanent": true
     }
