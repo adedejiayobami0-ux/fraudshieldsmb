@@ -3305,6 +3305,35 @@ body.text-large{
   }
 }
 
+
+/* ===== TOP-ROW QUICKBOOKS + STRIPE DISCONNECT ===== */
+.qb-disconnect-clean,
+.stripe-disconnect-clean{
+  border:0;
+  background:transparent;
+  color:var(--faint);
+  padding:5px 0 5px 8px;
+  font-size:8px;
+  font-weight:700;
+  cursor:pointer;
+  flex:0 0 auto;
+}
+.qb-disconnect-clean:hover,
+.stripe-disconnect-clean:hover{
+  color:var(--ink);
+}
+.qb-disconnect-clean:disabled,
+.stripe-disconnect-clean:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+@media(max-width:760px){
+  .qb-disconnect-clean,
+  .stripe-disconnect-clean{
+    font-size:10px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -3353,7 +3382,9 @@ body.text-large{
 </div>
 </div>
 <button class="qb-connect-clean" id="quickbooksConnectBtn" onclick="connectQuickBooks()" type="button">Connect</button>
-</div><div class="integration-row stripe-row-clean" id="stripeIntegration">
+<button class="qb-disconnect-clean" id="quickbooksDisconnectBtn" onclick="disconnectQuickBooks()" style="display:none" type="button">
+    Disconnect
+  </button></div><div class="integration-row stripe-row-clean" id="stripeIntegration">
 <div class="stripe-row-main">
 <div class="stripe-logo-clean">S</div>
 <div class="stripe-row-copy">
@@ -3362,7 +3393,7 @@ body.text-large{
 </div>
 </div>
 <button class="stripe-connect-clean" id="stripeConnectBtn" onclick="connectStripe()" type="button">Connect</button>
-</div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><details class="integration-collapse" id="quickbooksDataSectionCollapse"><summary><span class="integration-collapse-title">QuickBooks</span><span class="integration-collapse-badge">Books</span></summary><div class="integration-collapse-body"><div class="qb-data-section-clean" id="quickbooksDataSection" style="display:none">
+<button class="stripe-disconnect-clean" id="stripeDisconnectBtn" onclick="disconnectStripe()" style="display:none" type="button">Disconnect</button></div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><details class="integration-collapse" id="quickbooksDataSectionCollapse"><summary><span class="integration-collapse-title">QuickBooks</span><span class="integration-collapse-badge">Books</span></summary><div class="integration-collapse-body"><div class="qb-data-section-clean" id="quickbooksDataSection" style="display:none">
 <div class="qb-card-clean">
 <div class="qb-card-top">
 <div>
@@ -3371,9 +3402,7 @@ body.text-large{
 </div>
 <div class="qb-card-status-actions">
 <span class="qb-live-pill">Live</span>
-<button class="qb-disconnect-link" id="quickbooksDisconnectBtn" onclick="disconnectQuickBooks()" type="button">
-    Disconnect
-  </button>
+
 </div>
 </div>
 <div class="qb-search-wrap" id="qbSearchBar">
@@ -3422,7 +3451,7 @@ body.text-large{
 <div class="stripe-account-name" id="stripeAccountName">Stripe account</div>
 <div class="stripe-account-sub" id="stripeAccountSub">Payment activity</div>
 </div>
-<div class="stripe-card-status-actions"><span class="stripe-live-pill" id="stripeLivePill">Live</span><button class="stripe-disconnect-link" id="stripeDisconnectBtn" onclick="disconnectStripe()" type="button">Disconnect</button></div>
+<div class="stripe-card-status-actions"><span class="stripe-live-pill" id="stripeLivePill">Live</span></div>
 </div>
 <div class="stripe-search-wrap">
 <input class="stripe-search-input" id="stripeSearchInput" oninput="filterStripeTools()" placeholder="Search Stripe tools" type="search"/>
@@ -4024,6 +4053,10 @@ async function disconnectStripe(){
       connectBtn.classList.remove('connected');
     }
 
+    if(btn){
+      btn.style.display='none';
+    }
+
     if(section){
       section.style.display='none';
     }
@@ -4077,6 +4110,8 @@ async function loadStripeStatus(){
       btn.textContent=ready?'Connected':'Continue';
       btn.classList.toggle('connected',ready);
     }
+    const disconnectBtn=document.getElementById('stripeDisconnectBtn');
+    if(disconnectBtn)disconnectBtn.style.display='';
     if(accountName)accountName.textContent=data?.business_name || 'Stripe account';
     if(accountSub){
       const states=[];
@@ -4093,6 +4128,8 @@ async function loadStripeStatus(){
   }catch(err){
     if(textEl)textEl.textContent='Not connected';
     if(btn){btn.textContent='Connect';btn.classList.remove('connected')}
+    const disconnectBtn=document.getElementById('stripeDisconnectBtn');
+    if(disconnectBtn)disconnectBtn.style.display='none';
     if(section)section.style.display='none';
   }
 }
@@ -4558,6 +4595,10 @@ async function disconnectQuickBooks(){
       connectBtn.classList.remove('connected');
     }
 
+    if(btn){
+      btn.style.display='none';
+    }
+
     if(section){
       section.style.display='none';
     }
@@ -4631,6 +4672,9 @@ async function loadQuickBooksStatus(){
         btn.classList.add('connected');
       }
 
+      const disconnectBtn=document.getElementById('quickbooksDisconnectBtn');
+      if(disconnectBtn)disconnectBtn.style.display='';
+
       if(section){
         section.style.display='';
       }
@@ -4646,6 +4690,9 @@ async function loadQuickBooksStatus(){
         btn.textContent='Connect';
         btn.classList.remove('connected');
       }
+
+      const disconnectBtn=document.getElementById('quickbooksDisconnectBtn');
+      if(disconnectBtn)disconnectBtn.style.display='none';
 
       if(section){
         section.style.display='none';
