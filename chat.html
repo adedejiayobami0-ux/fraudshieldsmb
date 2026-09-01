@@ -3829,6 +3829,14 @@ body.text-large{
   font-weight:800;
 }
 
+
+.gmail-readonly-note{
+  margin-top:7px;
+  font-size:8px;
+  line-height:1.45;
+  color:var(--faint);
+}
+
 </style>
 </head>
 <body>
@@ -3857,7 +3865,7 @@ body.text-large{
 <section class="main">
 <header class="topbar">
 <button aria-label="Open chat history" class="sidebar-toggle-btn" id="mobileSidebarOpen" onclick="setHistorySidebar(true)" type="button">☰</button>
-<div class="top-left"><div class="top-icon" id="topIcon">🛡</div><div><div class="top-name" id="topName">@fraud</div><div class="top-sub" id="topSub">Risk checks, vendor verification &amp; fraud questions</div></div></div><div class="top-actions"><span class="plan-badge-chat" id="planBadge" style="display:none">Basic</span><button class="small-btn" id="creditsBtn" onclick="openPricing()" style="display:none">10 credits</button><button class="small-btn" id="topUpBtn" onclick="openPricing()" style="display:none">Top up</button><button class="small-btn" id="textSizeBtn" onclick="cycleTextSize()" title="Change text size" type="button">Aa</button><button class="small-btn" id="themeBtn" onclick="toggleTheme()">☀ Light</button><button class="small-btn mobile-context" id="mobileContextOpen" onclick="setContextPanel(true)">Gmail</button><button class="small-btn signin" id="signinTop" onclick="signInGoogle()">Sign in</button></div></header>
+<div class="top-left"><div class="top-icon" id="topIcon">🛡</div><div><div class="top-name" id="topName">@fraud</div><div class="top-sub" id="topSub">Risk checks, vendor verification &amp; fraud questions</div></div></div><div class="top-actions"><span class="plan-badge-chat" id="planBadge" style="display:none">Basic</span><button class="small-btn" id="creditsBtn" onclick="openPricing()" style="display:none">10 credits</button><button class="small-btn" id="topUpBtn" onclick="openPricing()" style="display:none">Top up</button><button class="small-btn" id="textSizeBtn" onclick="cycleTextSize()" title="Change text size" type="button">Aa</button><button class="small-btn" id="themeBtn" onclick="toggleTheme()">☀ Light</button><button class="small-btn mobile-context" id="mobileContextOpen" onclick="setContextPanel(true)">Gmail</button><button class="small-btn signin" id="signinTop" onclick="signInGoogle()">Sign in</button><div class="gmail-readonly-note">Read-only: FraudShield can analyze Gmail messages but cannot delete, trash, send, or modify them.</div></div></header>
 <div class="chat-area" id="chatArea"><div class="chat-inner"><div class="welcome" id="welcome"><div class="welcome-mark">FS</div><h1>What do you want to check?</h1><p>Use FraudShield for risk checks, finance questions, document review, and business paperwork readiness.</p><div class="starters"><button class="starter" onclick="startPrompt('fraud','@fraud Check this invoice before I pay it.')"><div class="starter-agent">@fraud</div><div class="starter-text">Check this invoice before I pay it.</div></button><button class="starter" onclick="startPrompt('fraud','@fraud What should I verify when a vendor changes bank details?')"><div class="starter-agent">@fraud</div><div class="starter-text">A vendor changed bank details. What should I verify?</div></button><button class="starter" onclick="startPrompt('accounting','@accounting Where did most of my money go?')"><div class="starter-agent">@accounting</div><div class="starter-text">Where did most of my money go?</div></button><button class="starter" onclick="startPrompt('accounting','@accounting Which invoices are still outstanding?')"><div class="starter-agent">@accounting</div><div class="starter-text">Which invoices are still outstanding?</div></button><button class="starter" onclick="startPrompt('docs','@docs I want to open a business bank account. What paperwork should I gather?')"><div class="starter-agent">@docs</div><div class="starter-text">What paperwork should I gather for a business bank account?</div></button><button class="starter" onclick="startPrompt('docs','@docs Build me a checklist for a small-business loan application.')"><div class="starter-agent">@docs</div><div class="starter-text">Build a document checklist for a business loan.</div></button></div></div><div class="messages" id="messages"></div></div></div>
 <div class="composer-wrap"><div class="composer"><div class="attachments" id="attachments"></div><div class="compose-main"><input accept="image/*,.pdf,.txt,.csv,.json" class="file-input" id="fileInput" multiple="" onchange="handleFiles(event)" type="file"/><button class="icon-btn" onclick="document.getElementById('fileInput').click()" title="Attach file">＋</button><textarea class="chat-input" id="chatInput" oninput="autoResize(this)" onkeydown="handleKey(event)" placeholder="@fraud Check this invoice before I pay it..." rows="1"></textarea><button class="icon-btn send" id="sendBtn" onclick="sendMessage()">➤</button></div><div class="compose-bottom"><div class="active-agent" id="activeAgent">@fraud active</div><div class="hint">Enter to send · Shift+Enter for new line</div></div></div></div>
 </section>
@@ -4040,7 +4048,7 @@ body.text-large{
 </label>
 <div style="display:flex;align-items:center;gap:7px">
 <span class="gmail-selected-count" id="gmailSelectedCount">0 selected</span>
-<button class="gmail-bulk-btn" disabled="" id="gmailBulkAnalyzeBtn" onclick="analyzeSelectedGmail()" type="button">Analyze selected</button><button class="gmail-trash-btn" disabled="" id="gmailTrashBtn" onclick="openTrashConfirmation()" type="button">Move to Trash</button>
+<button class="gmail-bulk-btn" disabled="" id="gmailBulkAnalyzeBtn" onclick="analyzeSelectedGmail()" type="button">Analyze selected</button>
 </div>
 </div><div class="gmail-analysis-progress" id="gmailAnalysisProgress">
 <span class="gmail-analysis-dot"></span>
@@ -6586,7 +6594,7 @@ async function confirmTrashSelected(){
   }finally{
     const freshBtn=document.getElementById('gmailTrashConfirmBtn');
     if(freshBtn){
-      freshBtn.textContent='Move to Trash';
+      freshBtn.textContent='Read-only';
       freshBtn.disabled=true;
     }
   }
@@ -9047,7 +9055,6 @@ if(document.readyState==='loading'){
 <div class="gmail-trash-title" id="gmailTrashTitle">Move selected emails to Trash?</div>
 <div class="gmail-trash-copy">Review the emails below. Nothing moves until you confirm.</div>
 </div>
-<button class="gmail-trash-close" onclick="closeTrashConfirmation()" type="button">×</button>
 </div>
 <div class="gmail-trash-list" id="gmailTrashList"></div>
 <label class="gmail-trash-confirm-check">
@@ -9055,8 +9062,6 @@ if(document.readyState==='loading'){
 <span>I reviewed this list and want to move all selected emails to Gmail Trash.</span>
 </label>
 <div class="gmail-trash-actions">
-<button class="gmail-trash-cancel" onclick="closeTrashConfirmation()" type="button">Cancel</button>
-<button class="gmail-trash-confirm" disabled="" id="gmailTrashConfirmBtn" onclick="confirmTrashSelected()" type="button">Move to Trash</button>
 </div>
 </div>
 </div><script>
