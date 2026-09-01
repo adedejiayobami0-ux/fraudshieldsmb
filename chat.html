@@ -3225,6 +3225,56 @@ body.text-large{
 .stripe-item-body button{width:100%;margin-top:5px;border:1px solid var(--border);background:var(--surface2);color:var(--ink);border-radius:7px;padding:7px 8px;font-size:9px;font-weight:700}
 @media(max-width:760px){.stripe-row-clean{padding:13px!important;border-radius:14px!important}.stripe-logo-clean{width:34px;height:34px;border-radius:10px;font-size:14px}.stripe-row-name{font-size:13px}.stripe-row-status{font-size:11px}.stripe-connect-clean{font-size:11px;padding:8px 11px}.stripe-card-clean{padding:13px;border-radius:14px}.stripe-eyebrow,.stripe-live-pill{font-size:10px}.stripe-account-name{font-size:14px}.stripe-account-sub{font-size:10px}.stripe-search-input{font-size:16px;padding:10px 11px}.stripe-top-actions button,.stripe-tool-group-body button{font-size:12px;padding:11px 12px}.stripe-tool-group summary{padding:12px;font-size:12px}.stripe-metric-summary span{font-size:10px}.stripe-metric-summary strong{font-size:12px}.stripe-result-collapse summary{font-size:12px;padding:12px}.stripe-item-title{font-size:12px}.stripe-item-meta{font-size:10px}.stripe-item-amount{font-size:12px}.stripe-item-body>div{font-size:11px}.stripe-item-body button{font-size:11px;padding:8px}}
 
+
+/* ===== COLLAPSIBLE INTEGRATION WORKSPACES ===== */
+.integration-collapse{
+  margin-top:10px;
+  border:1px solid var(--border);
+  background:var(--surface2);
+  border-radius:12px;
+  overflow:hidden;
+}
+.integration-collapse>summary{
+  list-style:none;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  padding:11px 12px;
+}
+.integration-collapse>summary::-webkit-details-marker{display:none}
+.integration-collapse-title{
+  font-size:10px;
+  font-weight:800;
+  color:var(--ink);
+}
+.integration-collapse-badge{
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--muted);
+  border-radius:999px;
+  padding:4px 7px;
+  font-size:8px;
+  font-weight:800;
+}
+.integration-collapse-body{
+  border-top:1px solid var(--border);
+  padding:8px;
+}
+.integration-collapse-body>#recentGmailSection,
+.integration-collapse-body>#quickbooksDataSection,
+.integration-collapse-body>#stripeDataSection{
+  margin-top:0 !important;
+}
+@media(max-width:760px){
+  .integration-collapse{border-radius:14px}
+  .integration-collapse>summary{padding:12px 13px}
+  .integration-collapse-title{font-size:12px}
+  .integration-collapse-badge{font-size:10px}
+  .integration-collapse-body{padding:9px}
+}
+
 </style>
 </head>
 <body>
@@ -3282,7 +3332,7 @@ body.text-large{
 </div>
 </div>
 <button class="stripe-connect-clean" id="stripeConnectBtn" onclick="connectStripe()" type="button">Connect</button>
-</div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><div class="qb-data-section-clean" id="quickbooksDataSection" style="display:none">
+</div><div class="integration"><div class="int-icon">🛍</div><div class="int-name">Shopify</div><div class="status soon">SOON</div></div></div><details class="integration-collapse" id="quickbooksDataSectionCollapse"><summary><span class="integration-collapse-title">QuickBooks</span><span class="integration-collapse-badge">Books</span></summary><div class="integration-collapse-body"><div class="qb-data-section-clean" id="quickbooksDataSection" style="display:none">
 <div class="qb-card-clean">
 <div class="qb-card-top">
 <div>
@@ -3334,7 +3384,7 @@ body.text-large{
 <div class="qb-empty-state">Your QuickBooks data will appear here.</div>
 </div>
 </div>
-</div><div class="stripe-data-section-clean" id="stripeDataSection" style="display:none">
+</div></div></details><details class="integration-collapse" id="stripeDataSectionCollapse"><summary><span class="integration-collapse-title">Stripe</span><span class="integration-collapse-badge">Payments</span></summary><div class="integration-collapse-body"><div class="stripe-data-section-clean" id="stripeDataSection" style="display:none">
 <div class="stripe-card-clean">
 <div class="stripe-card-top">
 <div>
@@ -3371,7 +3421,7 @@ body.text-large{
 <div class="stripe-empty-state">Choose a Stripe view.</div>
 </div>
 </div>
-</div><div class="context-section gmail-recent-section" id="recentGmailSection" style="display:none">
+</div></div></details><details class="integration-collapse" id="recentGmailSectionCollapse"><summary><span class="integration-collapse-title">Gmail</span><span class="integration-collapse-badge">Mail</span></summary><div class="integration-collapse-body"><div class="context-section gmail-recent-section" id="recentGmailSection" style="display:none">
 <div class="gmail-recent-head">
 <div class="context-label" style="margin-bottom:0">Recent Gmail</div>
 <button class="gmail-refresh-btn" onclick="loadRecentGmailWithQuery(buildGmailQuery())" type="button">Refresh</button>
@@ -3404,7 +3454,7 @@ body.text-large{
 </div><div class="gmail-message-list" id="gmailMessageList">
 <div class="gmail-empty">Loading recent email…</div>
 </div>
-</div><div class="context-section"><div class="context-label">Attached context</div><div class="context-card"><div class="context-title" id="fileCount">No files attached</div><div class="context-copy">Text, CSV, and JSON can be read immediately. Other file types are uploaded securely but need document parsing in the next backend step.</div></div></div><div class="disclaimer">FraudShield provides decision support, not guarantees. Verify high-risk payment changes independently. Accounting responses are informational and are not tax or professional accounting advice.</div></div></aside>
+</div></div></details><div class="context-section"><div class="context-label">Attached context</div><div class="context-card"><div class="context-title" id="fileCount">No files attached</div><div class="context-copy">Text, CSV, and JSON can be read immediately. Other file types are uploaded securely but need document parsing in the next backend step.</div></div></div><div class="disclaimer">FraudShield provides decision support, not guarantees. Verify high-risk payment changes independently. Accounting responses are informational and are not tax or professional accounting advice.</div></div></aside>
 </div>
 <div class="pricing-overlay" id="pricingOverlay" onclick="if(event.target===this)closePricing()"><div class="pricing-modal"><div class="pricing-head"><div><div class="pricing-title" id="pricingTitle">FraudShield credits</div><div class="pricing-sub" id="pricingSub">Start with 10 free credits. Top up when you need more, or move to Pro for a larger monthly allowance and future integrations.</div></div><button class="close-modal" onclick="closePricing()">✕</button></div>
 <div class="billing-summary" id="billingSummary" style="display:none">
@@ -3733,6 +3783,12 @@ async function gmailAuthHeaders(){
   };
 }
 
+
+function setIntegrationCollapseOpen(sectionId,open){
+  const details=document.getElementById(`${sectionId}Collapse`);
+  if(details)details.open=Boolean(open);
+}
+
 async function loadGmailStatus(){
   const textEl=document.getElementById('gmailConnectionText');
   const btn=document.getElementById('gmailConnectBtn');
@@ -3763,6 +3819,7 @@ async function loadGmailStatus(){
       const disconnectBtn=document.getElementById('gmailDisconnectBtn');
       if(disconnectBtn)disconnectBtn.style.display='';
       await loadRecentGmail();
+      setIntegrationCollapseOpen('recentGmailSection',false);
     }else{
       recentGmailMessages=[];
       const section=document.getElementById('recentGmailSection');
@@ -3935,7 +3992,7 @@ async function loadStripeStatus(){
     }
     if(livePill)livePill.textContent=ready?'Live':'Setup';
     if(section)section.style.display='';
-    if(ready)await loadStripeBalance();
+    if(ready){await loadStripeBalance();setIntegrationCollapseOpen('stripeDataSection',false);}
   }catch(err){
     if(textEl)textEl.textContent='Not connected';
     if(btn){btn.textContent='Connect';btn.classList.remove('connected')}
@@ -4482,6 +4539,7 @@ async function loadQuickBooksStatus(){
       }
 
       await loadQuickBooksCompany();
+      setIntegrationCollapseOpen('quickbooksDataSection',false);
     }else{
       if(textEl){
         textEl.textContent='Not connected';
