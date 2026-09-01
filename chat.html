@@ -3469,6 +3469,142 @@ body.text-large{
   .business-pulse-metric strong{font-size:13px}
 }
 
+
+/* ===== FRAUD PRIORITY BRIEF UI ===== */
+.fraud-brief{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:0;
+}
+.fraud-brief-intro,
+.fraud-plain{
+  font-size:10px;
+  line-height:1.55;
+  color:var(--ink);
+}
+.fraud-priority-list{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.fraud-priority-card{
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:var(--surface);
+  overflow:hidden;
+}
+.fraud-priority-card summary{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  align-items:center;
+  gap:8px;
+  padding:10px 11px;
+  cursor:pointer;
+  list-style:none;
+}
+.fraud-priority-card summary::-webkit-details-marker{display:none}
+.fraud-priority-main{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  min-width:0;
+}
+.fraud-priority-number{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:20px;
+  height:20px;
+  flex:0 0 20px;
+  border-radius:7px;
+  background:var(--surface2);
+  font-size:9px;
+  font-weight:850;
+  color:var(--ink);
+}
+.fraud-priority-title{
+  min-width:0;
+  font-size:10px;
+  line-height:1.35;
+  font-weight:800;
+  color:var(--ink);
+}
+.fraud-risk-pill{
+  display:inline-flex;
+  align-items:center;
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:3px 6px;
+  font-size:7px;
+  font-weight:850;
+  letter-spacing:.04em;
+}
+.fraud-risk-pill.low{opacity:.72}
+.fraud-risk-pill.review{font-weight:900}
+.fraud-risk-pill.high{font-weight:950}
+.fraud-card-chevron{
+  font-size:14px;
+  line-height:1;
+  color:var(--faint);
+  transition:transform .15s ease;
+}
+.fraud-priority-card[open] .fraud-card-chevron{transform:rotate(45deg)}
+.fraud-priority-body{
+  padding:0 11px 10px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.fraud-detail-row,
+.fraud-next-action{
+  border-top:1px solid var(--border);
+  padding-top:8px;
+}
+.fraud-detail-row span,
+.fraud-next-action span,
+.fraud-bottom-line span{
+  display:block;
+  margin-bottom:3px;
+  font-size:7px;
+  font-weight:850;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:var(--faint);
+}
+.fraud-detail-row p,
+.fraud-next-action p,
+.fraud-bottom-line p{
+  margin:0;
+  font-size:9px;
+  line-height:1.5;
+  color:var(--ink);
+}
+.fraud-next-action{
+  background:var(--surface2);
+  border:0;
+  border-radius:9px;
+  padding:8px 9px;
+}
+.fraud-bottom-line{
+  border:1px solid var(--border);
+  border-radius:11px;
+  padding:9px 10px;
+  background:var(--surface2);
+}
+@media(max-width:760px){
+  .fraud-brief-intro,
+  .fraud-plain{font-size:11px}
+  .fraud-priority-title{font-size:11px}
+  .fraud-risk-pill,
+  .fraud-detail-row span,
+  .fraud-next-action span,
+  .fraud-bottom-line span{font-size:8px}
+  .fraud-detail-row p,
+  .fraud-next-action p,
+  .fraud-bottom-line p{font-size:10px}
+}
+
 </style>
 </head>
 <body>
@@ -3740,7 +3876,7 @@ try{
   console.error('Supabase client init failed:',e);
 }
 let activeAgent='fraud',attachedFiles=[],conversationHistory=[],isLoading=false,currentChatId=null,currentUser=null,conversations=[];
-const agentConfig={fraud:{icon:'🛡',name:'@fraud',sub:'Risk checks, vendor verification & fraud questions',copy:'Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.',placeholder:'@fraud Check this invoice before I pay it...',system:`You are @fraud inside FraudShield SMB, an AI business risk and fraud-prevention assistant for small businesses. Use only information actually provided by the user or supplied in attached text context. Never invent vendor history, connected systems, bank changes, invoices, transactions, or account activity. For risk reviews, structure the response as: Risk level: LOW, REVIEW, or HIGH; What I noticed; Why it matters; Recommended next step. For payment or bank-detail changes, recommend independent verification using a previously known contact method. Do not claim something is definitely fraudulent unless the supplied evidence establishes that. If a CONNECTED BUSINESS CONTEXT block is present, you may use its QuickBooks, Stripe, and Gmail records together, but treat its findings as review signals rather than proof of fraud or accounting error. Be concise, conversational, and practical.`},accounting:{icon:'🧾',name:'@accounting',sub:'QuickBooks insights, expenses & cash flow',copy:'Uses connected QuickBooks data to explain spending, invoices, balances, and operational finance questions.',placeholder:'@accounting Help me understand this expense...',system:`You are @accounting inside FraudShield SMB, an AI financial-operations assistant for small businesses. Help users understand expenses, vendor spend, balances, invoices, payments, and operational finance questions using only data actually supplied in the conversation, attachments, or clearly labeled CONNECTED QUICKBOOKS CONTEXT, CONNECTED STRIPE CONTEXT, or CONNECTED BUSINESS CONTEXT blocks. Never invent transactions, balances, vendors, invoices, payments, or account activity.
+const agentConfig={fraud:{icon:'🛡',name:'@fraud',sub:'Risk checks, vendor verification & fraud questions',copy:'Checks suspicious activity, invoices, vendor changes, payment requests, and fraud patterns.',placeholder:'@fraud Check this invoice before I pay it...',system:`You are @fraud inside FraudShield SMB, an AI business risk and fraud-prevention assistant for small businesses. Use only information actually provided by the user or supplied in attached text context. Never invent vendor history, connected systems, bank changes, invoices, transactions, or account activity. For a single risk review, structure the response as: Risk level: LOW, REVIEW, or HIGH; What I noticed; Why it matters; Recommended next step. For business-wide or "what needs attention" questions, start with one short sentence, then give at most 3 numbered priorities. Each priority must use exactly these labels: Risk level, What I noticed, Why it matters, Recommended next step. Put the most actionable/highest-risk item first. End with one short Bottom line. Do not dump every record unless the user asks for detail. For payment or bank-detail changes, recommend independent verification using a previously known contact method. Do not claim something is definitely fraudulent unless the supplied evidence establishes that. If a CONNECTED BUSINESS CONTEXT block is present, you may use its QuickBooks, Stripe, and Gmail records together, but treat its findings as review signals rather than proof of fraud or accounting error. Be concise, conversational, and practical.`},accounting:{icon:'🧾',name:'@accounting',sub:'QuickBooks insights, expenses & cash flow',copy:'Uses connected QuickBooks data to explain spending, invoices, balances, and operational finance questions.',placeholder:'@accounting Help me understand this expense...',system:`You are @accounting inside FraudShield SMB, an AI financial-operations assistant for small businesses. Help users understand expenses, vendor spend, balances, invoices, payments, and operational finance questions using only data actually supplied in the conversation, attachments, or clearly labeled CONNECTED QUICKBOOKS CONTEXT, CONNECTED STRIPE CONTEXT, or CONNECTED BUSINESS CONTEXT blocks. Never invent transactions, balances, vendors, invoices, payments, or account activity.
 
 RESPONSE STYLE FOR CONNECTED QUICKBOOKS:
 - Be concise and highly scannable.
@@ -6524,6 +6660,155 @@ function renderAccountingCompact(content){
     </div>`;
 }
 
+
+// ===== FRAUD / BUSINESS FOLLOW-UP UI =====
+function stripLiteMarkdown(text){
+  return String(text||'')
+    .replace(/\*\*(.*?)\*\*/g,'$1')
+    .replace(/__(.*?)__/g,'$1')
+    .replace(/`([^`]+)`/g,'$1')
+    .replace(/^\s*---+\s*$/gm,'')
+    .trim();
+}
+
+function renderInlineLite(text){
+  let safe=escapeHtml(String(text||''));
+  safe=safe.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  safe=safe.replace(/__(.*?)__/g,'<strong>$1</strong>');
+  safe=safe.replace(/`([^`]+)`/g,'<code>$1</code>');
+  return safe;
+}
+
+function fraudRiskClass(value){
+  const text=String(value||'').toLowerCase();
+  if(text.includes('high'))return 'high';
+  if(text.includes('low'))return 'low';
+  return 'review';
+}
+
+function parseFraudPrioritySections(content){
+  const normalized=String(content||'')
+    .replace(/\r/g,'')
+    .replace(/\\\*/g,'*');
+
+  const sectionRegex=/^\s*(?:##\s*)?(\d+)\.\s+(.+?)\s*$/gm;
+  const matches=[...normalized.matchAll(sectionRegex)];
+
+  if(!matches.length)return null;
+
+  const intro=normalized.slice(0,matches[0].index).trim();
+  const sections=[];
+
+  matches.forEach((match,index)=>{
+    const start=match.index+match[0].length;
+    const end=index+1<matches.length
+      ? matches[index+1].index
+      : normalized.length;
+
+    let body=normalized.slice(start,end).trim();
+
+    // Keep any Bottom line / Note content outside the final numbered card.
+    const tailMatch=body.match(/(?:^|\n)\s*\*\*(Bottom line|Note on [^*]+|Note):\*\*\s*/i);
+    let tail='';
+    if(tailMatch){
+      const tailStart=tailMatch.index;
+      tail=body.slice(tailStart).trim();
+      body=body.slice(0,tailStart).trim();
+    }
+
+    const riskMatch=body.match(/\*\*Risk level:\s*([^*\n]+)\*\*/i);
+
+    const extract=(label)=>{
+      const escaped=label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      const rx=new RegExp(
+        `\\*\\*${escaped}:\\*\\*\\s*([\\s\\S]*?)(?=\\n\\s*\\*\\*(?:Risk level|What I noticed|Why it matters|Recommended next step):\\*\\*|$)`,
+        'i'
+      );
+      const found=body.match(rx);
+      return found ? stripLiteMarkdown(found[1]) : '';
+    };
+
+    sections.push({
+      number:match[1],
+      title:stripLiteMarkdown(match[2]),
+      risk:stripLiteMarkdown(riskMatch?.[1]||'REVIEW'),
+      noticed:extract('What I noticed'),
+      why:extract('Why it matters'),
+      next:extract('Recommended next step'),
+      tail
+    });
+  });
+
+  // Recover trailing non-numbered content from the last section if present.
+  let footer='';
+  const bottomIndex=normalized.search(/\n\s*\*\*(?:Bottom line|Note on [^*]+|Note):\*\*/i);
+  if(bottomIndex>=0){
+    footer=normalized.slice(bottomIndex).trim();
+  }
+
+  return {intro,sections,footer};
+}
+
+function renderFraudPriorityBrief(content){
+  const parsed=parseFraudPrioritySections(content);
+
+  if(!parsed){
+    return `<div class="fraud-plain">${renderInlineLite(content).replace(/\n/g,'<br>')}</div>`;
+  }
+
+  const cards=parsed.sections.map((item,index)=>{
+    const riskClass=fraudRiskClass(item.risk);
+    const isOpen=index===0 ? ' open' : '';
+
+    const detailRows=[
+      item.noticed
+        ? `<div class="fraud-detail-row"><span>What I noticed</span><p>${renderInlineLite(item.noticed).replace(/\n/g,'<br>')}</p></div>`
+        : '',
+      item.why
+        ? `<div class="fraud-detail-row"><span>Why it matters</span><p>${renderInlineLite(item.why).replace(/\n/g,'<br>')}</p></div>`
+        : '',
+      item.next
+        ? `<div class="fraud-next-action"><span>Next action</span><p>${renderInlineLite(item.next).replace(/\n/g,'<br>')}</p></div>`
+        : ''
+    ].join('');
+
+    return `
+      <details class="fraud-priority-card ${riskClass}"${isOpen}>
+        <summary>
+          <div class="fraud-priority-main">
+            <span class="fraud-priority-number">${escapeHtml(item.number)}</span>
+            <span class="fraud-priority-title">${escapeHtml(item.title)}</span>
+          </div>
+          <span class="fraud-risk-pill ${riskClass}">${escapeHtml(item.risk)}</span>
+          <span class="fraud-card-chevron">+</span>
+        </summary>
+        <div class="fraud-priority-body">
+          ${detailRows}
+        </div>
+      </details>`;
+  }).join('');
+
+  let footerHtml='';
+  if(parsed.footer){
+    const clean=stripLiteMarkdown(parsed.footer);
+    if(clean){
+      footerHtml=`
+        <div class="fraud-bottom-line">
+          <span>Bottom line</span>
+          <p>${renderInlineLite(clean.replace(/^Bottom line:\s*/i,'')).replace(/\n/g,'<br>')}</p>
+        </div>`;
+    }
+  }
+
+  return `
+    <div class="fraud-brief">
+      ${parsed.intro ? `<div class="fraud-brief-intro">${renderInlineLite(stripLiteMarkdown(parsed.intro)).replace(/\n/g,'<br>')}</div>` : ''}
+      <div class="fraud-priority-list">${cards}</div>
+      ${footerHtml}
+    </div>`;
+}
+
+
 function renderMessage(role,content,agent){
   showMessages();
 
@@ -6539,7 +6824,9 @@ function renderMessage(role,content,agent){
   const body=
     role==='ai' && actualAgent==='accounting'
       ? renderAccountingCompact(content)
-      : escapeHtml(content);
+      : role==='ai' && actualAgent==='fraud'
+        ? renderFraudPriorityBrief(content)
+        : escapeHtml(content);
 
   wrap.innerHTML=
     `<div class="msg-avatar">${role==='ai'?(agentConfig[actualAgent]?.icon||'FS'):'U'}</div>` +
