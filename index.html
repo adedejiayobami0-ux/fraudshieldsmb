@@ -3,15 +3,15 @@
 <head>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    (async function(){
-      try{
+    (async function () {
+      try {
         const sbCheck = supabase.createClient(
           "https://nivqhnqquwszwtsgupgx.supabase.co",
           "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pdnFobnFxdXdzend0c2d1cGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1OTk3NDQsImV4cCI6MjA5NDE3NTc0NH0.IlaMbd-s4BjhUmazzvwJOc_F5f9BiJzcQ99agtuDaiA"
         );
         const { data: { session } } = await sbCheck.auth.getSession();
         if (session) window.location.replace("/dashboard");
-      }catch(e){}
+      } catch (e) {}
     })();
   </script>
 
@@ -19,331 +19,649 @@
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-9Y43MHPFQN');
+    gtag("js", new Date());
+    gtag("config", "G-9Y43MHPFQN");
   </script>
 
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="theme-color" content="#0B0E11"/>
-  <meta name="description" content="FraudShield is an AI business protection and operations workspace for small businesses. Check fraud, review vendors, understand finances, and work across your business tools from one conversation."/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0E11">
+  <meta name="description" content="FraudShield SMB is an AI business protection and operations workspace that helps small businesses review risk, understand finances, analyze business email, and connect signals across QuickBooks, Stripe, and Gmail.">
   <title>FraudShield SMB — Protect your money. Understand your business.</title>
 
-  <link rel="icon" href="/icon-192.png" type="image/png"/>
-  <link rel="manifest" href="/manifest.json"/>
-  <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
+  <link rel="icon" href="/icon-192.png" type="image/png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
-<style>
-:root{
-  --bg:#F7F8FA; --bg2:#FFFFFF; --card:#FFFFFF;
-  --ink:#0B0E11; --ink-muted:#5B6270;
-  --gold:#B8860E; --green:#1C8A5C; --red:#D64545;
-  --border:rgba(11,14,17,.12);
-  --panel:#0B0E11; --panel-ink:#EDEFF2; --panel-muted:#8B92A0;
-}
-body.dark{
-  --bg:#0B0E11; --bg2:#0F1216; --card:#12161B;
-  --ink:#EDEFF2; --ink-muted:#8B92A0;
-  --gold:#EEB93E; --green:#3DD68C; --red:#FF6B6B;
-  --border:rgba(237,239,242,.10);
-  --panel:#07090B; --panel-ink:#EDEFF2; --panel-muted:#7A8290;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
-a{color:inherit;text-decoration:none}
-button{font:inherit}
-.container{max-width:1120px;margin:0 auto;padding:0 32px}
-.mono{font-family:'JetBrains Mono',monospace}
-.muted{color:var(--ink-muted)}
+  <style>
+    :root{
+      --bg:#F7F8FA;
+      --card:#FFFFFF;
+      --ink:#0B0E11;
+      --muted:#626976;
+      --gold:#B8860E;
+      --green:#1C8A5C;
+      --red:#D64545;
+      --border:rgba(11,14,17,.12);
+      --panel:#0B0E11;
+      --panel2:#11161C;
+      --panelInk:#EEF1F4;
+      --panelMuted:#929AA6;
+    }
 
-nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
-.nav-inner{max-width:1120px;margin:0 auto;padding:18px 32px;display:flex;align-items:center;justify-content:space-between}
-.logo{display:flex;align-items:center;gap:9px}
-.mark{width:28px;height:28px;border-radius:7px;background:var(--gold);display:flex;align-items:center;justify-content:center;color:#0B0E11;font-family:'Space Grotesk';font-weight:700;font-size:12px}
-.logo-name{font-family:'Space Grotesk';font-weight:600;font-size:14px}
-.nav-right{display:flex;align-items:center;gap:6px}
-.nav-link{font-size:14px;color:var(--ink-muted);padding:9px 12px}
-.nav-link:hover{color:var(--ink)}
-.btn{border-radius:8px;padding:10px 16px;font-size:14px;font-weight:600;border:1px solid var(--border);background:none;color:var(--ink);cursor:pointer}
-.btn.gold{background:var(--gold);border-color:var(--gold);color:#0B0E11}
-.btn:hover{opacity:.88}
-.theme-pill{border:1px solid var(--border);border-radius:20px;padding:7px 11px;background:none;color:var(--ink);cursor:pointer;font-size:12px}
+    body.dark{
+      --bg:#0B0E11;
+      --card:#12161B;
+      --ink:#EDEFF2;
+      --muted:#929AA6;
+      --gold:#EEB93E;
+      --green:#3DD68C;
+      --red:#FF7373;
+      --border:rgba(237,239,242,.11);
+      --panel:#07090B;
+      --panel2:#101419;
+      --panelInk:#EEF1F4;
+      --panelMuted:#929AA6;
+    }
 
-.hero{padding:88px 0 72px;display:grid;grid-template-columns:1.05fr .95fr;gap:58px;align-items:center}
-.eyebrow{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-family:'JetBrains Mono';font-size:11px;color:var(--gold);margin-bottom:25px}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
-h1{font-family:'Space Grotesk';font-size:clamp(40px,5vw,62px);line-height:1.02;letter-spacing:-.04em;margin-bottom:22px}
-.hero-sub{font-size:18px;color:var(--ink-muted);max-width:550px;margin-bottom:28px}
-.hero-btns{display:flex;gap:11px;flex-wrap:wrap;margin-bottom:35px}
-.hero-btn{padding:14px 22px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--ink);font-weight:600;cursor:pointer}
-.hero-btn.primary{background:var(--gold);border-color:var(--gold);color:#0B0E11}
-.trust{display:flex;gap:28px;flex-wrap:wrap;padding-top:22px;border-top:1px solid var(--border)}
-.trust strong{display:block;font-family:'Space Grotesk';font-size:15px;margin-bottom:3px}
-.trust span{font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em}
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      background:var(--bg);
+      color:var(--ink);
+      font-family:"Inter",sans-serif;
+      line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+    }
+    a{color:inherit;text-decoration:none}
+    button{font:inherit}
+    .container{max-width:1120px;margin:0 auto;padding:0 32px}
+    .mono{font-family:"JetBrains Mono",monospace}
 
-.workspace{background:var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;box-shadow:0 28px 65px rgba(0,0,0,.33)}
-.ws-head{padding:14px 17px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:8px}
-.ws-dots{display:flex;gap:6px}
-.ws-dots i{width:8px;height:8px;border-radius:50%;background:#626873;opacity:.7}
-.ws-title{font-family:'JetBrains Mono';font-size:10px;color:var(--panel-muted);letter-spacing:.06em;margin-left:5px;flex:1}
-.ws-live{font-family:'JetBrains Mono';font-size:10px;color:var(--green)}
-.ws-body{padding:22px}
-.message{max-width:92%;padding:13px 14px;border-radius:11px;margin-bottom:13px;font-size:13px;line-height:1.55}
-.message.user{margin-left:auto;background:#1B2027;color:#EDEFF2}
-.message.ai{border:1px solid rgba(255,255,255,.08);color:#EDEFF2;background:#101419}
-.command{color:var(--gold);font-family:'JetBrains Mono';font-weight:700}
-.risk{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono';font-size:10px;font-weight:700;color:#FF8585;background:rgba(255,107,107,.1);padding:4px 8px;border-radius:20px;margin-bottom:9px}
-.signal{padding:7px 0;border-top:1px solid rgba(255,255,255,.07);color:#AAB0BB;font-size:12px}
-.signal:first-of-type{border-top:0}
-.ws-input{margin-top:15px;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 12px;display:flex;align-items:center;gap:9px;color:#727A86;font-size:12px}
-.ws-actions{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap}
-.ws-chip{font-family:'JetBrains Mono';font-size:10px;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:6px 9px;color:#A8AFBA}
+    nav{
+      position:sticky;
+      top:0;
+      z-index:50;
+      border-bottom:1px solid var(--border);
+      background:color-mix(in srgb,var(--bg) 92%,transparent);
+      backdrop-filter:blur(14px);
+    }
+    .nav-inner{
+      max-width:1120px;
+      margin:0 auto;
+      padding:17px 32px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+    }
+    .logo{display:flex;align-items:center;gap:9px}
+    .mark{
+      width:30px;height:30px;border-radius:8px;
+      background:var(--gold);color:#0B0E11;
+      display:grid;place-items:center;
+      font-family:"Space Grotesk";font-size:12px;font-weight:700;
+    }
+    .logo-name{font-family:"Space Grotesk";font-weight:600;font-size:14px}
+    .nav-right{display:flex;align-items:center;gap:7px}
+    .nav-link{font-size:13px;color:var(--muted);padding:8px 10px}
+    .nav-link:hover{color:var(--ink)}
+    .btn{
+      border:1px solid var(--border);
+      border-radius:9px;
+      padding:10px 15px;
+      background:transparent;
+      color:var(--ink);
+      font-weight:650;
+      font-size:13px;
+      cursor:pointer;
+    }
+    .btn.primary{background:var(--gold);border-color:var(--gold);color:#0B0E11}
+    .btn:hover{opacity:.9}
+    .theme-pill{
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:7px 10px;
+      background:transparent;
+      color:var(--ink);
+      cursor:pointer;
+      font-size:11px;
+    }
 
-.section{padding:72px 0;border-top:1px solid var(--border)}
-.section-label{font-family:'JetBrains Mono';font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--gold);margin-bottom:15px}
-h2{font-family:'Space Grotesk';font-size:clamp(28px,3vw,39px);line-height:1.15;letter-spacing:-.025em}
-.section-intro{color:var(--ink-muted);max-width:600px;margin-top:12px}
+    .hero{
+      padding:86px 0 70px;
+      display:grid;
+      grid-template-columns:1.02fr .98fr;
+      gap:58px;
+      align-items:center;
+    }
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:8px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:6px 11px;
+      margin-bottom:24px;
+      font-family:"JetBrains Mono";
+      font-size:10px;
+      color:var(--gold);
+    }
+    .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+    h1,h2,h3{font-family:"Space Grotesk",sans-serif}
+    h1{
+      font-size:clamp(42px,5vw,64px);
+      line-height:1.02;
+      letter-spacing:-.045em;
+      margin-bottom:21px;
+    }
+    .hero-sub{
+      max-width:570px;
+      font-size:18px;
+      color:var(--muted);
+      margin-bottom:28px;
+    }
+    .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:34px}
+    .hero-btn{
+      padding:14px 20px;
+      border-radius:9px;
+      border:1px solid var(--border);
+      background:transparent;
+      color:var(--ink);
+      font-weight:650;
+      cursor:pointer;
+    }
+    .hero-btn.primary{background:var(--gold);border-color:var(--gold);color:#0B0E11}
+    .trust{
+      display:flex;
+      gap:25px;
+      flex-wrap:wrap;
+      border-top:1px solid var(--border);
+      padding-top:20px;
+    }
+    .trust strong{display:block;font-family:"Space Grotesk";font-size:14px}
+    .trust span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-top:34px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:23px}
-.card-icon{font-size:20px;margin-bottom:13px}
-.card h3{font-family:'Space Grotesk';font-size:15px;margin-bottom:7px}
-.card p{font-size:13px;color:var(--ink-muted)}
+    .workspace{
+      background:var(--panel);
+      color:var(--panelInk);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:17px;
+      overflow:hidden;
+      box-shadow:0 30px 70px rgba(0,0,0,.34);
+    }
+    .ws-head{
+      display:flex;align-items:center;gap:8px;
+      padding:14px 16px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .ws-dots{display:flex;gap:6px}
+    .ws-dots i{width:8px;height:8px;border-radius:50%;background:#626873}
+    .ws-title{flex:1;margin-left:5px;font-family:"JetBrains Mono";font-size:9px;color:var(--panelMuted)}
+    .ws-live{font-family:"JetBrains Mono";font-size:9px;color:var(--green)}
+    .ws-body{padding:22px}
+    .message{
+      max-width:94%;
+      padding:13px 14px;
+      margin-bottom:12px;
+      border-radius:11px;
+      font-size:12px;
+      line-height:1.55;
+    }
+    .message.user{margin-left:auto;background:#1B2027}
+    .message.ai{background:var(--panel2);border:1px solid rgba(255,255,255,.08)}
+    .command{font-family:"JetBrains Mono";font-weight:700;color:var(--gold)}
+    .risk{
+      display:inline-flex;
+      margin-bottom:8px;
+      border-radius:999px;
+      padding:4px 8px;
+      background:rgba(255,115,115,.1);
+      color:#FF8585;
+      font-family:"JetBrains Mono";
+      font-size:9px;
+      font-weight:700;
+    }
+    .signal{padding:7px 0;border-top:1px solid rgba(255,255,255,.07);color:#AAB0BB}
+    .ws-input{
+      margin-top:14px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:10px;
+      padding:11px 12px;
+      color:#777F8B;
+      font-size:11px;
+    }
+    .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+    .chip{
+      border:1px solid rgba(255,255,255,.11);
+      border-radius:999px;
+      padding:5px 8px;
+      font-family:"JetBrains Mono";
+      font-size:9px;
+      color:#A8AFBA;
+    }
 
-.commands{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:34px}
-.command-card{border:1px solid var(--border);border-radius:13px;padding:24px;background:var(--card)}
-.command-name{font-family:'JetBrains Mono';font-size:13px;color:var(--gold);font-weight:700;margin-bottom:12px}
-.example{font-family:'JetBrains Mono';font-size:12px;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:8px;color:var(--ink-muted)}
+    .section{padding:72px 0;border-top:1px solid var(--border)}
+    .section-label{
+      margin-bottom:14px;
+      font-family:"JetBrains Mono";
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:var(--gold);
+    }
+    h2{
+      font-size:clamp(29px,3.5vw,42px);
+      line-height:1.12;
+      letter-spacing:-.03em;
+    }
+    .section-intro{
+      max-width:680px;
+      margin-top:13px;
+      color:var(--muted);
+      font-size:15px;
+    }
 
-.extension-demo{display:grid;grid-template-columns:1fr .8fr;gap:36px;align-items:center;margin-top:34px}
-.browser{border:1px solid var(--border);border-radius:15px;overflow:hidden;background:var(--card)}
-.browser-top{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;gap:6px}
-.browser-top i{width:8px;height:8px;border-radius:50%;background:var(--border)}
-.browser-page{padding:24px;display:grid;grid-template-columns:1fr 250px;gap:18px}
-.fake-mail{border:1px solid var(--border);border-radius:10px;padding:18px}
-.fake-mail small{display:block;color:var(--ink-muted);margin-bottom:8px}
-.fake-mail h4{font-family:'Space Grotesk';margin-bottom:9px}
-.fake-mail p{font-size:13px;color:var(--ink-muted)}
-.sidecar{background:var(--panel);border-radius:10px;padding:15px;color:#EDEFF2}
-.sidecar-title{font-family:'Space Grotesk';font-size:13px;font-weight:600;margin-bottom:12px}
-.sidecar-btn{font-size:11px;border:1px solid rgba(255,255,255,.12);padding:9px;border-radius:7px;margin-top:7px;color:#C6CBD3}
-.sidecar-btn.primary{background:var(--gold);border-color:var(--gold);color:#0B0E11;font-weight:700}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-top:34px}
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-top:34px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:23px;
+    }
+    .card-icon{font-size:20px;margin-bottom:12px}
+    .card h3{font-size:15px;margin-bottom:7px}
+    .card p{font-size:13px;color:var(--muted)}
 
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-top:34px}
-.step-num{font-family:'JetBrains Mono';color:var(--gold);font-size:11px;margin-bottom:14px}
+    .integration{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:13px;
+    }
+    .integration-badge{
+      width:35px;height:35px;border:1px solid var(--border);
+      border-radius:9px;display:grid;place-items:center;
+      font-family:"Space Grotesk";font-weight:700;font-size:11px;
+    }
+    .integration small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
 
-.beta{border:1px solid var(--gold);border-radius:15px;padding:34px;margin-top:34px;background:linear-gradient(135deg,rgba(238,185,62,.08),transparent)}
-.beta strong{font-family:'Space Grotesk';font-size:18px}
-.beta p{color:var(--ink-muted);font-size:14px;margin:9px 0 20px}
+    .pulse{
+      margin-top:34px;
+      background:var(--panel);
+      color:var(--panelInk);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      padding:24px;
+    }
+    .pulse-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:18px}
+    .pulse-head h3{font-size:17px}
+    .pulse-time{font-family:"JetBrains Mono";font-size:9px;color:var(--panelMuted)}
+    .pulse-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .pulse-card{background:#101419;border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:14px}
+    .pulse-card small{font-size:9px;color:var(--panelMuted);text-transform:uppercase;letter-spacing:.05em}
+    .pulse-card strong{display:block;margin:5px 0 4px;font-size:13px}
+    .pulse-card p{font-size:11px;color:#AAB0BB}
 
-.faq{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:13px;overflow:hidden;margin-top:34px}
-.faq-item{background:var(--card);padding:22px}
-.faq-item h3{font-family:'Space Grotesk';font-size:14px;margin-bottom:7px}
-.faq-item p{color:var(--ink-muted);font-size:13px}
+    .limits{
+      margin-top:34px;
+      border:1px solid var(--border);
+      border-radius:15px;
+      overflow:hidden;
+    }
+    .limit-row{
+      display:grid;
+      grid-template-columns:180px 1fr;
+      gap:20px;
+      padding:18px 20px;
+      border-top:1px solid var(--border);
+      background:var(--card);
+    }
+    .limit-row:first-child{border-top:0}
+    .limit-row strong{font-family:"Space Grotesk";font-size:13px}
+    .limit-row p{font-size:13px;color:var(--muted)}
 
-.cta{text-align:center;padding:80px 0}
-.cta p{color:var(--ink-muted);margin:14px auto 25px;max-width:520px}
-footer{padding:34px 0;border-top:1px solid var(--border);text-align:center;color:var(--ink-muted);font-size:12px}
+    .security{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+      margin-top:34px;
+    }
+    .security .card{padding:24px}
 
-@media(max-width:900px){
-  .hero,.extension-demo{grid-template-columns:1fr}
-  .grid-4{grid-template-columns:1fr 1fr}
-  .commands,.faq{grid-template-columns:1fr}
-  .steps{grid-template-columns:1fr}
-  .browser-page{grid-template-columns:1fr}
-  .nav-link{display:none}
-}
-@media(max-width:600px){
-  .container,.nav-inner{padding-left:20px;padding-right:20px}
-  .hero{padding-top:60px}
-  .grid-4{grid-template-columns:1fr}
-  .theme-pill{display:none}
-}
-</style>
+    .cta{
+      margin:72px 0;
+      padding:42px;
+      border:1px solid var(--gold);
+      border-radius:17px;
+      text-align:center;
+      background:linear-gradient(135deg,rgba(238,185,62,.08),transparent);
+    }
+    .cta p{max-width:610px;margin:12px auto 23px;color:var(--muted)}
+
+    footer{
+      padding:32px 0 42px;
+      border-top:1px solid var(--border);
+      color:var(--muted);
+      font-size:11px;
+    }
+    .footer-inner{
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .footer-links{display:flex;gap:16px;flex-wrap:wrap}
+    .footer-links a:hover{color:var(--ink)}
+
+    @media(max-width:900px){
+      .hero{grid-template-columns:1fr}
+      .grid-4{grid-template-columns:1fr 1fr}
+      .grid-3,.pulse-grid,.security{grid-template-columns:1fr}
+      .nav-link{display:none}
+    }
+    @media(max-width:620px){
+      .container,.nav-inner{padding-left:20px;padding-right:20px}
+      .hero{padding-top:58px}
+      .grid-4{grid-template-columns:1fr}
+      .theme-pill{display:none}
+      .limit-row{grid-template-columns:1fr;gap:5px}
+      .cta{padding:30px 20px}
+    }
+  </style>
 </head>
+
 <body class="dark">
+  <nav>
+    <div class="nav-inner">
+      <a class="logo" href="/">
+        <div class="mark">FS</div>
+        <div class="logo-name">FraudShield SMB</div>
+      </a>
 
-<nav>
-  <div class="nav-inner">
-    <a class="logo" href="/">
-      <div class="mark">FS</div>
-      <div class="logo-name">FraudShield SMB</div>
-    </a>
-    <div class="nav-right">
-      <a class="nav-link" href="#capabilities">Capabilities</a>
-      <a class="nav-link" href="#extension">Extension</a>
-      <a class="nav-link" href="#how">How it works</a>
-      <button class="theme-pill" onclick="toggleTheme()" id="themeBtn">☀ Light</button>
-      <a class="btn" href="chat.html">Open Chat</a>
-      <a class="btn gold" href="chat.html">Try FraudShield →</a>
-    </div>
-  </div>
-</nav>
-
-<main class="container">
-  <section class="hero">
-    <div>
-      <div class="eyebrow"><span class="dot"></span>AI business protection + operations</div>
-      <h1>Protect your money.<br>Understand your business.</h1>
-      <p class="hero-sub">FraudShield gives small businesses one AI workspace to check fraud, review vendors, understand finances, and work across the tools they already use.</p>
-      <div class="hero-btns">
-        <button class="hero-btn primary" onclick="location.href='chat.html'">Try FraudShield →</button>
-        <button class="hero-btn" onclick="document.getElementById('capabilities').scrollIntoView()">See what it can do</button>
-      </div>
-      <div class="trust">
-        <div><strong>@fraud</strong><span>Risk checks</span></div>
-        <div><strong>@accounting</strong><span>Finance help</span></div>
-        <div><strong>Browser</strong><span>Works where you work</span></div>
-        <div><strong>$0 beta</strong><span>No card needed</span></div>
+      <div class="nav-right">
+        <a class="nav-link" href="#what-it-does">What it does</a>
+        <a class="nav-link" href="#integrations">Integrations</a>
+        <a class="nav-link" href="#boundaries">What it doesn't do</a>
+        <a class="nav-link" href="#security">Security</a>
+        <button class="theme-pill" id="themeBtn" onclick="toggleTheme()">☀ Light</button>
+        <a class="btn" href="/dashboard">Sign in</a>
+        <a class="btn primary" href="/dashboard">Open FraudShield →</a>
       </div>
     </div>
+  </nav>
 
-    <div class="workspace">
-      <div class="ws-head">
-        <div class="ws-dots"><i></i><i></i><i></i></div>
-        <div class="ws-title">FRAUDSHIELD WORKSPACE</div>
-        <div class="ws-live">● BETA</div>
-      </div>
-      <div class="ws-body">
-        <div class="message user"><span class="command">@fraud</span> Check this invoice before I pay it.</div>
-        <div class="message ai">
-          <div class="risk">● HIGH RISK — REVIEW</div>
-          <div><strong>Three things deserve your attention.</strong></div>
-          <div class="signal">Bank details differ from the previous vendor record.</div>
-          <div class="signal">Sender domain does not match prior communications.</div>
-          <div class="signal">Invoice amount is materially higher than recent invoices.</div>
-          <div style="margin-top:10px;color:#D8DCE2;font-size:12px"><strong>Recommended:</strong> verify payment instructions using a previously known contact before paying.</div>
-        </div>
-        <div class="ws-input">Ask FraudShield anything about this business activity…</div>
-        <div class="ws-actions">
-          <span class="ws-chip">@fraud</span>
-          <span class="ws-chip">@accounting</span>
-          <span class="ws-chip">@vendor</span>
-          <span class="ws-chip">Upload invoice</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="capabilities">
-    <div class="section-label">One workspace</div>
-    <h2>Your business tools know pieces.<br>FraudShield helps connect the story.</h2>
-    <p class="section-intro">Instead of another dashboard you have to watch, FraudShield is designed as a conversational layer across your day-to-day financial and operational work.</p>
-
-    <div class="grid-4">
-      <div class="card"><div class="card-icon">🛡️</div><h3>Check risk</h3><p>Review invoices, vendor changes, suspicious requests, unusual transactions, and other activity before taking action.</p></div>
-      <div class="card"><div class="card-icon">🧾</div><h3>Understand finances</h3><p>Ask questions about expenses, vendors, categories, cash flow, and business activity in plain English.</p></div>
-      <div class="card"><div class="card-icon">🔎</div><h3>Investigate vendors</h3><p>Compare current requests against prior vendor information and surface changes that deserve verification.</p></div>
-      <div class="card"><div class="card-icon">⚡</div><h3>Work in context</h3><p>Use the web app now and, as the product expands, invoke FraudShield directly inside the browser tools you already use.</p></div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="section-label">Command layer</div>
-    <h2>Ask naturally—or call the specialist you need.</h2>
-    <p class="section-intro">Commands make FraudShield predictable. You know which part of the system is being asked to help.</p>
-
-    <div class="commands">
-      <div class="command-card">
-        <div class="command-name">@fraud</div>
-        <p class="muted">Use for fraud, invoice risk, payment changes, vendor impersonation, unusual activity, and verification.</p>
-        <div class="example">@fraud check this invoice</div>
-        <div class="example">@fraud why is this payment unusual?</div>
-        <div class="example">@fraud compare this vendor request to previous ones</div>
-      </div>
-      <div class="command-card">
-        <div class="command-name">@accounting</div>
-        <p class="muted">Use for financial questions, expense understanding, categorization assistance, vendor spend, and summaries.</p>
-        <div class="example">@accounting categorize this expense</div>
-        <div class="example">@accounting how much did we spend with this vendor?</div>
-        <div class="example">@accounting summarize this month's expenses</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="extension">
-    <div class="section-label">Browser extension</div>
-    <h2>FraudShield should meet you where the work happens.</h2>
-    <p class="section-intro">The extension is the next step: open FraudShield beside an invoice, vendor email, payment page, or accounting record without breaking your workflow.</p>
-
-    <div class="extension-demo">
-      <div class="browser">
-        <div class="browser-top"><i></i><i></i><i></i></div>
-        <div class="browser-page">
-          <div class="fake-mail">
-            <small>Vendor invoice</small>
-            <h4>Updated payment instructions</h4>
-            <p>“Please use our new bank details for Invoice #2048. Payment is requested today.”</p>
-          </div>
-          <div class="sidecar">
-            <div class="sidecar-title">FraudShield</div>
-            <div class="sidecar-btn primary">@fraud Check this</div>
-            <div class="sidecar-btn">@vendor Verify sender</div>
-            <div class="sidecar-btn">@accounting View history</div>
-          </div>
-        </div>
-      </div>
-
+  <main class="container">
+    <section class="hero">
       <div>
-        <h2 style="font-size:27px">One click. Keep your context.</h2>
-        <p class="section-intro">Instead of copying data between apps, the extension can eventually pass the relevant page context—with your permission—to the appropriate FraudShield tool.</p>
+        <div class="eyebrow"><span class="dot"></span>AI business protection + operations</div>
+        <h1>Protect your money.<br>Understand your business.</h1>
+        <p class="hero-sub">
+          FraudShield helps small businesses review risk, understand financial activity,
+          analyze business communications, and see what needs attention across connected tools
+          from one AI workspace.
+        </p>
+
+        <div class="hero-actions">
+          <button class="hero-btn primary" onclick="location.href='/dashboard'">Open FraudShield →</button>
+          <button class="hero-btn" onclick="document.getElementById('what-it-does').scrollIntoView()">See what it does</button>
+        </div>
+
+        <div class="trust">
+          <div><strong>@fraud</strong><span>Risk review</span></div>
+          <div><strong>@accounting</strong><span>Financial insight</span></div>
+          <div><strong>@docs</strong><span>Document help</span></div>
+          <div><strong>Business Pulse</strong><span>What needs attention</span></div>
+        </div>
+      </div>
+
+      <div class="workspace">
+        <div class="ws-head">
+          <div class="ws-dots"><i></i><i></i><i></i></div>
+          <div class="ws-title">FRAUDSHIELD WORKSPACE</div>
+          <div class="ws-live">● LIVE</div>
+        </div>
+        <div class="ws-body">
+          <div class="message user">
+            What needs my attention across my business today?
+          </div>
+
+          <div class="message ai">
+            <div class="risk">REVIEW SIGNALS</div>
+            <div><strong>Three items deserve a closer look.</strong></div>
+            <div class="signal">An overdue invoice may need follow-up.</div>
+            <div class="signal">A recent expense is materially higher than your typical spend.</div>
+            <div class="signal">A financial email contains language that may warrant verification.</div>
+            <div style="margin-top:9px;color:#D8DCE2">
+              <strong>Next step:</strong> review the source records before taking action.
+            </div>
+          </div>
+
+          <div class="ws-input">Ask FraudShield about risk, finances, email, vendors, invoices, or documents…</div>
+
+          <div class="chips">
+            <span class="chip">@fraud</span>
+            <span class="chip">@accounting</span>
+            <span class="chip">@docs</span>
+            <span class="chip">QuickBooks</span>
+            <span class="chip">Stripe</span>
+            <span class="chip">Gmail</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="what-it-does">
+      <div class="section-label">What FraudShield does</div>
+      <h2>One place to understand the signals around your business.</h2>
+      <p class="section-intro">
+        FraudShield brings together business questions, connected data, and AI-assisted analysis
+        so owners can spend less time switching between tools and more time deciding what to do next.
+      </p>
+
+      <div class="grid-4">
+        <div class="card">
+          <div class="card-icon">🛡️</div>
+          <h3>Review risk</h3>
+          <p>Examine invoices, payment changes, suspicious requests, vendor activity, and unusual business signals before taking action.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">📊</div>
+          <h3>Understand finances</h3>
+          <p>Ask plain-English questions about expenses, invoices, payments, vendor spend, accounts, and other connected financial activity.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">✉️</div>
+          <h3>Analyze business email</h3>
+          <p>Use Gmail in read-only mode to search, summarize, and review business-related messages for items that may need attention.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">📄</div>
+          <h3>Understand documents</h3>
+          <p>Upload documents and ask questions about their contents, organize information, and surface items that may need further review.</p>
+        </div>
+      </div>
+
+      <div class="pulse">
+        <div class="pulse-head">
+          <h3>Business Pulse</h3>
+          <div class="pulse-time">CONNECTED-SOURCE VIEW</div>
+        </div>
+
+        <div class="pulse-grid">
+          <div class="pulse-card">
+            <small>Receivables</small>
+            <strong>Invoice follow-up</strong>
+            <p>Surface overdue invoices and other receivable items that may need attention.</p>
+          </div>
+          <div class="pulse-card">
+            <small>Payments & spend</small>
+            <strong>Unusual activity</strong>
+            <p>Highlight payment, dispute, failed-payment, or expense patterns for review.</p>
+          </div>
+          <div class="pulse-card">
+            <small>Communications</small>
+            <strong>Important email</strong>
+            <p>Bring relevant Gmail signals into the same business context without modifying the mailbox.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="integrations">
+      <div class="section-label">Connected tools</div>
+      <h2>Your existing tools provide the data. FraudShield helps connect the context.</h2>
+      <p class="section-intro">
+        Connections are user-authorized. FraudShield uses the data available through each supported integration
+        to provide analysis and business insights inside the authenticated user's workspace.
+      </p>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="integration">
+            <div class="integration-badge">QB</div>
+            <div>
+              <h3>QuickBooks Online</h3>
+              <small>Accounting data</small>
+            </div>
+          </div>
+          <p>Review company information, accounts, expenses, invoices, payments, vendor spend, and other available accounting activity.</p>
+        </div>
+
+        <div class="card">
+          <div class="integration">
+            <div class="integration-badge">S</div>
+            <div>
+              <h3>Stripe</h3>
+              <small>Payment activity</small>
+            </div>
+          </div>
+          <p>Review connected payment activity such as transactions, disputes, failed payments, and other available Stripe signals.</p>
+        </div>
+
+        <div class="card">
+          <div class="integration">
+            <div class="integration-badge">G</div>
+            <div>
+              <h3>Gmail</h3>
+              <small>Read-only email analysis</small>
+            </div>
+          </div>
+          <p>Search, retrieve, summarize, and analyze authorized email content. FraudShield does not send, delete, move, label, or modify Gmail messages.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="boundaries">
+      <div class="section-label">Clear boundaries</div>
+      <h2>FraudShield helps you review. It does not make the final decision for you.</h2>
+      <p class="section-intro">
+        AI-generated insights are informational. Important financial, security, accounting, legal, or tax decisions
+        should be verified using the original records and, where appropriate, qualified professionals.
+      </p>
+
+      <div class="limits">
+        <div class="limit-row">
+          <strong>Not proof of fraud</strong>
+          <p>A risk flag or unusual pattern is a review signal, not a definitive finding that fraud occurred.</p>
+        </div>
+
+        <div class="limit-row">
+          <strong>Not an accountant</strong>
+          <p>FraudShield can explain and summarize accounting information, but it does not replace professional accounting or tax advice.</p>
+        </div>
+
+        <div class="limit-row">
+          <strong>Not legal advice</strong>
+          <p>Document and compliance-related assistance is informational and does not determine legal sufficiency or provide legal advice.</p>
+        </div>
+
+        <div class="limit-row">
+          <strong>Does not move money</strong>
+          <p>FraudShield analyzes available payment and financial information. It is not a bank, lender, payment processor, or money-transfer service.</p>
+        </div>
+
+        <div class="limit-row">
+          <strong>Gmail stays read-only</strong>
+          <p>FraudShield can read authorized Gmail data for analysis but does not send, delete, move, label, or otherwise modify email messages.</p>
+        </div>
+
+        <div class="limit-row">
+          <strong>User verification still matters</strong>
+          <p>Before paying an invoice, changing banking information, or taking another consequential action, verify the underlying information independently.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="security">
+      <div class="section-label">Privacy & security</div>
+      <h2>Built around user-authorized access.</h2>
+      <p class="section-intro">
+        FraudShield is designed so connected business information is associated with the authenticated user who authorized access.
+        Users can disconnect supported integrations when they no longer want FraudShield to access them.
+      </p>
+
+      <div class="security">
+        <div class="card">
+          <h3>Connection controls</h3>
+          <p>Connected services use OAuth authorization. Credentials and server-side integration secrets are kept out of browser-facing application code.</p>
+        </div>
+
+        <div class="card">
+          <h3>Optional MFA</h3>
+          <p>Users can enable TOTP multi-factor authentication from account security settings for additional account protection.</p>
+        </div>
+
+        <div class="card">
+          <h3>QuickBooks token protection</h3>
+          <p>QuickBooks OAuth tokens are stored encrypted server-side and are refreshed through controlled backend flows when necessary.</p>
+        </div>
+
+        <div class="card">
+          <h3>Your business context</h3>
+          <p>Connected data is used to provide FraudShield features to the authenticated customer and is not presented as another customer's business data.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="section-label">FraudShield SMB</div>
+      <h2>Your AI command center for running a safer business.</h2>
+      <p>
+        Review risk, understand your finances, analyze connected business signals,
+        and get a clearer view of what deserves your attention.
+      </p>
+      <button class="hero-btn primary" onclick="location.href='/dashboard'">Open FraudShield →</button>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <div>© 2026 FraudShield SMB · Built for small businesses.</div>
+      <div class="footer-links">
+        <a href="mailto:support@fraudshieldsmb.com">support@fraudshieldsmb.com</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
       </div>
     </div>
-  </section>
+  </footer>
 
-  <section class="section" id="how">
-    <div class="section-label">How it starts</div>
-    <h2>Start small. Become the business command center over time.</h2>
-    <p class="section-intro">The first release does not need every integration. It needs one useful workflow that business owners return to.</p>
-    <div class="steps">
-      <div class="card"><div class="step-num">01</div><h3>Upload or paste</h3><p>Bring an invoice, vendor request, receipt, or business question into FraudShield.</p></div>
-      <div class="card"><div class="step-num">02</div><h3>Call @fraud or @accounting</h3><p>FraudShield routes the request to the right specialist workflow and returns structured reasoning.</p></div>
-      <div class="card"><div class="step-num">03</div><h3>Make a better decision</h3><p>Get the risk signals, explanation, and recommended next step—then keep the result in your business history.</p></div>
-    </div>
+  <script>
+    function toggleTheme(){
+      document.body.classList.toggle("dark");
+      const dark = document.body.classList.contains("dark");
+      document.getElementById("themeBtn").textContent = dark ? "☀ Light" : "☾ Dark";
+    }
 
-    <div class="beta">
-      <strong>Building in beta</strong>
-      <p>FraudShield is evolving into an AI workspace for small-business protection and financial operations. Early users get free access and help shape what gets built next.</p>
-      <button class="btn gold" onclick="location.href='chat.html'">Open FraudShield →</button>
-    </div>
-  </section>
-
-  <section class="section" id="faq">
-    <div class="section-label">FAQ</div>
-    <h2>A different kind of FraudShield.</h2>
-    <div class="faq">
-      <div class="faq-item"><h3>Is FraudShield replacing Stripe Radar?</h3><p>No. FraudShield is being designed as a broader business risk and operations layer. Payment-processor signals can eventually become one input among many.</p></div>
-      <div class="faq-item"><h3>Does FraudShield do my accounting?</h3><p>FraudShield can assist with understanding, categorization, summaries, and questions. It should not pretend to replace professional accounting or tax advice.</p></div>
-      <div class="faq-item"><h3>What can I use today?</h3><p>The current beta includes the existing FraudShield web experience. The new @fraud and @accounting workflows are the next product layer being built.</p></div>
-      <div class="faq-item"><h3>Why a browser extension?</h3><p>Because business risk appears inside email, accounting tools, commerce platforms, and payment dashboards. The extension can reduce context switching.</p></div>
-    </div>
-  </section>
-
-  <section class="cta">
-    <div class="section-label">Early access</div>
-    <h2>Protect your money.<br>Understand your business.</h2>
-    <p>Join FraudShield while the new AI business workspace is being built and help shape the product around real small-business workflows.</p>
-    <button class="hero-btn primary" onclick="location.href='chat.html'">Try FraudShield →</button>
-  </section>
-</main>
-
-<footer>
-  <div class="container">© 2026 FraudShield SMB · Built for small businesses.</div>
-</footer>
-
-<script>
-function toggleTheme(){
-  document.body.classList.toggle('dark');
-  const dark = document.body.classList.contains('dark');
-  document.getElementById('themeBtn').textContent = dark ? '☀ Light' : '☾ Dark';
-}
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
-}
-</script>
+    if ("serviceWorker" in navigator){
+      window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+    }
+  </script>
 </body>
 </html>
