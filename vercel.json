@@ -3,11 +3,6 @@
   "trailingSlash": false,
   "redirects": [
     {
-      "source": "/chat",
-      "destination": "/",
-      "permanent": false
-    },
-    {
       "source": "/:path*",
       "has": [
         {
