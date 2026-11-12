@@ -1,0 +1,1 @@
+{"cleanUrls":true,"trailingSlash":false,"redirects":[{"source":"/:path*","has":[{"type":"host","value":"fraudshieldsmb.com"}],"destination":"https://www.fraudshieldsmb.com/:path*","permanent":true}]}

@@ -1,0 +1,1 @@
+(function(){'use strict';const b=document.getElementById('mobileToggle'),m=document.getElementById('mobileLinks');if(b&&m){b.addEventListener('click',()=>{const open=m.classList.toggle('open');b.setAttribute('aria-expanded',String(open));});}const y=document.getElementById('year');if(y)y.textContent=new Date().getFullYear();})();
